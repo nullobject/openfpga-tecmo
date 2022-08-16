@@ -47,7 +47,7 @@ class Tecmo extends Module {
     /** ROM port */
     val rom = new RomIO
     /** Video port */
-    val video = Input(new VideoIO)
+    val video = Flipped(VideoIO())
     /** RGB output */
     val rgb = Output(RGB(Config.COLOR_WIDTH.W))
     /** Joystick port */

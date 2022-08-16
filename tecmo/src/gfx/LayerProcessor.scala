@@ -50,7 +50,7 @@ class LayerProcessor(tileSize: Int, cols: Int, rows: Int) extends Module {
     /** Control port */
     val ctrl = new LayerCtrlIO
     /** Video port */
-    val video = Input(new VideoIO)
+    val video = Flipped(VideoIO())
     /** Flip video */
     val flip = Input(Bool())
     /** Pixel data output */

@@ -58,7 +58,7 @@ class GPU extends Module {
     /** Sprite control port */
     val spriteCtrl = new SpriteCtrlIO
     /** Video port */
-    val video = Input(new VideoIO)
+    val video = Flipped(VideoIO())
     /** RGB output */
     val rgb = Output(RGB(Config.COLOR_WIDTH.W))
     /** Program counter (debug) */

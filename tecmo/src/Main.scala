@@ -62,7 +62,7 @@ class Main extends Module {
     /** Video clock */
     val videoClock = Input(Clock())
     /** Video port */
-    val video = Output(new VideoIO)
+    val video = VideoIO()
     /** RGB output */
     val rgb = Output(RGB(Config.COLOR_WIDTH.W))
     /** Bridge port */
