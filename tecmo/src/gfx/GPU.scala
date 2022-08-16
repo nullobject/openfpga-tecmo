@@ -35,7 +35,6 @@ package tecmo.gfx
 import arcadia._
 import arcadia.gfx._
 import chisel3._
-import chisel3.util._
 import tecmo._
 
 /** Graphics Processor */
@@ -76,7 +75,7 @@ class GPU extends Module {
   // from the alternate page, and renders them to the video output.
   //
   // The frame buffer pages are flipped at the end of each frame (i.e. at the rising edge of the
-  // VBLANK signal).
+  // vertical blank signal).
   val frameBuffer = Module(new FrameBuffer(Config.FRAME_BUFFER_ADDR_WIDTH, Config.FRAME_BUFFER_DATA_WIDTH))
   frameBuffer.io.portB.rd := io.video.displayEnable
   frameBuffer.io.portB.addr := frameBufferPos.y(7, 0) ## frameBufferPos.x(7, 0)
