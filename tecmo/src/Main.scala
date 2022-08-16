@@ -38,6 +38,7 @@ import arcadia.mem._
 import arcadia.mem.sdram.{SDRAM, SDRAMIO}
 import arcadia.pocket.Bridge
 import chisel3._
+import chisel3.experimental.FlatIO
 import chisel3.stage.{ChiselGeneratorAnnotation, ChiselStage}
 
 /**
@@ -54,7 +55,7 @@ import chisel3.stage.{ChiselGeneratorAnnotation, ChiselStage}
  * complex clock domain crossing strategies, and instead use a simple data freezer.
  */
 class Main extends Module {
-  val io = IO(new Bundle {
+  val io = FlatIO(new Bundle {
     /** SDRAM port */
     val sdram = SDRAMIO(Config.sdramConfig)
     /** Video clock */
