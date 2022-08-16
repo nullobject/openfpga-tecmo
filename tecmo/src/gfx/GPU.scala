@@ -107,12 +107,12 @@ class GPU extends Module {
   bgProcessor.io.flip := io.flip
 
   // Debug layer
-  val debugLayer = Module(new DebugLayer(4, 1))
-  debugLayer.io.tileRom <> io.debugRom
-  debugLayer.io.video <> io.video
-  debugLayer.io.text := GPU.decodeDigits(io.pc)
+  val debugLayer = Module(new DebugLayer("PC:$%04X"))
+  debugLayer.io.args := Seq(io.pc)
   debugLayer.io.pos := UVec2(0.U, 232.U)
   debugLayer.io.color := 1.U
+  debugLayer.io.tileRom <> io.debugRom
+  debugLayer.io.video <> io.video
 
   // Color mixer
   val colorMixer = Module(new ColorMixer)
