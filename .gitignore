@@ -9,3 +9,4 @@
 !.vscode/extensions.json
 dist/*.rbf_r
 out
+test_run_dir
