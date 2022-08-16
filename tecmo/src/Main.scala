@@ -36,6 +36,7 @@ import arcadia._
 import arcadia.gfx._
 import arcadia.mem._
 import arcadia.mem.sdram.{SDRAM, SDRAMIO}
+import arcadia.mister.JoystickIO
 import arcadia.pocket.Bridge
 import chisel3._
 import chisel3.experimental.FlatIO
@@ -66,6 +67,8 @@ class Main extends Module {
     val rgb = Output(RGB(Config.COLOR_WIDTH.W))
     /** Bridge port */
     val bridge = new Bridge
+    /** Joystick port */
+    val joystick = JoystickIO()
   })
 
   // SDRAM
@@ -120,6 +123,7 @@ class Main extends Module {
   tecmo.io.rom.spriteRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(3))
   tecmo.io.video <> video
   tecmo.io.rgb <> io.rgb
+  tecmo.io.joystick <> io.joystick
   tecmo.io.flip := false.B
   tecmo.io.debug := true.B
 

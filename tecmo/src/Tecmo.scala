@@ -36,6 +36,7 @@ import arcadia._
 import arcadia.cpu.z80._
 import arcadia.gfx.VideoIO
 import arcadia.mem._
+import arcadia.mister.JoystickIO
 import chisel3._
 import chisel3.util._
 import tecmo.gfx._
@@ -49,6 +50,8 @@ class Tecmo extends Module {
     val video = Input(new VideoIO)
     /** RGB output */
     val rgb = Output(RGB(Config.COLOR_WIDTH.W))
+    /** Joystick port */
+    val joystick = JoystickIO()
     /** Flip video */
     val flip = Input(Bool())
     /** Enable debug mode */
@@ -178,6 +181,9 @@ class Tecmo extends Module {
     // Select the current bank
     bankReg ## addr(10, 0)
   }
+  memMap(0xf800).r { (_, _) => Cat(io.joystick.up, io.joystick.down, io.joystick.right, io.joystick.left) }
+  memMap(0xf801).r { (_, _) => Cat(io.joystick.buttons(2), io.joystick.buttons(1), io.joystick.buttons(0)) }
+  memMap(0xf804).r { (_, _) => Cat(io.joystick.coin, 0.U, io.joystick.start, 0.U) }
   memMap(0xf800 to 0xf802).w { (_, offset, data) =>
     switch(offset) {
       is(0.U) { fgScrollReg.x := fgScrollReg.x(8) ## data }

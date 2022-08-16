@@ -430,6 +430,15 @@ Main main (
   .bridge_addr(bridge_addr),
   .bridge_dout(bridge_wr_data),
   .bridge_done(dataslot_allcomplete),
+
+  .joystick_up(cont1_key[0]),
+  .joystick_down(cont1_key[1]),
+  .joystick_left(cont1_key[2]),
+  .joystick_right(cont1_key[3]),
+  .joystick_buttons(cont1_key[7:4]),
+  .joystick_start(cont1_key[15]),
+  .joystick_coin(cont1_key[14]),
+  .joystick_pause(0)
 );
 
 ///////////////////////////////////////////////
