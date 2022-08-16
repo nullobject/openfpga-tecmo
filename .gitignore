@@ -1,0 +1,11 @@
+.bloop
+.bsp
+.idea
+.metals
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+dist/*.rbf_r
+out
