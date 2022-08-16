@@ -143,22 +143,4 @@ object GPU {
    */
   def decodeTileRow(row: Bits): Vec[Bits] =
     VecInit(Util.decode(row, TILE_WIDTH, row.getWidth / TILE_WIDTH).reverse)
-
-  /**
-   * Decodes a hexadecimal value into a sequence of tile indices.
-   *
-   * @param value The hexadecimal value.
-   */
-  def decodeDigits(value: UInt): Vec[UInt] = {
-    val BITS_PER_DIGIT = 4
-
-    def tileIndex(n: UInt) = MuxCase(0.U, Seq(
-      (n >= 0.U && n <= 9.U, n + 16.U(8.W)),
-      (n >= 10.U && n <= 15.U, n + 23.U(8.W))
-    ))
-
-    val n = value.getWidth / BITS_PER_DIGIT
-    val words = Util.decode(value, n, BITS_PER_DIGIT)
-    VecInit(words.map(n => tileIndex(n.asUInt)))
-  }
 }
