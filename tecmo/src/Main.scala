@@ -57,10 +57,12 @@ import chisel3.stage.{ChiselGeneratorAnnotation, ChiselStage}
  */
 class Main extends Module {
   val io = FlatIO(new Bundle {
-    /** SDRAM port */
-    val sdram = SDRAMIO(Config.sdramConfig)
+    /** Core reset */
+    val coreReset = Input(Bool())
     /** Video clock */
     val videoClock = Input(Clock())
+    /** SDRAM port */
+    val sdram = SDRAMIO(Config.sdramConfig)
     /** Video port */
     val video = VideoIO()
     /** RGB output */
@@ -71,7 +73,7 @@ class Main extends Module {
     val joystick = JoystickIO()
   })
 
-  // SDRAM
+  // SDRAM controller
   val sdram = Module(new SDRAM(Config.sdramConfig))
   sdram.io.sdram <> io.sdram
 
@@ -81,27 +83,6 @@ class Main extends Module {
   memSys.io.prog.done := io.bridge.done
   memSys.io.out <> sdram.io.mem
 
-  // Video timing
-  val videoTiming = withClock(io.videoClock) { Module(new VideoTiming(Config.videoTimingConfig)) }
-  videoTiming.io.offset := SVec2(0.S, 0.S)
-  val video = videoTiming.io.timing
-
-  // Program ROM
-  val progRom = Module(new SinglePortRom(
-    addrWidth = Config.PROG_ROM_ADDR_WIDTH,
-    dataWidth = Config.PROG_ROM_DATA_WIDTH,
-    depth = 49152,
-    initFile = "roms/cpu1.mif"
-  ))
-
-  // Bank ROM
-  val bankRom = Module(new SinglePortRom(
-    addrWidth = Config.BANK_ROM_ADDR_WIDTH,
-    dataWidth = Config.BANK_ROM_DATA_WIDTH,
-    depth = 32768,
-    initFile = "roms/cpu2.mif"
-  ))
-
   // The debug ROM contains alphanumeric character tiles
   val debugRom = Module(new SinglePortRom(
     addrWidth = Config.DEBUG_ROM_ADDR_WIDTH,
@@ -110,17 +91,20 @@ class Main extends Module {
     initFile = "roms/alpha.mif"
   ))
 
+  // Video timing
+  val videoTiming = withClock(io.videoClock) { Module(new VideoTiming(Config.videoTimingConfig)) }
+  videoTiming.io.offset := SVec2(0.S, 0.S)
+  val video = videoTiming.io.timing
+
   // Tecmo board
-  val tecmo = withClock(io.videoClock) { Module(new Tecmo) }
+  val tecmo = withClockAndReset(io.videoClock, io.coreReset) { Module(new Tecmo) }
   tecmo.io.rom.debugRom <> debugRom.io
-  tecmo.io.rom.progRom <> progRom.io
-  tecmo.io.rom.bankRom <> bankRom.io
-//  tecmo.io.rom.progRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(0)).asReadMemIO
-//  tecmo.io.rom.bankRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(1)).asReadMemIO
-  tecmo.io.rom.charRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(0)).asReadMemIO
-  tecmo.io.rom.fgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(1)).asReadMemIO
-  tecmo.io.rom.bgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(2)).asReadMemIO
-  tecmo.io.rom.spriteRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(3))
+  tecmo.io.rom.progRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(0)).asReadMemIO
+  tecmo.io.rom.bankRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(1)).asReadMemIO
+  tecmo.io.rom.charRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(2)).asReadMemIO
+  tecmo.io.rom.fgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(3)).asReadMemIO
+  tecmo.io.rom.bgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(4)).asReadMemIO
+  tecmo.io.rom.spriteRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(5))
   tecmo.io.video <> video
   tecmo.io.rgb <> io.rgb
   tecmo.io.joystick <> io.joystick

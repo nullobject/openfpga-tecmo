@@ -428,6 +428,8 @@ assign video_rgb = {r, r, g, g, b, b};
 Main main (
   .clock(sys_clock),
   .reset(~pll_core_locked),
+  .coreReset(~reset_n),
+  .videoClock(video_rgb_clock),
 
   .sdram_cke(dram_cke),
   .sdram_ras_n(dram_ras_n),
@@ -439,7 +441,6 @@ Main main (
   .sdram_din(dram_din),
   .sdram_dout(dram_dq),
 
-  .videoClock(video_rgb_clock),
   .video_hSync(video_hs),
   .video_vSync(video_vs),
   .video_displayEnable(video_de),

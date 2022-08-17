@@ -36,6 +36,8 @@ import chisel3._
 
 /** A bundle that contains memory ports for all ROMs. */
 class RomIO extends Bundle {
+  /** Debug ROM port */
+  val debugRom = new TileRomIO
   /** Program ROM */
   val progRom = new ProgRomIO
   /** Bank ROM */
@@ -48,6 +50,4 @@ class RomIO extends Bundle {
   val bgRom = new TileRomIO
   /** Sprite ROM */
   val spriteRom = new SpriteRomIO
-  /** Debug ROM port */
-  val debugRom = new TileRomIO
 }

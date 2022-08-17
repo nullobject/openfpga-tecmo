@@ -115,18 +115,18 @@ object Config {
     dataWidth = sdramConfig.dataWidth,
     burstLength = sdramConfig.burstLength,
     slots = Seq(
-//      // Main ROM
-//      SlotConfig(
-//        addrWidth = Config.PROG_ROM_ADDR_WIDTH,
-//        dataWidth = Config.PROG_ROM_DATA_WIDTH,
-//        offset = 0x00000
-//      ),
-//      // Bank ROM
-//      SlotConfig(
-//        addrWidth = Config.BANK_ROM_ADDR_WIDTH,
-//        dataWidth = Config.BANK_ROM_DATA_WIDTH,
-//        offset = 0x0c000
-//      ),
+      // Main ROM
+      SlotConfig(
+        addrWidth = Config.PROG_ROM_ADDR_WIDTH,
+        dataWidth = Config.PROG_ROM_DATA_WIDTH,
+        offset = 0x00000
+      ),
+      // Bank ROM
+      SlotConfig(
+        addrWidth = Config.BANK_ROM_ADDR_WIDTH,
+        dataWidth = Config.BANK_ROM_DATA_WIDTH,
+        offset = 0x0c000
+      ),
 //      // Sound ROM
 //      SlotConfig(
 //        addrWidth = Config.SOUND_ROM_ADDR_WIDTH,
