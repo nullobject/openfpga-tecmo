@@ -123,7 +123,11 @@ class Tecmo extends Module {
   // Video output
   io.video <> RegNext(video)
 
+  // Dotted border
+  val pixelEnable = ((video.pos.x === 0.U || video.pos.x === 255.U) && video.pos.y(2) === 0.U) || ((video.pos.y === 16.U || video.pos.y === 239.U) && video.pos.x(2) === 0.U)
+  val pixel = Mux(pixelEnable, RGB(0xff.U), main.io.rgb)
+
   // RGB output
-  val rgb = Mux(video.displayEnable, main.io.rgb, RGB.zero(Config.RGB_OUTPUT_BPP.W))
+  val rgb = Mux(video.displayEnable, pixel, RGB(0.U(8.W)))
   io.rgb <> RegNext(rgb)
 }
