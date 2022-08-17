@@ -75,6 +75,22 @@ class Main extends Module {
   memSys.io.prog.done := io.bridge.done
   memSys.io.out <> sdram.io.mem
 
+  // Program ROM
+  val progRom = Module(new SinglePortRom(
+    addrWidth = Config.PROG_ROM_ADDR_WIDTH,
+    dataWidth = Config.PROG_ROM_DATA_WIDTH,
+    depth = 49152,
+    initFile = "roms/cpu1.mif"
+  ))
+
+  // Bank ROM
+  val bankRom = Module(new SinglePortRom(
+    addrWidth = Config.BANK_ROM_ADDR_WIDTH,
+    dataWidth = Config.BANK_ROM_DATA_WIDTH,
+    depth = 32768,
+    initFile = "roms/cpu2.mif"
+  ))
+
   // The debug ROM contains alphanumeric character tiles
   val debugRom = Module(new SinglePortRom(
     addrWidth = Config.DEBUG_ROM_ADDR_WIDTH,
@@ -90,12 +106,14 @@ class Main extends Module {
 
   // Tecmo board
   val tecmo = withClockAndReset(io.videoClock, io.coreReset) { Module(new Tecmo) }
-  tecmo.io.rom.progRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(0)).asReadMemIO
-  tecmo.io.rom.bankRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(1)).asReadMemIO
-  tecmo.io.rom.charRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(2)).asReadMemIO
-  tecmo.io.rom.fgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(3)).asReadMemIO
-  tecmo.io.rom.bgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(4)).asReadMemIO
-  tecmo.io.rom.spriteRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(5))
+  tecmo.io.rom.progRom <> progRom.io
+  tecmo.io.rom.bankRom <> bankRom.io
+//  tecmo.io.rom.progRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(0)).asReadMemIO
+//  tecmo.io.rom.bankRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(1)).asReadMemIO
+  tecmo.io.rom.charRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(0)).asReadMemIO
+  tecmo.io.rom.fgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(1)).asReadMemIO
+  tecmo.io.rom.bgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(2)).asReadMemIO
+  tecmo.io.rom.spriteRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(3))
   tecmo.io.rom.debugRom <> debugRom.io
   tecmo.io.video <> video
   tecmo.io.rgb <> io.rgb
