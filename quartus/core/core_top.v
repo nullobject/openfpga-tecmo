@@ -454,14 +454,14 @@ Main main (
   .bridge_dout(bridge_wr_data),
   .bridge_done(dataslot_allcomplete),
 
-  .joystick_up(cont1_key[0]),
-  .joystick_down(cont1_key[1]),
-  .joystick_left(cont1_key[2]),
-  .joystick_right(cont1_key[3]),
-  .joystick_buttons(cont1_key[7:4]),
-  .joystick_start(cont1_key[15]),
-  .joystick_coin(cont1_key[14]),
-  .joystick_pause(0)
+  .player_up(cont1_key[0]),
+  .player_down(cont1_key[1]),
+  .player_left(cont1_key[2]),
+  .player_right(cont1_key[3]),
+  .player_buttons(cont1_key[7:4]),
+  .player_start(cont1_key[15]),
+  .player_coin(cont1_key[14]),
+  .player_pause(0)
 );
 
 ///////////////////////////////////////////////
