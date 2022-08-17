@@ -48,13 +48,14 @@ class ColorMixerTest extends AnyFlatSpec with ChiselScalatestTester with Matcher
 
   it should "set the palette RAM address" in {
     test(new ColorMixer) { dut =>
-      dut.io.charData.poke(0x00)
+      dut.io.charPen.color.poke(0x00)
       dut.io.paletteRam.addr.expect(0x100)
 
-      dut.io.charData.poke(0x01)
+      dut.io.charPen.color.poke(0x01)
       dut.io.paletteRam.addr.expect(0x101)
 
-      dut.io.charData.poke(0xff)
+      dut.io.charPen.palette.poke(0xf)
+      dut.io.charPen.color.poke(0xf)
       dut.io.paletteRam.addr.expect(0x1ff)
     }
   }

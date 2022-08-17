@@ -53,8 +53,8 @@ class LayerProcessor(tileSize: Int, cols: Int, rows: Int) extends Module {
     val video = Flipped(VideoIO())
     /** Flip video */
     val flip = Input(Bool())
-    /** Pixel data output */
-    val data = Output(UInt(8.W))
+    /** Palette entry output */
+    val pen = Output(new PaletteEntry)
   })
 
   // Destination position
@@ -120,5 +120,5 @@ class LayerProcessor(tileSize: Int, cols: Int, rows: Int) extends Module {
   io.ctrl.vram.addr := ramAddrReg
   io.ctrl.tileRom.rd := true.B // read-only
   io.ctrl.tileRom.addr := tileRomAddr
-  io.data := lineBuffer.io.portB.dout
+  io.pen := lineBuffer.io.portB.dout.asTypeOf(new PaletteEntry)
 }

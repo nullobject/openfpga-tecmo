@@ -117,12 +117,11 @@ class GPU extends Module {
   // Color mixer
   val colorMixer = Module(new ColorMixer)
   colorMixer.io.paletteRam <> io.paletteRam
-  colorMixer.io.spritePriority := frameBuffer.io.portB.dout(9, 8)
-  colorMixer.io.spriteData := frameBuffer.io.portB.dout(7, 0)
-  colorMixer.io.charData := charProcessor.io.data
-  colorMixer.io.fgData := fgProcessor.io.data
-  colorMixer.io.bgData := bgProcessor.io.data
-  colorMixer.io.debugData := debugLayer.io.data
+  colorMixer.io.spritePen := frameBuffer.io.portB.dout.asTypeOf(new PaletteEntry)
+  colorMixer.io.charPen := charProcessor.io.pen
+  colorMixer.io.fgPen := fgProcessor.io.pen
+  colorMixer.io.bgPen := bgProcessor.io.pen
+  colorMixer.io.debugPen := debugLayer.io.data.asTypeOf(new PaletteEntry)
 
   // Outputs
   io.rgb := GPU.decodeRGB(colorMixer.io.dout)

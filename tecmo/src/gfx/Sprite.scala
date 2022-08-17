@@ -53,7 +53,7 @@ class Sprite extends Bundle {
   /** Vertical flip */
   val yFlip = Bool()
   /** Priority */
-  val priority = UInt(4.W)
+  val priority = UInt(Config.PRIO_WIDTH.W)
 
   /** Number of columns of tiles */
   def cols: UInt = size / 8.U

@@ -30,24 +30,37 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package tecmo
+package tecmo.gfx
 
 import chisel3._
+import tecmo.Config
 
-/** A bundle that contains memory ports for all ROMs. */
-class RomIO extends Bundle {
-  /** Program ROM */
-  val progRom = new ProgRomIO
-  /** Bank ROM */
-  val bankRom = new BankRomIO
-  /** Character ROM */
-  val charRom = new TileRomIO
-  /** Foreground ROM */
-  val fgRom = new TileRomIO
-  /** Background ROM */
-  val bgRom = new TileRomIO
-  /** Sprite ROM */
-  val spriteRom = new SpriteRomIO
-  /** Debug ROM port */
-  val debugRom = new TileRomIO
+/** Represent an entry in a color palette and a priority. */
+class PaletteEntry extends Bundle {
+  /** Priority */
+  val priority = UInt(Config.PRIO_WIDTH.W)
+  /** Palette index */
+  val palette = UInt(Config.PALETTE_WIDTH.W)
+  /** Color index */
+  val color = UInt(Config.COLOR_WIDTH.W)
+}
+
+object PaletteEntry {
+  /**
+   * Constructs a new palette entry.
+   *
+   * @param priority The priority value.
+   * @param palette  The palette index.
+   * @param color    The color index.
+   */
+  def apply(priority: Bits, palette: Bits, color: Bits): PaletteEntry = {
+    val wire = Wire(new PaletteEntry)
+    wire.priority := priority
+    wire.palette := palette
+    wire.color := color
+    wire
+  }
+
+  /** Returns an empty palette entry. */
+  def zero: PaletteEntry = apply(0.U, 0.U, 0.U)
 }

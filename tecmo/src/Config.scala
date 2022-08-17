@@ -39,7 +39,12 @@ object Config {
   /** The system clock frequency (Hz) */
   val CLOCK_FREQ = 96000000
 
-  val COLOR_WIDTH = 4 // BPP
+  /** The width of a priority value */
+  val PRIO_WIDTH = 2
+  /** The width of a color code value */
+  val PALETTE_WIDTH = 4
+  /** The width of a palette index */
+  val COLOR_WIDTH = 4
 
   val SPRITE_CODE_WIDTH = 13
   val SPRITE_SIZE_WIDTH = 7

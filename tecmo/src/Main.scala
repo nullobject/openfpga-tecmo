@@ -44,15 +44,8 @@ import chisel3.stage.{ChiselGeneratorAnnotation, ChiselStage}
 /**
  * The top-level module.
  *
- * This module abstracts the rest of the arcade hardware from MiSTer-specific things (e.g. SDRAM
- * multiplexer) that are not part of the original arcade hardware design.
- *
- * The memory multiplexer runs in the same (fast) clock domain as the SDRAM. The arcade hardware
- * runs in a separate (slow) clock domain, so the multiplexed memory ports (program ROMs, tile ROMs,
- * etc.) must use clock domain crossing.
- *
- * Because the fast clock domain is an integer multiple of the slow clock domain, we can avoid
- * complex clock domain crossing strategies, and instead use a simple data freezer.
+ * This module abstracts the rest of the arcade hardware from platform-specific things (e.g. memory
+ * subsystem) that are not part of the original arcade hardware design.
  */
 class Main extends Module {
   val io = FlatIO(new Bundle {
@@ -97,13 +90,13 @@ class Main extends Module {
 
   // Tecmo board
   val tecmo = withClockAndReset(io.videoClock, io.coreReset) { Module(new Tecmo) }
-  tecmo.io.rom.debugRom <> debugRom.io
   tecmo.io.rom.progRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(0)).asReadMemIO
   tecmo.io.rom.bankRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(1)).asReadMemIO
   tecmo.io.rom.charRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(2)).asReadMemIO
   tecmo.io.rom.fgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(3)).asReadMemIO
   tecmo.io.rom.bgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(4)).asReadMemIO
   tecmo.io.rom.spriteRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(5))
+  tecmo.io.rom.debugRom <> debugRom.io
   tecmo.io.video <> video
   tecmo.io.rgb <> io.rgb
   tecmo.io.player <> io.player

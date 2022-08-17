@@ -32,53 +32,40 @@
 
 package tecmo.gfx
 
-import arcadia._
 import chisel3._
 import chisel3.util._
 import tecmo._
 
-/** Represents a graphics layer. */
-object Layer {
-  val SPRITE = 0
-  val CHAR = 1
-  val FG = 2
-  val BG = 3
-  val FILL = 4
-  val DEBUG = 5
-}
-
-/** Combines pixel data from the different graphics layers. */
+/** The color mixer combines the output from different layers to produce the final pixel. */
 class ColorMixer extends Module {
   val io = IO(new Bundle {
-    /** Palette RAM signals */
+    /** Sprite palette entry */
+    val spritePen = Input(new PaletteEntry)
+    /** Character layer palette entry */
+    val charPen = Input(new PaletteEntry)
+    /** Foreground layer palette entry */
+    val fgPen = Input(new PaletteEntry)
+    /** Background layer palette entry */
+    val bgPen = Input(new PaletteEntry)
+    /** Debug layer palette entry */
+    val debugPen = Input(new PaletteEntry)
+    /** Palette RAM port */
     val paletteRam = new PaletteRamIO
-    /** Sprite priority */
-    val spritePriority = Input(UInt(2.W))
-    /** Sprite layer data */
-    val spriteData = Input(UInt(8.W))
-    /** Character layer data */
-    val charData = Input(UInt(8.W))
-    /** Foreground layer data */
-    val fgData = Input(UInt(8.W))
-    /** Background layer data */
-    val bgData = Input(UInt(8.W))
-    /** Debug layer data */
-    val debugData = Input(UInt(8.W))
     /** Pixel data */
-    val dout = Output(UInt(Config.PALETTE_RAM_DATA_WIDTH.W))
+    val dout = Output(UInt(Config.PALETTE_RAM_GPU_DATA_WIDTH.W))
   })
 
   // Mux the layers
-  val index = ColorMixer.muxLayers(io.spritePriority, io.spriteData, io.charData, io.fgData, io.bgData, io.debugData)
+  val index = ColorMixer.muxLayers(io.spritePen, io.charPen, io.fgPen, io.bgPen, io.debugPen)
 
   // Mux the layers
   val paletteRamAddr = MuxLookup(index, 0.U, Seq(
-    Layer.SPRITE.U -> 0.U ## io.spriteData,
-    Layer.CHAR.U -> 1.U ## io.charData,
-    Layer.FG.U -> 2.U ## io.fgData,
-    Layer.BG.U -> 3.U ## io.bgData,
-    Layer.FILL.U -> 1.U ## 0.U(8.W),
-    Layer.DEBUG.U -> 1.U ## io.debugData
+    ColorMixer.Priority.FILL.U -> ColorMixer.paletteRamAddr(PaletteEntry.zero, 1.U),
+    ColorMixer.Priority.SPRITE.U -> ColorMixer.paletteRamAddr(io.spritePen, 0.U),
+    ColorMixer.Priority.CHAR.U -> ColorMixer.paletteRamAddr(io.charPen, 1.U),
+    ColorMixer.Priority.FG.U -> ColorMixer.paletteRamAddr(io.fgPen, 2.U),
+    ColorMixer.Priority.BG.U -> ColorMixer.paletteRamAddr(io.bgPen, 3.U),
+    ColorMixer.Priority.DEBUG.U -> ColorMixer.paletteRamAddr(io.debugPen, 1.U)
   ))
 
   // Outputs
@@ -88,33 +75,51 @@ class ColorMixer extends Module {
 }
 
 object ColorMixer {
+  /** Color mixer priority */
+  object Priority {
+    val FILL = 0
+    val SPRITE = 1
+    val CHAR = 2
+    val FG = 3
+    val BG = 4
+    val DEBUG = 5
+  }
+
+  /**
+   * Calculates the palette RAM address from the given palette entry.
+   *
+   * @param pen  The palette entry.
+   * @param bank The palette RAM bank.
+   * @return A memory address.
+   */
+  private def paletteRamAddr(pen: PaletteEntry, bank: UInt): UInt = bank ## pen.palette ## pen.color
+
   /**
    * Calculates the layer with the highest priority.
    *
-   * @param spritePriority The sprite priority.
-   * @param spriteData     The sprite layer data.
-   * @param charData       The character layer data.
-   * @param fgData         The foreground layer data.
-   * @param bgData         The background layer data.
-   * @param debugData      The debug layer data.
+   * @param spritePen The sprite palette entry.
+   * @param charPen   The character layer palette entry.
+   * @param fgPen     The foreground layer palette entry.
+   * @param bgPen     The background layer palette entry.
+   * @param debugPen  The debug layer palette entry.
+   * @return The index of the layer with the highest priority.
    */
-  private def muxLayers(spritePriority: UInt,
-                        spriteData: UInt,
-                        charData: UInt,
-                        fgData: UInt,
-                        bgData: UInt,
-                        debugData: UInt): UInt = {
-    val debug = (debugData(3, 0) =/= 0.U) -> Layer.DEBUG.U
-    val sprite = (spriteData(3, 0) =/= 0.U) -> Layer.SPRITE.U
-    val char = (charData(3, 0) =/= 0.U) -> Layer.CHAR.U
-    val fg = (fgData(3, 0) =/= 0.U) -> Layer.FG.U
-    val bg = (bgData(3, 0) =/= 0.U) -> Layer.BG.U
+  private def muxLayers(spritePen: PaletteEntry,
+                        charPen: PaletteEntry,
+                        fgPen: PaletteEntry,
+                        bgPen: PaletteEntry,
+                        debugPen: PaletteEntry): UInt = {
+    val sprite = (spritePen.color =/= 0.U) -> Priority.SPRITE.U
+    val char = (charPen.color =/= 0.U) -> Priority.CHAR.U
+    val fg = (fgPen.color =/= 0.U) -> Priority.FG.U
+    val bg = (bgPen.color =/= 0.U) -> Priority.BG.U
+    val debug = (debugPen.color =/= 0.U) -> Priority.DEBUG.U
 
-    MuxLookup(spritePriority, 0.U, Seq(
-      0.U -> MuxCase(Layer.FILL.U, Seq(debug, sprite, char, fg, bg)),
-      1.U -> MuxCase(Layer.FILL.U, Seq(debug, char, sprite, fg, bg)),
-      2.U -> MuxCase(Layer.FILL.U, Seq(debug, char, fg, sprite, bg)),
-      3.U -> MuxCase(Layer.FILL.U, Seq(debug, char, fg, bg, sprite))
+    MuxLookup(spritePen.priority, 0.U, Seq(
+      0.U -> MuxCase(Priority.FILL.U, Seq(debug, sprite, char, fg, bg)),
+      1.U -> MuxCase(Priority.FILL.U, Seq(debug, char, sprite, fg, bg)),
+      2.U -> MuxCase(Priority.FILL.U, Seq(debug, char, fg, sprite, bg)),
+      3.U -> MuxCase(Priority.FILL.U, Seq(debug, char, fg, bg, sprite))
     ))
   }
 }
