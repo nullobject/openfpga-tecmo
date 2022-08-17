@@ -86,16 +86,16 @@ object RGB {
   }
 
   /**
-   * Constructs a zero RGB color.
+   * Constructs a RGB color with all channels set to the same value.
    *
-   * @param width The channel width.
+   * @param value The channel value.
    * @return A RGB color.
    */
-  def zero(width: Width): RGB = {
-    val rgb = Wire(new RGB(width))
-    rgb.r := 0.U
-    rgb.g := 0.U
-    rgb.b := 0.U
+  def apply(value: Bits): RGB = {
+    val rgb = Wire(new RGB(value.getWidth.W))
+    rgb.r := value
+    rgb.g := value
+    rgb.b := value
     rgb
   }
 }
