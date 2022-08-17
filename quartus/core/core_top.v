@@ -425,7 +425,7 @@ assign dram_dq = dram_oe ? dram_din : 16'bZ;
 wire [7:0] r, g, b;
 assign video_rgb = {r, g, b};
 
-Main main (
+Tecmo tecmo (
   .clock(sys_clock),
   .reset(~pll_core_locked),
   .coreReset(~reset_n),

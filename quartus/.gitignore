@@ -2,7 +2,7 @@
 *.qdf
 build_id.mif
 c5_pin_model_dump.txt
-core/Main.*
+core/Tecmo.*
 db
 greybox_tmp
 incremental_db

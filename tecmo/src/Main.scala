@@ -33,105 +33,169 @@
 package tecmo
 
 import arcadia._
-import arcadia.gfx._
+import arcadia.cpu.z80._
+import arcadia.gfx.VideoIO
 import arcadia.mem._
-import arcadia.mem.sdram.{SDRAM, SDRAMIO}
-import arcadia.pocket.Bridge
 import chisel3._
-import chisel3.experimental.FlatIO
-import chisel3.stage.{ChiselGeneratorAnnotation, ChiselStage}
+import chisel3.util._
+import tecmo.gfx._
 
-/**
- * The top-level module.
- *
- * This module abstracts the rest of the arcade hardware from platform-specific things (e.g. memory
- * subsystem) that are not part of the original arcade hardware design.
- */
+/** Represents the main PCB. */
 class Main extends Module {
-  val io = FlatIO(new Bundle {
-    /** Core reset */
-    val coreReset = Input(Bool())
-    /** Video clock */
-    val videoClock = Input(Clock())
-    /** Bridge port */
-    val bridge = Bridge()
-    /** Player port */
-    val player = PlayerIO()
-    /** SDRAM port */
-    val sdram = SDRAMIO(Config.sdramConfig)
+  val io = IO(new Bundle {
+    /** ROM port */
+    val rom = new RomIO
     /** Video port */
-    val video = VideoIO()
+    val video = Flipped(VideoIO())
     /** RGB output */
     val rgb = Output(RGB(Config.RGB_OUTPUT_BPP.W))
+    /** Player port */
+    val player = PlayerIO()
+    /** Flip video */
+    val flip = Input(Bool())
+    /** Enable debug mode */
+    val debug = Input(Bool())
   })
 
-  // SDRAM controller
-  val sdram = Module(new SDRAM(Config.sdramConfig))
-  sdram.io.sdram <> io.sdram
+  // Wires
+  val irq = Wire(Bool())
 
-  // Memory subsystem
-  val memSys = Module(new MemSys(Config.memSysConfig))
-  memSys.io.prog.rom <> io.bridge.rom
-  memSys.io.prog.done := io.bridge.done
-  memSys.io.out <> sdram.io.mem
+  // Registers
+  val bankReg = RegInit(0.U(4.W))
+  val fgScrollReg = RegInit(UVec2(0.U(9.W), 0.U(9.W)))
+  val bgScrollReg = RegInit(UVec2(0.U(9.W), 0.U(9.W)))
 
-  // Program ROM
-  val progRom = Module(new SinglePortRom(
-    addrWidth = Config.PROG_ROM_ADDR_WIDTH,
-    dataWidth = Config.PROG_ROM_DATA_WIDTH,
-    depth = 49152,
-    initFile = "roms/cpu1.mif"
+  // Z80 CPU
+  val cpu = Module(new CPU)
+  cpu.io.din := DontCare
+  cpu.io.int := irq
+  cpu.io.nmi := false.B
+
+  // Work RAM
+  val workRam = Module(new SinglePortRam(
+    addrWidth = Config.WORK_RAM_ADDR_WIDTH,
+    dataWidth = Config.WORK_RAM_DATA_WIDTH
   ))
+  workRam.io.default()
 
-  // Bank ROM
-  val bankRom = Module(new SinglePortRom(
-    addrWidth = Config.BANK_ROM_ADDR_WIDTH,
-    dataWidth = Config.BANK_ROM_DATA_WIDTH,
-    depth = 32768,
-    initFile = "roms/cpu2.mif"
+  // Character RAM
+  val charRam = Module(new TrueDualPortRam(
+    addrWidthA = Config.CHAR_RAM_ADDR_WIDTH,
+    dataWidthA = Config.CHAR_RAM_DATA_WIDTH,
+    addrWidthB = Config.CHAR_RAM_GPU_ADDR_WIDTH,
+    dataWidthB = Config.CHAR_RAM_GPU_DATA_WIDTH
   ))
+  charRam.io.clockB := clock
+  charRam.io.portA.default()
 
-  // The debug ROM contains alphanumeric character tiles
-  val debugRom = Module(new SinglePortRom(
-    addrWidth = Config.DEBUG_ROM_ADDR_WIDTH,
-    dataWidth = Config.DEBUG_ROM_DATA_WIDTH,
-    depth = 512,
-    initFile = "roms/alpha.mif"
+  // Foreground RAM
+  val fgRam = Module(new TrueDualPortRam(
+    addrWidthA = Config.FG_RAM_ADDR_WIDTH,
+    dataWidthA = Config.FG_RAM_DATA_WIDTH,
+    addrWidthB = Config.FG_RAM_GPU_ADDR_WIDTH,
+    dataWidthB = Config.FG_RAM_GPU_DATA_WIDTH
   ))
+  fgRam.io.clockB := clock
+  fgRam.io.portA.default()
 
-  // Video timing
-  val videoTiming = withClock(io.videoClock) { Module(new VideoTiming(Config.videoTimingConfig)) }
-  videoTiming.io.offset := SVec2(0.S, 0.S)
-  val video = videoTiming.io.timing
+  // Background RAM
+  val bgRam = Module(new TrueDualPortRam(
+    addrWidthA = Config.BG_RAM_ADDR_WIDTH,
+    dataWidthA = Config.BG_RAM_DATA_WIDTH,
+    addrWidthB = Config.BG_RAM_GPU_ADDR_WIDTH,
+    dataWidthB = Config.BG_RAM_GPU_DATA_WIDTH
+  ))
+  bgRam.io.clockB := clock
+  bgRam.io.portA.default()
 
-  // Tecmo board
-  val tecmo = withClockAndReset(io.videoClock, io.coreReset) { Module(new Tecmo) }
-  tecmo.io.rom.progRom <> progRom.io
-  tecmo.io.rom.bankRom <> bankRom.io
-//  tecmo.io.rom.progRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(0)).asReadMemIO
-//  tecmo.io.rom.bankRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(1)).asReadMemIO
-  tecmo.io.rom.charRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(0)).asReadMemIO
-  tecmo.io.rom.fgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(1)).asReadMemIO
-  tecmo.io.rom.bgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(2)).asReadMemIO
-  tecmo.io.rom.spriteRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(3))
-  tecmo.io.rom.debugRom <> debugRom.io
-  tecmo.io.video <> video
-  tecmo.io.rgb <> io.rgb
-  tecmo.io.player <> io.player
-  tecmo.io.flip := false.B
-  tecmo.io.debug := true.B
+  // Sprite RAM
+  val spriteRam = Module(new TrueDualPortRam(
+    addrWidthA = Config.SPRITE_RAM_ADDR_WIDTH,
+    dataWidthA = Config.SPRITE_RAM_DATA_WIDTH,
+    addrWidthB = Config.SPRITE_RAM_GPU_ADDR_WIDTH,
+    dataWidthB = Config.SPRITE_RAM_GPU_DATA_WIDTH
+  ))
+  spriteRam.io.clockB := clock
+  spriteRam.io.portA.default()
 
-  // Video output
-  io.video <> RegNext(video)
+  // Palette RAM
+  val paletteRam = Module(new TrueDualPortRam(
+    addrWidthA = Config.PALETTE_RAM_ADDR_WIDTH,
+    dataWidthA = Config.PALETTE_RAM_DATA_WIDTH,
+    addrWidthB = Config.PALETTE_RAM_GPU_ADDR_WIDTH,
+    dataWidthB = Config.PALETTE_RAM_GPU_DATA_WIDTH
+  ))
+  paletteRam.io.clockB := clock
+  paletteRam.io.portA.default()
 
-  // RGB output
-  val rgb = Mux(video.displayEnable, tecmo.io.rgb, RGB.zero(Config.RGB_OUTPUT_BPP.W))
-  io.rgb <> RegNext(rgb)
-}
+  // GPU
+  val gpu = Module(new GPU)
+  gpu.io.flip := io.flip
+  gpu.io.debug := io.debug
+  gpu.io.pc := cpu.io.regs.pc
+  gpu.io.paletteRam <> paletteRam.io.portB
+  gpu.io.debugRom <> io.rom.debugRom
+  gpu.io.charCtrl.vram <> charRam.io.portB
+  gpu.io.charCtrl.tileRom <> io.rom.charRom
+  gpu.io.charCtrl.scrollPos := UVec2(0.U, 0.U)
+  gpu.io.fgCtrl.vram <> fgRam.io.portB
+  gpu.io.fgCtrl.tileRom <> io.rom.fgRom
+  gpu.io.fgCtrl.scrollPos := fgScrollReg + UVec2(Config.SCROLL_OFFSET.U, 0.U)
+  gpu.io.bgCtrl.vram <> bgRam.io.portB
+  gpu.io.bgCtrl.tileRom <> io.rom.bgRom
+  gpu.io.bgCtrl.scrollPos := bgScrollReg + UVec2(Config.SCROLL_OFFSET.U, 0.U)
+  gpu.io.spriteCtrl.vram <> spriteRam.io.portB
+  gpu.io.spriteCtrl.tileRom <> io.rom.spriteRom
+  gpu.io.video <> io.video
+  io.rgb := gpu.io.rgb
 
-object Main extends App {
-  (new ChiselStage).execute(
-    Array("--compiler", "verilog", "--target-dir", "quartus/core"),
-    Seq(ChiselGeneratorAnnotation(() => new Main))
-  )
+  // Trigger an interrupt request on the falling edge of the vertical blank signal.
+  //
+  // Once the IRQ has been accepted by the CPU, it is acknowledged by activating the IO request
+  // signal during the M1 cycle. This clears the interrupt, and the cycle starts over.
+  irq := Util.latch(Util.falling(io.video.vBlank), cpu.io.m1 && cpu.io.iorq)
+
+  // Memory map
+  val memMap = new MemMap(cpu.io)
+  memMap(0x0000 to 0xbfff).readMem(io.rom.progRom)
+  memMap(0xc000 to 0xcfff).readWriteMem(workRam.io)
+  memMap(0xd000 to 0xd7ff).readWriteMemT(charRam.io.portA) { addr =>
+    // Rotate the address to keep the tile codes and colors contiguous in memory. Normally they are
+    // split across the lower and upper halves of the character RAM.
+    Util.rotateLeft(addr(Config.CHAR_RAM_ADDR_WIDTH - 1, 0))
+  }
+  memMap(0xd800 to 0xdbff).readWriteMemT(fgRam.io.portA) { addr =>
+    // Rotate the address to keep the tile codes and colors contiguous in memory. Normally they are
+    // split across the lower and upper halves of the foreground RAM.
+    Util.rotateLeft(addr(Config.FG_RAM_ADDR_WIDTH - 1, 0))
+  }
+  memMap(0xdc00 to 0xdfff).readWriteMemT(bgRam.io.portA) { addr =>
+    // Rotate the address to keep the tile codes and colors contiguous in memory. Normally they are
+    // split across the lower and upper halves of the background RAM.
+    Util.rotateLeft(addr(Config.BG_RAM_ADDR_WIDTH - 1, 0))
+  }
+  memMap(0xe000 to 0xe7ff).readWriteMem(spriteRam.io.portA)
+  memMap(0xe800 to 0xefff).readWriteMem(paletteRam.io.portA)
+  memMap(0xf000 to 0xf7ff).readMemT(io.rom.bankRom) { addr =>
+    // Select the current bank
+    bankReg ## addr(10, 0)
+  }
+  memMap(0xf800).r { (_, _) => Cat(io.player.up, io.player.down, io.player.right, io.player.left) }
+  memMap(0xf801).r { (_, _) => Cat(io.player.buttons(2), io.player.buttons(1), io.player.buttons(0)) }
+  memMap(0xf804).r { (_, _) => Cat(io.player.coin, 0.U, io.player.start, 0.U) }
+  memMap(0xf800 to 0xf802).w { (_, offset, data) =>
+    switch(offset) {
+      is(0.U) { fgScrollReg.x := fgScrollReg.x(8) ## data }
+      is(1.U) { fgScrollReg.x := data(0) ## fgScrollReg.x(7, 0) }
+      is(2.U) { fgScrollReg.y := data }
+    }
+  }
+  memMap(0xf803 to 0xf805).w { (_, offset, data) =>
+    switch(offset) {
+      is(0.U) { bgScrollReg.x := bgScrollReg.x(8) ## data }
+      is(1.U) { bgScrollReg.x := data(0) ## bgScrollReg.x(7, 0) }
+      is(2.U) { bgScrollReg.y := data }
+    }
+  }
+  memMap(0xf808).w { (_, _, data) => bankReg := data(6, 3) }
 }
