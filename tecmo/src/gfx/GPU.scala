@@ -124,7 +124,7 @@ class GPU extends Module {
   colorMixer.io.debugData := Mux(io.debug, debugLayer.io.data, 0.U)
 
   // Outputs
-  io.rgb := colorMixer.io.rgb
+  io.rgb := GPU.decodeRGB(colorMixer.io.dout)
 }
 
 object GPU {
@@ -134,6 +134,13 @@ object GPU {
   val TILE_HEIGHT = 8
   /** The number of bit planes per tile */
   val TILE_BIT_PLANES = 4
+
+  /**
+   * Decodes a RGB color from a 16-bit word.
+   *
+   * @param data The color data.
+   */
+  private def decodeRGB(data: UInt) = RGB(data(15, 12), data(11, 8), data(3, 0))
 
   /**
    * Decodes a tile row into a sequence of pixel values.

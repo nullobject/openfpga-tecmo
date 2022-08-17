@@ -59,13 +59,11 @@ class ColorMixerTest extends AnyFlatSpec with ChiselScalatestTester with Matcher
     }
   }
 
-  it should "decode the palette RAM data" in {
+  it should "set the pixel data" in {
     test(new ColorMixer) { dut =>
-      dut.io.paletteRam.dout.poke(0x1234)
+      dut.io.paletteRam.dout.poke(0x12)
       dut.clock.step()
-      dut.io.rgb.r.expect(1)
-      dut.io.rgb.g.expect(2)
-      dut.io.rgb.b.expect(4)
+      dut.io.dout.expect(0x12)
     }
   }
 }

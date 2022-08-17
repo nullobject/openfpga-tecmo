@@ -64,20 +64,32 @@ class ColorMixer extends Module {
     val bgData = Input(UInt(8.W))
     /** Debug layer data */
     val debugData = Input(UInt(8.W))
-    /** RGB output */
-    val rgb = Output(RGB(Config.COLOR_WIDTH.W))
+    /** Pixel data */
+    val dout = Output(UInt(Config.PALETTE_RAM_DATA_WIDTH.W))
   })
 
-  /**
-   * Decodes a RGB color from a 16-bit word.
-   *
-   * @param data The color data.
-   */
-  private def decodeRGB(data: UInt) =
-    RGB(data(15, 12), data(11, 8), data(3, 0))
+  // Mux the layers
+  val index = ColorMixer.muxLayers(io.spritePriority, io.spriteData, io.charData, io.fgData, io.bgData, io.debugData)
 
+  // Mux the layers
+  val paletteRamAddr = MuxLookup(index, 0.U, Seq(
+    Layer.SPRITE.U -> 0.U ## io.spriteData,
+    Layer.CHAR.U -> 1.U ## io.charData,
+    Layer.FG.U -> 2.U ## io.fgData,
+    Layer.BG.U -> 3.U ## io.bgData,
+    Layer.FILL.U -> 1.U ## 0.U(8.W),
+    Layer.DEBUG.U -> 1.U ## io.debugData
+  ))
+
+  // Outputs
+  io.paletteRam.rd := true.B // read-only
+  io.paletteRam.addr := paletteRamAddr
+  io.dout := RegNext(io.paletteRam.dout)
+}
+
+object ColorMixer {
   /**
-   * Calculates the layer with the highest priority for the given layer data.
+   * Calculates the layer with the highest priority.
    *
    * @param spritePriority The sprite priority.
    * @param spriteData     The sprite layer data.
@@ -91,7 +103,7 @@ class ColorMixer extends Module {
                         charData: UInt,
                         fgData: UInt,
                         bgData: UInt,
-                        debugData: UInt) = {
+                        debugData: UInt): UInt = {
     val debug = (debugData(3, 0) =/= 0.U) -> Layer.DEBUG.U
     val sprite = (spriteData(3, 0) =/= 0.U) -> Layer.SPRITE.U
     val char = (charData(3, 0) =/= 0.U) -> Layer.CHAR.U
@@ -105,25 +117,4 @@ class ColorMixer extends Module {
       3.U -> MuxCase(Layer.FILL.U, Seq(debug, char, fg, bg, sprite))
     ))
   }
-
-  // Registers
-  val rgbReg = RegNext(decodeRGB(io.paletteRam.dout))
-
-  // Find the layer with the highest priority
-  val layer = muxLayers(io.spritePriority, io.spriteData, io.charData, io.fgData, io.bgData, io.debugData)
-
-  // Mux the layers
-  val ramAddr = MuxLookup(layer, 0.U, Seq(
-    Layer.SPRITE.U -> 0.U ## io.spriteData,
-    Layer.CHAR.U -> 1.U ## io.charData,
-    Layer.FG.U -> 2.U ## io.fgData,
-    Layer.BG.U -> 3.U ## io.bgData,
-    Layer.FILL.U -> 1.U ## 0.U(8.W),
-    Layer.DEBUG.U -> 1.U ## io.debugData
-  ))
-
-  // Outputs
-  io.paletteRam.rd := true.B
-  io.paletteRam.addr := ramAddr
-  io.rgb := rgbReg
 }
