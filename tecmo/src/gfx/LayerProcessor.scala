@@ -82,8 +82,8 @@ class LayerProcessor(tileSize: Int, cols: Int, rows: Int) extends Module {
   // Decode tile row data
   val tileRow = GPU.decodeTileRow(romDataReg)
 
-  // The line buffer is used by the character layer to render a single scanline. As one line is
-  // being written, the other is being read by the GPU.
+  // The line buffer is used by the layer to render a single scanline. As one line is being written,
+  // the other is being read by the GPU.
   val lineBuffer = Module(new FrameBuffer(Config.LINE_BUFFER_ADDR_WIDTH, Config.LINE_BUFFER_DATA_WIDTH))
   lineBuffer.io.portA.wr := !io.video.hBlank
   lineBuffer.io.portA.addr := Mux(io.flip, ~io.video.pos.x(7, 0), io.video.pos.x(7, 0))
