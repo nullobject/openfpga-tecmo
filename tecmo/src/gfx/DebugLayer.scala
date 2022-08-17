@@ -52,6 +52,8 @@ class DebugLayer(format: String) extends Module {
   val io = IO(new Bundle {
     /** Arguments */
     val args = Input(Vec(numArgs, UInt(16.W)))
+    /** Enable the layer */
+    val enable = Input(Bool())
     /** Position signals */
     val pos = Input(UVec2(9.W))
     /** Color */
@@ -79,10 +81,10 @@ class DebugLayer(format: String) extends Module {
   val pixel = GPU.decodeTileRow(io.tileRom.dout)(xOffset)
 
   // Set enable signal
-  val enable =
+  val enable = io.enable &&
+    pixel.asUInt =/= 0.U &&
     Util.between(io.video.pos.x, io.pos.x, io.pos.x + (DebugLayer.TILE_WIDTH * numCols - 1).U) &&
-      Util.between(io.video.pos.y, io.pos.y, io.pos.y + (DebugLayer.TILE_HEIGHT * numRows - 1).U) &&
-      pixel.asUInt =/= 0.U
+    Util.between(io.video.pos.y, io.pos.y, io.pos.y + (DebugLayer.TILE_HEIGHT * numRows - 1).U)
 
   // Outputs
   io.tileRom.rd := true.B // read-only
@@ -107,9 +109,9 @@ object DebugLayer {
   /**
    * Decodes a format string into a vector of lines.
    *
-   * @param s The format string
+   * @param s       The format string
    * @param numCols The number of columns.
-   * @param args The arguments.
+   * @param args    The arguments.
    * @return A vector of lines.
    */
   def decodeLines(s: String, numCols: Int, args: Vec[UInt]): Vec[Vec[UInt]] = {
@@ -122,7 +124,7 @@ object DebugLayer {
    * Decodes a sequence of tokens into a vector of tile indexes.
    *
    * @param tokens The list of tokens.
-   * @param args The arguments.
+   * @param args   The arguments.
    * @return A vector of tile indexes.
    */
   def decodeLine(tokens: Seq[Token], args: Vec[UInt]): Vec[UInt] = {

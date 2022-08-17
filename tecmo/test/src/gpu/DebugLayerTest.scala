@@ -81,6 +81,7 @@ class DebugLayerTest extends AnyFlatSpec with ChiselScalatestTester with Matcher
 
   it should "set the RGB value" in {
     test(new DebugLayer("foo")) { dut =>
+      dut.io.enable.poke(true)
       dut.io.color.poke(15)
       dut.io.tileRom.dout.poke("hffffffff".U)
       dut.io.video.pos.x.poke(0)

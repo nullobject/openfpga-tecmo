@@ -42,7 +42,7 @@ class GPU extends Module {
   val io = IO(new Bundle {
     /** Flip video flag */
     val flip = Input(Bool())
-    /** Debug mode flag */
+    /** Enable debug mode */
     val debug = Input(Bool())
     /** Palette RAM port */
     val paletteRam = new PaletteRamIO
@@ -108,6 +108,7 @@ class GPU extends Module {
   // Debug layer
   val debugLayer = Module(new DebugLayer("PC:$%04X"))
   debugLayer.io.args := Seq(io.pc)
+  debugLayer.io.enable := io.debug
   debugLayer.io.pos := UVec2(0.U, 232.U)
   debugLayer.io.color := 1.U
   debugLayer.io.tileRom <> io.debugRom
@@ -121,7 +122,7 @@ class GPU extends Module {
   colorMixer.io.charData := charProcessor.io.data
   colorMixer.io.fgData := fgProcessor.io.data
   colorMixer.io.bgData := bgProcessor.io.data
-  colorMixer.io.debugData := Mux(io.debug, debugLayer.io.data, 0.U)
+  colorMixer.io.debugData := debugLayer.io.data
 
   // Outputs
   io.rgb := GPU.decodeRGB(colorMixer.io.dout)
