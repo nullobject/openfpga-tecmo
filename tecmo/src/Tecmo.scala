@@ -48,7 +48,7 @@ class Tecmo extends Module {
     /** Video port */
     val video = Flipped(VideoIO())
     /** RGB output */
-    val rgb = Output(RGB(Config.COLOR_WIDTH.W))
+    val rgb = Output(RGB(Config.RGB_OUTPUT_BPP.W))
     /** Player port */
     val player = PlayerIO()
     /** Flip video */
@@ -132,6 +132,7 @@ class Tecmo extends Module {
   val gpu = Module(new GPU)
   gpu.io.flip := io.flip
   gpu.io.debug := io.debug
+  gpu.io.pc := cpu.io.regs.pc
   gpu.io.paletteRam <> paletteRam.io.portB
   gpu.io.debugRom <> io.rom.debugRom
   gpu.io.charCtrl.vram <> charRam.io.portB
@@ -147,7 +148,6 @@ class Tecmo extends Module {
   gpu.io.spriteCtrl.tileRom <> io.rom.spriteRom
   gpu.io.video <> io.video
   io.rgb := gpu.io.rgb
-  gpu.io.pc := cpu.io.regs.pc
 
   // Trigger an interrupt request on the falling edge of the vertical blank signal.
   //

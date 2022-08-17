@@ -84,4 +84,18 @@ object RGB {
     rgb.b := b
     rgb
   }
+
+  /**
+   * Constructs a zero RGB color.
+   *
+   * @param width The channel width.
+   * @return A RGB color.
+   */
+  def zero(width: Width): RGB = {
+    val rgb = Wire(new RGB(width))
+    rgb.r := 0.U
+    rgb.g := 0.U
+    rgb.b := 0.U
+    rgb
+  }
 }

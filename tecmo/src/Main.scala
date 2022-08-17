@@ -53,16 +53,16 @@ class Main extends Module {
     val coreReset = Input(Bool())
     /** Video clock */
     val videoClock = Input(Clock())
+    /** Bridge port */
+    val bridge = Bridge()
+    /** Player port */
+    val player = PlayerIO()
     /** SDRAM port */
     val sdram = SDRAMIO(Config.sdramConfig)
     /** Video port */
     val video = VideoIO()
     /** RGB output */
-    val rgb = Output(RGB(Config.COLOR_WIDTH.W))
-    /** Bridge port */
-    val bridge = Bridge()
-    /** Player port */
-    val player = PlayerIO()
+    val rgb = Output(RGB(Config.RGB_OUTPUT_BPP.W))
   })
 
   // SDRAM controller
@@ -103,11 +103,12 @@ class Main extends Module {
   tecmo.io.flip := false.B
   tecmo.io.debug := true.B
 
-  val black = RGB(0.U(Config.COLOR_WIDTH.W), 0.U(Config.COLOR_WIDTH.W), 0.U(Config.COLOR_WIDTH.W))
-
   // Video output
   io.video <> RegNext(video)
-  io.rgb <> RegNext(Mux(video.displayEnable, tecmo.io.rgb, black))
+
+  // RGB output
+  val rgb = Mux(video.displayEnable, tecmo.io.rgb, RGB.zero(Config.RGB_OUTPUT_BPP.W))
+  io.rgb <> RegNext(rgb)
 }
 
 object Main extends App {

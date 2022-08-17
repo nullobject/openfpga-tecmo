@@ -44,6 +44,8 @@ class GPU extends Module {
     val flip = Input(Bool())
     /** Enable debug mode */
     val debug = Input(Bool())
+    /** Program counter (debug) */
+    val pc = Input(UInt(16.W))
     /** Palette RAM port */
     val paletteRam = new PaletteRamIO
     /** Debug ROM port */
@@ -59,9 +61,7 @@ class GPU extends Module {
     /** Video port */
     val video = Flipped(VideoIO())
     /** RGB output */
-    val rgb = Output(RGB(Config.COLOR_WIDTH.W))
-    /** Program counter (debug) */
-    val pc = Input(UInt(16.W))
+    val rgb = Output(RGB(Config.RGB_OUTPUT_BPP.W))
   })
 
   // Frame buffer read position
@@ -123,7 +123,7 @@ class GPU extends Module {
   colorMixer.io.bgPen := bgProcessor.io.pen
   colorMixer.io.debugPen := debugLayer.io.data.asTypeOf(new PaletteEntry)
 
-  // Outputs
+  // Decode color mixer data and write it to the RGB output
   io.rgb := GPU.decodeRGB(colorMixer.io.dout)
 }
 
@@ -136,11 +136,17 @@ object GPU {
   val TILE_BIT_PLANES = 4
 
   /**
-   * Decodes a RGB color from a 16-bit word.
+   * Decodes a 24 bit RGB value from the given pixel data.
    *
-   * @param data The color data.
+   * @param data The pixel data.
+   * @return A 24 bit RGB value.
    */
-  private def decodeRGB(data: UInt) = RGB(data(15, 12), data(11, 8), data(3, 0))
+  private def decodeRGB(data: Bits) = {
+    val r = data(15, 12) ## data(15, 12)
+    val g = data(11, 8) ## data(11, 8)
+    val b = data(3, 0) ## data(3, 0)
+    RGB(r, g, b)
+  }
 
   /**
    * Decodes a tile row into a sequence of pixel values.

@@ -422,14 +422,28 @@ wire [15:0] dram_din;
 
 assign dram_dq = dram_oe ? dram_din : 16'bZ;
 
-wire [3:0] r, g, b;
-assign video_rgb = {r, r, g, g, b, b};
+wire [7:0] r, g, b;
+assign video_rgb = {r, g, b};
 
 Main main (
   .clock(sys_clock),
   .reset(~pll_core_locked),
   .coreReset(~reset_n),
   .videoClock(video_rgb_clock),
+
+  .bridge_wr(bridge_wr),
+  .bridge_addr(bridge_addr),
+  .bridge_dout(bridge_wr_data),
+  .bridge_done(dataslot_allcomplete),
+
+  .player_up(cont1_key[0]),
+  .player_down(cont1_key[1]),
+  .player_left(cont1_key[2]),
+  .player_right(cont1_key[3]),
+  .player_buttons(cont1_key[7:4]),
+  .player_start(cont1_key[15]),
+  .player_coin(cont1_key[14]),
+  .player_pause(0),
 
   .sdram_cke(dram_cke),
   .sdram_ras_n(dram_ras_n),
@@ -448,20 +462,6 @@ Main main (
   .rgb_r(r),
   .rgb_g(g),
   .rgb_b(b),
-
-  .bridge_wr(bridge_wr),
-  .bridge_addr(bridge_addr),
-  .bridge_dout(bridge_wr_data),
-  .bridge_done(dataslot_allcomplete),
-
-  .player_up(cont1_key[0]),
-  .player_down(cont1_key[1]),
-  .player_left(cont1_key[2]),
-  .player_right(cont1_key[3]),
-  .player_buttons(cont1_key[7:4]),
-  .player_start(cont1_key[15]),
-  .player_coin(cont1_key[14]),
-  .player_pause(0)
 );
 
 ///////////////////////////////////////////////

@@ -46,6 +46,9 @@ object Config {
   /** The width of a palette index */
   val COLOR_WIDTH = 4
 
+  /** The number of bits per color channel for the output RGB signal */
+  val RGB_OUTPUT_BPP = 8
+
   val SPRITE_CODE_WIDTH = 13
   val SPRITE_SIZE_WIDTH = 7
 
