@@ -32,7 +32,6 @@
 
 package tecmo.gfx
 
-import chisel3._
 import chiseltest._
 import org.scalatest._
 import flatspec.AnyFlatSpec
@@ -49,20 +48,20 @@ class ColorMixerTest extends AnyFlatSpec with ChiselScalatestTester with Matcher
 
   it should "set the palette RAM address" in {
     test(new ColorMixer) { dut =>
-      dut.io.charData.poke("h00".U)
-      dut.io.paletteRam.addr.expect("h100".U)
+      dut.io.charData.poke(0x00)
+      dut.io.paletteRam.addr.expect(0x100)
 
-      dut.io.charData.poke("h01".U)
-      dut.io.paletteRam.addr.expect("h101".U)
+      dut.io.charData.poke(0x01)
+      dut.io.paletteRam.addr.expect(0x101)
 
-      dut.io.charData.poke("hff".U)
-      dut.io.paletteRam.addr.expect("h1ff".U)
+      dut.io.charData.poke(0xff)
+      dut.io.paletteRam.addr.expect(0x1ff)
     }
   }
 
   it should "decode the palette RAM data" in {
     test(new ColorMixer) { dut =>
-      dut.io.paletteRam.dout.poke("h1234".U)
+      dut.io.paletteRam.dout.poke(0x1234)
       dut.clock.step()
       dut.io.rgb.r.expect(1)
       dut.io.rgb.g.expect(2)
