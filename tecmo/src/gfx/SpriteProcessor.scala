@@ -157,7 +157,7 @@ class SpriteProcessor(numSprites: Int = 256) extends Module {
   switch(stateReg) {
     // Wait for the beginning of the frame
     is(State.idle) {
-      when(!io.video.vBlank) { stateReg := State.load }
+      when(io.video.vBlank) { stateReg := State.load }
     }
 
     // Load the sprite
@@ -185,7 +185,7 @@ class SpriteProcessor(numSprites: Int = 256) extends Module {
 
     // Wait for the end of the frame
     is(State.done) {
-      when(io.video.vBlank) { stateReg := State.idle }
+      when(!io.video.vBlank) { stateReg := State.idle }
     }
   }
 
