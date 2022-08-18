@@ -43,18 +43,18 @@ import tecmo.gfx._
 /** Represents the main PCB. */
 class Main extends Module {
   val io = IO(new Bundle {
-    /** ROM port */
-    val rom = new RomIO
-    /** Video port */
-    val video = Flipped(VideoIO())
-    /** RGB output */
-    val rgb = Output(RGB(Config.RGB_OUTPUT_BPP.W))
-    /** Player port */
-    val player = PlayerIO()
     /** Flip video */
     val flip = Input(Bool())
     /** Enable debug mode */
     val debug = Input(Bool())
+    /** Player port */
+    val player = PlayerIO()
+    /** Video port */
+    val video = Flipped(VideoIO())
+    /** ROM port */
+    val rom = new RomIO
+    /** RGB output */
+    val rgb = Output(RGB(Config.RGB_OUTPUT_BPP.W))
   })
 
   // Wires

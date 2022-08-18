@@ -56,10 +56,10 @@ class Tecmo extends Module {
     val bridge = Bridge()
     /** Player port */
     val player = PlayerIO()
-    /** SDRAM port */
-    val sdram = SDRAMIO(Config.sdramConfig)
     /** Video port */
     val video = VideoIO()
+    /** SDRAM port */
+    val sdram = SDRAMIO(Config.sdramConfig)
     /** RGB output */
     val rgb = Output(RGB(Config.RGB_OUTPUT_BPP.W))
   })
@@ -105,6 +105,10 @@ class Tecmo extends Module {
 
   // Main PCB
   val main = withClockAndReset(io.videoClock, io.coreReset) { Module(new Main) }
+  main.io.flip := false.B
+  main.io.debug := true.B
+  main.io.player := io.player
+  main.io.video := video
   main.io.rom.progRom <> progRom.io
   main.io.rom.bankRom <> bankRom.io
 //  tecmo.io.rom.progRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(0)).asReadMemIO
@@ -114,14 +118,9 @@ class Tecmo extends Module {
   main.io.rom.bgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(2)).asReadMemIO
   main.io.rom.spriteRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(3))
   main.io.rom.debugRom <> debugRom.io
-  main.io.video <> video
-  main.io.rgb <> io.rgb
-  main.io.player <> io.player
-  main.io.flip := false.B
-  main.io.debug := true.B
 
   // Video output
-  io.video <> RegNext(video)
+  io.video := RegNext(video)
 
   // Dotted border
   val pixelEnable = ((video.pos.x === 0.U || video.pos.x === 255.U) && video.pos.y(2) === 0.U) || ((video.pos.y === 16.U || video.pos.y === 239.U) && video.pos.x(2) === 0.U)
@@ -129,5 +128,5 @@ class Tecmo extends Module {
 
   // RGB output
   val rgb = Mux(video.displayEnable, pixel, RGB(0.U(8.W)))
-  io.rgb <> RegNext(rgb)
+  io.rgb := RegNext(rgb)
 }
