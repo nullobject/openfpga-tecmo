@@ -39,6 +39,7 @@ import arcadia.mem.sdram.{SDRAM, SDRAMIO}
 import arcadia.pocket.Bridge
 import chisel3._
 import chisel3.experimental.FlatIO
+import chisel3.util.MuxCase
 
 /**
  * The top-level module.
@@ -77,22 +78,6 @@ class Tecmo extends Module {
   memSys.io.prog.done := io.bridge.done
   memSys.io.out <> sdram.io.mem
 
-  // Program ROM
-  val progRom = Module(new SinglePortRom(
-    addrWidth = Config.PROG_ROM_ADDR_WIDTH,
-    dataWidth = Config.PROG_ROM_DATA_WIDTH,
-    depth = 49152,
-    initFile = "roms/cpu1.mif"
-  ))
-
-  // Bank ROM
-  val bankRom = Module(new SinglePortRom(
-    addrWidth = Config.BANK_ROM_ADDR_WIDTH,
-    dataWidth = Config.BANK_ROM_DATA_WIDTH,
-    depth = 32768,
-    initFile = "roms/cpu2.mif"
-  ))
-
   // The debug ROM contains alphanumeric character tiles
   val debugRom = Module(new SinglePortRom(
     addrWidth = Config.DEBUG_ROM_ADDR_WIDTH,
@@ -112,24 +97,27 @@ class Tecmo extends Module {
   main.io.debug := true.B
   main.io.player := io.player
   main.io.video := video
-  main.io.rom.progRom <> progRom.io
-  main.io.rom.bankRom <> bankRom.io
-//  tecmo.io.rom.progRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(0)).asReadMemIO
-//  tecmo.io.rom.bankRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(1)).asReadMemIO
-  main.io.rom.charRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(0)).asReadMemIO
-  main.io.rom.fgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(1)).asReadMemIO
-  main.io.rom.bgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(2)).asReadMemIO
-  main.io.rom.spriteRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(3))
+//  main.io.rom.progRom <> progRom.io
+//  main.io.rom.bankRom <> bankRom.io
+  main.io.rom.progRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(0)).asReadMemIO
+  main.io.rom.bankRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(1)).asReadMemIO
+  main.io.rom.charRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(2)).asReadMemIO
+  main.io.rom.fgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(3)).asReadMemIO
+  main.io.rom.bgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(4)).asReadMemIO
+  main.io.rom.spriteRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(5))
   main.io.rom.debugRom <> debugRom.io
 
-  // Video output
-  io.video := RegNext(video)
-
   // Dotted border
-  val pixelEnable = ((video.pos.x === 0.U || video.pos.x === 255.U) && video.pos.y(2) === 0.U) || ((video.pos.y === 16.U || video.pos.y === 239.U) && video.pos.x(2) === 0.U)
-  val pixel = Mux(pixelEnable, RGB(0xff.U), main.io.rgb)
+  val dot = ((video.pos.x === 0.U || video.pos.x === 255.U) && video.pos.y(2) === 0.U) ||
+    ((video.pos.y === 16.U || video.pos.y === 239.U) && video.pos.x(2) === 0.U)
 
-  // RGB output
-  val rgb = Mux(video.displayEnable, pixel, RGB(0.U(8.W)))
+  // Final pixel color
+  val rgb = MuxCase(main.io.rgb, Seq(
+    !video.displayEnable -> RGB(0.U(8.W)),
+//    dot -> RGB(0xff.U(8.W)),
+  ))
+
+  // Outputs
+  io.video := RegNext(video)
   io.rgb := RegNext(rgb)
 }
