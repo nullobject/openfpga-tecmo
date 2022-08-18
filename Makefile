@@ -11,4 +11,4 @@ program-pocket:
 	cd quartus; quartus_pgm -m jtag -c USB-Blaster -o "p;output_files/ap_core.sof@1"
 
 clean:
-	rm -rf dist/bitstream.rbf_r out quartus/db quartus/incremental_db quartus/output_files
+	rm -rf dist/bitstream.rbf_r out quartus/core/Tecmo.* quartus/db quartus/incremental_db quartus/output_files test_run_dir
