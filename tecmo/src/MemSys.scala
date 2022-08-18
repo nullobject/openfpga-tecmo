@@ -71,6 +71,8 @@ case class MemSysConfig(addrWidth: Int, dataWidth: Int, burstLength: Int, slots:
 class MemSys(config: MemSysConfig) extends Module {
   val io = IO(new Bundle {
     val prog = new Bundle {
+      /** Download clock */
+      val clock = Input(Clock())
       /** ROM download port */
       val rom = Flipped(AsyncWriteMemIO(Bridge.ADDR_WIDTH, Bridge.DATA_WIDTH))
       /** Asserted when the ROM has finished downloading */
@@ -84,6 +86,13 @@ class MemSys(config: MemSysConfig) extends Module {
     val ready = Output(Bool())
   })
 
+  // The FIFO is used to buffer download data
+  val fifo = withClock(io.prog.clock) { Module(new DualClockFIFO(Bridge.DATA_WIDTH, 128)) }
+  fifo.io.readClock := clock
+  fifo.io.enq.bits := io.prog.rom.din
+  fifo.io.enq.valid := io.prog.rom.wr
+  io.prog.rom.waitReq := !fifo.io.enq.ready
+
   // The download buffer is used to buffer ROM data from the bridge, so that complete words are
   // written to memory.
   val downloadBuffer = Module(new BurstBuffer(buffer.Config(
@@ -93,7 +102,7 @@ class MemSys(config: MemSysConfig) extends Module {
     outDataWidth = config.dataWidth,
     burstLength = config.burstLength
   )))
-  downloadBuffer.io.in <> io.prog.rom
+  downloadBuffer.io.in <> fifo.io.deq
 
   // Arbiter
   val arbiter = Module(new BurstMemArbiter(config.slots.size + 1, config.addrWidth, config.dataWidth))

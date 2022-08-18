@@ -48,8 +48,10 @@ import chisel3.experimental.FlatIO
  */
 class Tecmo extends Module {
   val io = FlatIO(new Bundle {
-    /** Core reset */
-    val coreReset = Input(Bool())
+    /** CPU reset */
+    val cpuReset = Input(Bool())
+    /** Bridge clock */
+    val bridgeClock = Input(Clock())
     /** Video clock */
     val videoClock = Input(Clock())
     /** Bridge port */
@@ -70,6 +72,7 @@ class Tecmo extends Module {
 
   // Memory subsystem
   val memSys = Module(new MemSys(Config.memSysConfig))
+  memSys.io.prog.clock := io.bridgeClock
   memSys.io.prog.rom <> io.bridge.rom
   memSys.io.prog.done := io.bridge.done
   memSys.io.out <> sdram.io.mem
@@ -104,7 +107,7 @@ class Tecmo extends Module {
   val video = videoTiming.io.timing
 
   // Main PCB
-  val main = withClockAndReset(io.videoClock, io.coreReset) { Module(new Main) }
+  val main = withClockAndReset(io.videoClock, io.cpuReset) { Module(new Main) }
   main.io.flip := false.B
   main.io.debug := true.B
   main.io.player := io.player
