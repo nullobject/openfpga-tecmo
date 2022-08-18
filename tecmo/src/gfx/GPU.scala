@@ -78,7 +78,7 @@ class GPU extends Module {
   // vertical blank signal).
   val frameBuffer = Module(new FrameBuffer(Config.FRAME_BUFFER_ADDR_WIDTH, Config.FRAME_BUFFER_DATA_WIDTH))
   frameBuffer.io.portB.rd := io.video.displayEnable
-  frameBuffer.io.portB.addr := frameBufferPos.y(7, 0) ## frameBufferPos.x(7, 0)
+  frameBuffer.io.portB.addr := frameBufferPos.y(7, 0) ## (frameBufferPos.x(7, 0) + 3.U)
   frameBuffer.io.swap := Util.toggle(Util.rising(io.video.vBlank))
 
   // Sprite processor
