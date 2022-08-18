@@ -46,14 +46,6 @@ import tecmo._
  * @param numSprites The maximum number of sprites to render.
  */
 class SpriteProcessor(numSprites: Int = 256) extends Module {
-  /**
-   * The depth of the pixel data queue.
-   *
-   * The queue needs to be deep enough to accommodate the lines required for the largest sprite size
-   * (64x64 pixels).
-   */
-  val PIXEL_DATA_QUEUE_DEPTH = GPU.TILE_HEIGHT * 8 * 8
-
   val io = IO(new Bundle {
     /** Control port */
     val ctrl = new SpriteCtrlIO
@@ -93,7 +85,8 @@ class SpriteProcessor(numSprites: Int = 256) extends Module {
   val (rowCounter, rowCounterWrap) = Counter.dynamic(spriteReg.rows, effectiveRead && lineCounterWrap)
 
   // The FIFO is used to buffer tile ROM data to be processed by the sprite decoder
-  val fifo = Module(new Queue(Bits(), PIXEL_DATA_QUEUE_DEPTH))
+  val fifo = Module(new Queue(Bits(), SpriteProcessor.FIFO_DEPTH, useSyncReadMem = true, hasFlush = true))
+  fifo.flush := stateReg === State.idle
 
   // Sprite blitter
   val blitter = Module(new SpriteBlitter)
@@ -191,6 +184,14 @@ class SpriteProcessor(numSprites: Int = 256) extends Module {
 }
 
 object SpriteProcessor {
+  /**
+   * The depth of the tile ROM FIFO in words.
+   *
+   * The queue needs to be deep enough to accommodate the lines required for the largest sprite size
+   * (i.e. 64x64 pixels).
+   */
+  val FIFO_DEPTH = 8 * 8 * 8
+
   /**
    * Calculates the tile ROM address for the given sprite.
    *
