@@ -88,19 +88,19 @@ class GPU extends Module {
   spriteProcessor.io.video <> io.video
 
   // Character processor
-  val charProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 8, cols = 32, rows = 32, 0)))
+  val charProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 8, cols = 32, rows = 32, offset = 2)))
   charProcessor.io.ctrl <> io.charCtrl
   charProcessor.io.video <> io.video
   charProcessor.io.flip := io.flip
 
   // Foreground processor
-  val fgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, GPU.SCROLL_OFFSET)))
+  val fgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 58)))
   fgProcessor.io.ctrl <> io.fgCtrl
   fgProcessor.io.video <> io.video
   fgProcessor.io.flip := io.flip
 
   // Background processor
-  val bgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, GPU.SCROLL_OFFSET)))
+  val bgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 58)))
   bgProcessor.io.ctrl <> io.bgCtrl
   bgProcessor.io.video <> io.video
   bgProcessor.io.flip := io.flip
@@ -134,8 +134,6 @@ object GPU {
   val TILE_HEIGHT = 8
   /** The number of bit planes per tile */
   val TILE_BIT_PLANES = 4
-  /** Scroll layer offset */
-  val SCROLL_OFFSET = 56
 
   /**
    * Decodes a 24 bit RGB value from the given pixel data.
