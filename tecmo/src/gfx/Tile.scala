@@ -36,15 +36,18 @@ import arcadia.Util
 import chisel3._
 import tecmo.Config
 
-/** Represents a tile in a tilemap. */
+/** Represents a tile descriptor. */
 class Tile extends Bundle {
+  /** Color code */
+  val colorCode = UInt(Config.PALETTE_WIDTH.W)
   /** Tile code */
-  val code = UInt(11.W)
-  /** Tile color */
-  val color = UInt(Config.COLOR_WIDTH.W)
+  val code = UInt(Tile.CODE_WIDTH.W)
 }
 
 object Tile {
+  /** The width of the tile code */
+  val CODE_WIDTH = 11
+
   /**
    * Decodes a tile from the given data.
    *
@@ -61,8 +64,8 @@ object Tile {
   def decode(data: Bits): Tile = {
     val words = Util.decode(data, 2, 8)
     val tile = Wire(new Tile)
+    tile.colorCode := words(1)(7, 4)
     tile.code := words(1)(2, 0) ## words(0)(7, 0)
-    tile.color := words(1)(7, 4)
     tile
   }
 }
