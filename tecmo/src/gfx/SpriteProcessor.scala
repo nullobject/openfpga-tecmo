@@ -85,7 +85,7 @@ class SpriteProcessor(numSprites: Int = 256) extends Module {
   val stateReg = RegInit(State.idle)
   val swapReg = RegInit(false.B)
   val spriteReg = RegEnable(Sprite.decode(io.ctrl.vram.dout), stateReg === State.load)
-  val burstPendingReg = RegInit(false.B)
+  val readPendingReg = RegInit(false.B)
 
   // Counters
   val (spriteCounter, spriteCounterWrap) = Counter.static(numSprites, stateReg === State.next)
@@ -110,28 +110,19 @@ class SpriteProcessor(numSprites: Int = 256) extends Module {
   }
 
   // Load the next row of pixels from the tile ROM when the pixel data queue is ready
-  val tileRomRead = loading && !burstPendingReg && fifo.io.enq.ready
+  val tileRomRead = loading && !readPendingReg && fifo.io.enq.ready
 
   // Set effective read flag
   effectiveRead := tileRomRead && !io.ctrl.tileRom.waitReq
 
   // Set tile ROM address
-  //
-  // The address is composed of the sprite code for the upper bits, and the line counter for the
-  // lower bits. The 4 LSB of the sprite code are combined with the tile row/column. So depending on
-  // the sprite size, some of those bits will be ignored.
-  val tileRomAddr = Cat(
-    spriteReg.code(12, 4),
-    spriteReg.code(3, 0) | (rowCounter(1) ## colCounter(1)) ## rowCounter(0) ## colCounter(0),
-    lineCounter,
-    0.U(2.W)
-  )
+  val tileRomAddr = SpriteProcessor.tileRomAddr(spriteReg.code, colCounter, rowCounter, lineCounter)
 
   // The burst pending register is asserted when there is a burst in progress
   when(io.ctrl.tileRom.valid) {
-    burstPendingReg := false.B
+    readPendingReg := false.B
   }.elsewhen(effectiveRead) {
-    burstPendingReg := true.B
+    readPendingReg := true.B
   }
 
   // Enqueue the next sprite with the sprite blitter when we are ready to do a blit
@@ -200,5 +191,28 @@ class SpriteProcessor(numSprites: Int = 256) extends Module {
   io.debug.next := stateReg === State.next
   io.debug.done := stateReg === State.done
 
-  printf(p"SpriteProcessor(state: $stateReg, sprite: $spriteCounter ($spriteCounterWrap), line: $lineCounter ($lineCounterWrap), col: $colCounter ($colCounterWrap), row: $rowCounter ($rowCounterWrap), pending: $burstPendingReg)\n")
+  printf(p"SpriteProcessor(state: $stateReg, sprite: $spriteCounter ($spriteCounterWrap), line: $lineCounter ($lineCounterWrap), col: $colCounter ($colCounterWrap), row: $rowCounter ($rowCounterWrap), pending: $readPendingReg)\n")
+}
+
+object SpriteProcessor {
+  /**
+   * Calculates the tile ROM address for the given sprite.
+   *
+   * The address is composed of the sprite code for the upper bits, and the line counter for the
+   * lower bits. The 4 LSB of the sprite code are combined with the tile row/column. So depending on
+   * the sprite size, some of those bits will be ignored.
+   *
+   * @param code The sprite code.
+   * @param col  The column index.
+   * @param row  The row index.
+   * @param line The line index.
+   * @return A memory address.
+   */
+  private def tileRomAddr(code: UInt, col: UInt, row: UInt, line: UInt): UInt =
+    Cat(
+      code(12, 4),
+      code(3, 0) | (row(1) ## col(1)) ## row(0) ## col(0),
+      line,
+      0.U(2.W)
+    )
 }
