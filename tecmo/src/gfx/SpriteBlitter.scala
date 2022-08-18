@@ -42,8 +42,8 @@ import tecmo.Config
 /** Copies a sprite to the frame buffer. */
 class SpriteBlitter extends Module {
   val io = IO(new Bundle {
-    /** Sprite data port */
-    val spriteData = DeqIO(new Sprite)
+    /** Config port */
+    val config = DeqIO(new Sprite)
     /** Pixel data port */
     val pixelData = DeqIO(UInt(Config.SPRITE_ROM_DATA_WIDTH.W))
     /** Frame buffer port */
@@ -63,7 +63,7 @@ class SpriteBlitter extends Module {
 
   // Registers
   val stateReg = RegInit(State.idle)
-  val spriteReg = RegEnable(io.spriteData.bits, stateReg === State.idle && io.spriteData.fire)
+  val spriteReg = RegEnable(io.config.bits, stateReg === State.idle && io.config.fire)
   val pisoReg = Reg(Vec(GPU.TILE_WIDTH, Bits(GPU.TILE_BIT_PLANES.W)))
 
   // Counters
@@ -101,7 +101,7 @@ class SpriteBlitter extends Module {
   switch(stateReg) {
     // Wait for the VALID signal
     is(State.idle) {
-      when(io.spriteData.valid) { stateReg := State.fetch }
+      when(io.config.valid) { stateReg := State.fetch }
     }
 
     // Fetch tile row
@@ -116,7 +116,7 @@ class SpriteBlitter extends Module {
   }
 
   // Outputs
-  io.spriteData.ready := stateReg === State.idle
+  io.config.ready := stateReg === State.idle
   io.frameBuffer.wr := stateReg === State.blit && pixel =/= 0.U && !destPos.x(8) && !destPos.y(8)
   io.frameBuffer.addr := destPos.y(7, 0) ## destPos.x(7, 0)
   io.frameBuffer.mask := DontCare
@@ -125,5 +125,5 @@ class SpriteBlitter extends Module {
   io.debug.fetch := stateReg === State.fetch
   io.debug.blit := stateReg === State.blit
 
-  printf(p"SpriteBlitter(state: $stateReg, x: $x, y: $y, pisoReg: $pisoReg, pixel: $pixel, valid: ${ io.spriteData.valid })\n")
+  printf(p"SpriteBlitter(state: $stateReg, x: $x, y: $y, pisoReg: $pisoReg, pixel: $pixel, valid: ${ io.config.valid })\n")
 }

@@ -93,15 +93,13 @@ class SpriteProcessor(numSprites: Int = 256) extends Module {
   val (lineCounter, lineCounterWrap) = Counter.static(GPU.TILE_HEIGHT, effectiveRead && colCounterWrap)
   val (rowCounter, rowCounterWrap) = Counter.dynamic(spriteReg.rows, effectiveRead && lineCounterWrap)
 
-  // The pixel data queue is used to buffer lines (8 pixels wide) loaded from the sprite tile ROM.
-  // The lines are then dequeued by the sprite blitter, and written to the frame buffer.
-  val pixelDataQueue = Module(new Queue(UInt(), PIXEL_DATA_QUEUE_DEPTH))
+  // The FIFO is used to buffer tile ROM data to be processed by the sprite decoder
+  val fifo = Module(new Queue(Bits(), PIXEL_DATA_QUEUE_DEPTH))
 
-  // The sprite blitter copies a sprite to the frame buffer. It must be run once for every visible
-  // sprite.
-  val spriteBlitter = Module(new SpriteBlitter)
-  spriteBlitter.io.pixelData <> pixelDataQueue.io.deq
-  spriteBlitter.io.frameBuffer <> io.frameBuffer
+  // Sprite blitter
+  val blitter = Module(new SpriteBlitter)
+  blitter.io.pixelData <> fifo.io.deq
+  blitter.io.frameBuffer <> io.frameBuffer
 
   // Start loading data from the tile ROM for an enabled sprite. We can stop loading when all the
   // rows have been requested (i.e. the line/row/column counters have all wrapped).
@@ -112,7 +110,7 @@ class SpriteProcessor(numSprites: Int = 256) extends Module {
   }
 
   // Load the next row of pixels from the tile ROM when the pixel data queue is ready
-  val tileRomRead = loading && !burstPendingReg && pixelDataQueue.io.enq.ready
+  val tileRomRead = loading && !burstPendingReg && fifo.io.enq.ready
 
   // Set effective read flag
   effectiveRead := tileRomRead && !io.ctrl.tileRom.waitReq
@@ -138,16 +136,16 @@ class SpriteProcessor(numSprites: Int = 256) extends Module {
 
   // Enqueue the next sprite with the sprite blitter when we are ready to do a blit
   when(stateReg === State.ready) {
-    spriteBlitter.io.spriteData.enq(spriteReg)
+    blitter.io.config.enq(spriteReg)
   } otherwise {
-    spriteBlitter.io.spriteData.noenq()
+    blitter.io.config.noenq()
   }
 
   // Enqueue valid tile ROM data with the pixel data queue
   when(io.ctrl.tileRom.valid) {
-    pixelDataQueue.io.enq.enq(io.ctrl.tileRom.dout)
+    fifo.io.enq.enq(io.ctrl.tileRom.dout)
   } otherwise {
-    pixelDataQueue.io.enq.noenq()
+    fifo.io.enq.noenq()
   }
 
   // Toggle the frame buffer at the end of the frame
@@ -170,12 +168,12 @@ class SpriteProcessor(numSprites: Int = 256) extends Module {
 
     // Wait for the blitter to be ready
     is(State.ready) {
-      when(spriteBlitter.io.spriteData.ready) { stateReg := State.blit }
+      when(blitter.io.config.ready) { stateReg := State.blit }
     }
 
     // Blit the sprite
     is(State.blit) {
-      when(spriteBlitter.io.spriteData.ready) { stateReg := State.next }
+      when(blitter.io.config.ready) { stateReg := State.next }
     }
 
     // Increment the sprite counter
