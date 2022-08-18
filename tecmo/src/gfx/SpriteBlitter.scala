@@ -63,18 +63,18 @@ class SpriteBlitter extends Module {
 
   // Registers
   val stateReg = RegInit(State.idle)
-  val spriteReg = RegEnable(io.config.bits, stateReg === State.idle && io.config.fire)
+  val configReg = RegEnable(io.config.bits, stateReg === State.idle && io.config.fire)
   val pisoReg = Reg(Vec(GPU.TILE_WIDTH, Bits(GPU.TILE_BIT_PLANES.W)))
 
   // Counters
-  val (x, xWrap) = Counter.dynamic(spriteReg.size, stateReg === State.blit)
-  val (y, yWrap) = Counter.dynamic(spriteReg.size, stateReg === State.blit && xWrap)
+  val (x, xWrap) = Counter.dynamic(configReg.size, stateReg === State.blit)
+  val (y, yWrap) = Counter.dynamic(configReg.size, stateReg === State.blit && xWrap)
 
   // Destination position
   val destPos = {
-    val xDest = Mux(spriteReg.xFlip, spriteReg.size - x - 1.U, x)
-    val yDest = Mux(spriteReg.yFlip, spriteReg.size - y - 1.U, y)
-    spriteReg.pos + UVec2(xDest, yDest)
+    val xDest = Mux(configReg.xFlip, configReg.size - x - 1.U, x)
+    val yDest = Mux(configReg.yFlip, configReg.size - y - 1.U, y)
+    configReg.pos + UVec2(xDest, yDest)
   }
 
   // Assert the done signal when copying the last pixel
@@ -115,12 +115,15 @@ class SpriteBlitter extends Module {
     }
   }
 
+  // Palette entry
+  val pen = PaletteEntry(configReg.priority, configReg.colorCode, pixel)
+
   // Outputs
   io.config.ready := stateReg === State.idle
   io.frameBuffer.wr := stateReg === State.blit && pixel =/= 0.U && !destPos.x(8) && !destPos.y(8)
   io.frameBuffer.addr := destPos.y(7, 0) ## destPos.x(7, 0)
   io.frameBuffer.mask := DontCare
-  io.frameBuffer.din := spriteReg.priority ## spriteReg.colorCode ## pixel
+  io.frameBuffer.din := pen.asUInt
   io.debug.idle := stateReg === State.idle
   io.debug.fetch := stateReg === State.fetch
   io.debug.blit := stateReg === State.blit
