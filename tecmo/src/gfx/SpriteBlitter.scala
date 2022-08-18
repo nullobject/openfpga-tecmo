@@ -120,7 +120,7 @@ class SpriteBlitter extends Module {
   io.frameBuffer.wr := stateReg === State.blit && pixel =/= 0.U && !destPos.x(8) && !destPos.y(8)
   io.frameBuffer.addr := destPos.y(7, 0) ## destPos.x(7, 0)
   io.frameBuffer.mask := DontCare
-  io.frameBuffer.din := spriteReg.priority ## spriteReg.color ## pixel
+  io.frameBuffer.din := spriteReg.priority ## spriteReg.colorCode ## pixel
   io.debug.idle := stateReg === State.idle
   io.debug.fetch := stateReg === State.fetch
   io.debug.blit := stateReg === State.blit

@@ -44,8 +44,8 @@ class Sprite extends Bundle {
   val code = UInt(Config.SPRITE_CODE_WIDTH.W)
   /** Size in pixels (8, 16, 32, 64) */
   val size = UInt(Config.SPRITE_SIZE_WIDTH.W)
-  /** Color */
-  val color = UInt(Config.COLOR_WIDTH.W)
+  /** Color code */
+  val colorCode = UInt(Config.PALETTE_WIDTH.W)
   /** Position */
   val pos = UVec2(9.W)
   /** Horizontal flip */
@@ -98,12 +98,12 @@ object Sprite {
     // * 16x16 sprites mask 2 LSB.
     // * 32x32 sprites mask 4 LSB.
     // * 64x64 sprites mask 6 LSB.
-    val maskSize = words(2)(1, 0) << 1
+    val maskSize = (words(2)(1, 0) << 1).asUInt
 
     val sprite = Wire(new Sprite)
     sprite.enable := words(0)(2)
     sprite.code := Util.maskBits(words(0)(7, 4) ## words(1)(7, 0), maskSize)
-    sprite.color := words(3)(3, 0)
+    sprite.colorCode := words(3)(3, 0)
     sprite.size := 8.U << words(2)(1, 0)
     sprite.pos := UVec2(words(3)(4) ## words(5)(7, 0), words(3)(5) ## words(4)(7, 0))
     sprite.xFlip := words(0)(0)
