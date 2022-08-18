@@ -39,14 +39,21 @@ import chisel3.util._
 import tecmo._
 
 /**
- * The layer processor handles rendering tilemap layers.
+ * Represents a configuration for the layer processor.
  *
  * @param tileSize The tile size in pixels.
  * @param cols     The number of columns.
  * @param rows     The number of rows.
  * @param offset   The layer offset.
  */
-class LayerProcessor(tileSize: Int, cols: Int, rows: Int, offset: Int) extends Module {
+case class LayerProcessorConfig(tileSize: Int, cols: Int, rows: Int, offset: Int)
+
+/**
+ * The layer processor handles rendering tilemap layers.
+ *
+ * @param config The layer processor configuration.
+ */
+class LayerProcessor(config: LayerProcessorConfig) extends Module {
   val io = IO(new Bundle {
     /** Control port */
     val ctrl = new LayerCtrlIO
@@ -59,14 +66,14 @@ class LayerProcessor(tileSize: Int, cols: Int, rows: Int, offset: Int) extends M
   })
 
   // Apply the scroll and layer offsets to get the final position
-  val pos = io.video.pos + io.ctrl.scroll + UVec2(offset.U, 0.U)
+  val pos = io.video.pos + io.ctrl.scroll + UVec2(config.offset.U, 0.U)
 
   // Tile offset
-  val tileOffset = LayerProcessor.tileOffset(tileSize, pos)
+  val tileOffset = LayerProcessor.tileOffset(config, pos)
 
   // Latch signals
-  val latchTile = tileOffset.x === (tileSize - 6).U
-  val latchColor = tileOffset.x === (tileSize - 1).U
+  val latchTile = tileOffset.x === (config.tileSize - 6).U
+  val latchColor = tileOffset.x === (config.tileSize - 1).U
   val latchPix = tileOffset.x(2, 0) === 7.U
 
   // Tile registers
@@ -79,9 +86,9 @@ class LayerProcessor(tileSize: Int, cols: Int, rows: Int, offset: Int) extends M
 
   // Outputs
   io.ctrl.vram.rd := true.B // read-only
-  io.ctrl.vram.addr := LayerProcessor.vramAddr(tileSize, cols, rows, pos)
+  io.ctrl.vram.addr := LayerProcessor.vramAddr(config, pos)
   io.ctrl.tileRom.rd := true.B // read-only
-  io.ctrl.tileRom.addr := LayerProcessor.tileRomAddr(tileSize, tileReg.code, tileOffset)
+  io.ctrl.tileRom.addr := LayerProcessor.tileRomAddr(config, tileReg.code, tileOffset)
   io.pen := pen
 }
 
@@ -89,41 +96,39 @@ object LayerProcessor {
   /**
    * Calculates the VRAM address for the next tile.
    *
-   * @param tileSize The tile size in pixels.
-   * @param cols     The number of columns.
-   * @param rows     The number of rows.
-   * @param pos      The absolute position of the pixel in the tilemap.
+   * @param config The layer processor configuration.
+   * @param pos    The absolute position of the pixel in the tilemap.
    * @return A memory address.
    */
-  private def vramAddr(tileSize: Int, cols: Int, rows: Int, pos: UVec2): UInt = {
-    val col = pos.x(log2Ceil(tileSize) + log2Ceil(cols) - 1, log2Ceil(tileSize))
-    val row = pos.y(log2Ceil(tileSize) + log2Ceil(rows) - 1, log2Ceil(tileSize))
+  private def vramAddr(config: LayerProcessorConfig, pos: UVec2): UInt = {
+    val col = pos.x(log2Ceil(config.tileSize) + log2Ceil(config.cols) - 1, log2Ceil(config.tileSize))
+    val row = pos.y(log2Ceil(config.tileSize) + log2Ceil(config.rows) - 1, log2Ceil(config.tileSize))
     row ## (col + 1.U)
   }
 
   /**
    * Calculates the pixel offset for a tile.
    *
-   * @param tileSize The tile size in pixels.
+   * @param config The layer processor configuration.
    * @param pos      The absolute position of the pixel in the tilemap.
    * @return An unsigned vector.
    */
-  private def tileOffset(tileSize: Int, pos: UVec2): UVec2 = {
-    val x = pos.x(log2Ceil(tileSize) - 1, 0)
-    val y = pos.y(log2Ceil(tileSize) - 1, 0)
+  private def tileOffset(config: LayerProcessorConfig, pos: UVec2): UVec2 = {
+    val x = pos.x(log2Ceil(config.tileSize) - 1, 0)
+    val y = pos.y(log2Ceil(config.tileSize) - 1, 0)
     UVec2(x, y)
   }
 
   /**
    * Calculates the tile ROM address for the given tile code.
    *
-   * @param tileSize The tile size in pixels.
+   * @param config The layer processor configuration.
    * @param code     The tile code.
    * @param offset   The pixel offset.
    * @return A memory address.
    */
-  private def tileRomAddr(tileSize: Int, code: UInt, offset: UVec2): UInt = {
-    if (tileSize == 16) {
+  private def tileRomAddr(config: LayerProcessorConfig, code: UInt, offset: UVec2): UInt = {
+    if (config.tileSize == 16) {
       Cat(code, offset.y(3), ~offset.x(3), offset.y(2, 0), 0.U(2.W))
     } else {
       Cat(code, offset.y(2, 0), 0.U(2.W))
