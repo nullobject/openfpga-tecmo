@@ -83,7 +83,6 @@ class SpriteProcessor(numSprites: Int = 256) extends Module {
 
   // Registers
   val stateReg = RegInit(State.idle)
-  val swapReg = RegInit(false.B)
   val spriteReg = RegEnable(Sprite.decode(io.ctrl.vram.dout), stateReg === State.load)
   val readPendingReg = RegInit(false.B)
 
@@ -138,9 +137,6 @@ class SpriteProcessor(numSprites: Int = 256) extends Module {
   } otherwise {
     fifo.io.enq.noenq()
   }
-
-  // Toggle the frame buffer at the end of the frame
-  when(stateReg === State.done && io.video.vBlank) { swapReg := !swapReg }
 
   // FSM
   switch(stateReg) {
