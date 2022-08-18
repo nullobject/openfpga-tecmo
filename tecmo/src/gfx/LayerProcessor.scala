@@ -44,8 +44,9 @@ import tecmo._
  * @param tileSize The tile size in pixels.
  * @param cols     The number of columns.
  * @param rows     The number of rows.
+ * @param offset   The layer offset.
  */
-class LayerProcessor(tileSize: Int, cols: Int, rows: Int) extends Module {
+class LayerProcessor(tileSize: Int, cols: Int, rows: Int, offset: Int) extends Module {
   val io = IO(new Bundle {
     /** Control port */
     val ctrl = new LayerCtrlIO
@@ -57,8 +58,8 @@ class LayerProcessor(tileSize: Int, cols: Int, rows: Int) extends Module {
     val pen = Output(new PaletteEntry)
   })
 
-  // Destination position
-  val pos = io.video.pos + io.ctrl.scrollPos
+  // Apply the scroll and layer offsets to get the final position
+  val pos = io.video.pos + io.ctrl.scroll + UVec2(offset.U, 0.U)
 
   // Tile offset
   val tileOffset = LayerProcessor.tileOffset(tileSize, pos)
@@ -78,7 +79,7 @@ class LayerProcessor(tileSize: Int, cols: Int, rows: Int) extends Module {
 
   // Outputs
   io.ctrl.vram.rd := true.B // read-only
-  io.ctrl.vram.addr :=  LayerProcessor.vramAddr(tileSize, cols, rows, pos)
+  io.ctrl.vram.addr := LayerProcessor.vramAddr(tileSize, cols, rows, pos)
   io.ctrl.tileRom.rd := true.B // read-only
   io.ctrl.tileRom.addr := LayerProcessor.tileRomAddr(tileSize, tileReg.code, tileOffset)
   io.pen := pen

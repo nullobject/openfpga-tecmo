@@ -108,12 +108,6 @@ object Config {
   val FRAME_BUFFER_ADDR_WIDTH = 16
   val FRAME_BUFFER_DATA_WIDTH = 10
 
-  val LINE_BUFFER_ADDR_WIDTH = 8
-  val LINE_BUFFER_DATA_WIDTH = 8
-
-  /** Scroll layer offset */
-  val SCROLL_OFFSET = 56
-
   /** SDRAM configuration */
   val sdramConfig = sdram.Config(clockFreq = CLOCK_FREQ, burstLength = 2)
 

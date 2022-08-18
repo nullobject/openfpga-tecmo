@@ -43,5 +43,5 @@ class LayerCtrlIO extends Bundle {
   /** Tile ROM port */
   val tileRom = new TileRomIO
   /** Scroll position */
-  val scrollPos = Input(UVec2(9.W))
+  val scroll = Input(UVec2(9.W))
 }

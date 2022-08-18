@@ -137,13 +137,13 @@ class Main extends Module {
   gpu.io.debugRom <> io.rom.debugRom
   gpu.io.charCtrl.vram <> charRam.io.portB
   gpu.io.charCtrl.tileRom <> io.rom.charRom
-  gpu.io.charCtrl.scrollPos := UVec2(0.U, 0.U)
+  gpu.io.charCtrl.scroll := UVec2(0.U, 0.U)
   gpu.io.fgCtrl.vram <> fgRam.io.portB
   gpu.io.fgCtrl.tileRom <> io.rom.fgRom
-  gpu.io.fgCtrl.scrollPos := fgScrollReg + UVec2(Config.SCROLL_OFFSET.U, 0.U)
+  gpu.io.fgCtrl.scroll := fgScrollReg
   gpu.io.bgCtrl.vram <> bgRam.io.portB
   gpu.io.bgCtrl.tileRom <> io.rom.bgRom
-  gpu.io.bgCtrl.scrollPos := bgScrollReg + UVec2(Config.SCROLL_OFFSET.U, 0.U)
+  gpu.io.bgCtrl.scroll := bgScrollReg
   gpu.io.spriteCtrl.vram <> spriteRam.io.portB
   gpu.io.spriteCtrl.tileRom <> io.rom.spriteRom
   gpu.io.video <> io.video
