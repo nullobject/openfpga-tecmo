@@ -381,6 +381,7 @@ core_bridge_cmd icb (
 
 
 wire sys_clock;
+wire snd_clock;
 wire pll_core_locked;
 
 mf_pllbase mp1 (
@@ -390,6 +391,7 @@ mf_pllbase mp1 (
     .outclk_0       ( sys_clock ),
     .outclk_1       ( video_rgb_clock ),
     .outclk_2       ( video_rgb_clock_90 ),
+    .outclk_3       ( snd_clock ),
 
     .locked         ( pll_core_locked )
 );
