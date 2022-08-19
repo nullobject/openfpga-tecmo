@@ -41,17 +41,14 @@ import chisel3._
 import chisel3.util._
 
 /**
- * Represents a configuration for a multiplexed memory slot.
+ * Represents a memory slot configuration.
  *
- * @param addrWidth   The width of the address bus.
- * @param dataWidth   The width of the data bus.
- * @param depth       The number of entries in the cache.
- * @param offset      The offset of the output address.
+ * @param addrWidth The width of the address bus.
+ * @param dataWidth The width of the data bus.
+ * @param depth     The number of entries in the cache.
+ * @param offset    The offset of the output address.
  */
-case class SlotConfig(addrWidth: Int,
-                      dataWidth: Int,
-                      depth: Int = 16,
-                      offset: Int = 0)
+case class SlotConfig(addrWidth: Int, dataWidth: Int, depth: Int = 16, offset: Int = 0)
 
 /**
  * Represents a memory system configuration.
@@ -87,7 +84,7 @@ class MemSys(config: MemSysConfig) extends Module {
   })
 
   // The FIFO is used to buffer download data
-  val fifo = withClock(io.prog.clock) { Module(new DualClockFIFO(Bridge.DATA_WIDTH, 128)) }
+  val fifo = withClock(io.prog.clock) { Module(new DualClockFIFO(Bridge.DATA_WIDTH, MemSys.FIFO_DEPTH)) }
   fifo.io.readClock := clock
   fifo.io.enq.bits := io.prog.rom.din
   fifo.io.enq.valid := io.prog.rom.wr
@@ -127,4 +124,9 @@ class MemSys(config: MemSysConfig) extends Module {
 
   // Latch ready flag
   io.ready := Util.latchSync(io.prog.done)
+}
+
+object MemSys {
+  /** The depth of the download FIFO in words. */
+  val FIFO_DEPTH = 64
 }
