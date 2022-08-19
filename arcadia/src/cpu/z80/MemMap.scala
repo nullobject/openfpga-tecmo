@@ -119,6 +119,25 @@ class MemMap(cpu: CPUIO) {
     }
 
     /**
+     * Maps an address range to the given write-only memory port.
+     *
+     * @param mem The memory port.
+     */
+    def writeMem(mem: WriteMemIO): Unit = writeMemT(mem)(identity)
+
+    /**
+     * Maps an address range to the given write-only memory port, with an address transform.
+     *
+     * @param mem The memory port.
+     * @param f   The address transform function.
+     */
+    def writeMemT(mem: WriteMemIO)(f: UInt => UInt): Unit = {
+      mem.wr := cs && cpu.mreq && cpu.wr
+      mem.addr := f(cpu.addr)
+      mem.din := cpu.dout
+    }
+
+    /**
      * Maps an address range to the given getter and setter functions.
      *
      * @param f The getter function.
