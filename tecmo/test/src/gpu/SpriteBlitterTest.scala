@@ -54,24 +54,24 @@ class SpriteBlitterTest extends AnyFlatSpec with ChiselScalatestTester with Matc
 
   it should "assert the ready signal during the idle state" in {
     test(new SpriteBlitter) { dut =>
-      dut.io.spriteData.valid.poke(true)
+      dut.io.config.valid.poke(true)
       waitForIdle(dut)
-      dut.io.spriteData.ready.expect(true)
+      dut.io.config.ready.expect(true)
       dut.clock.step()
-      dut.io.spriteData.ready.expect(false)
+      dut.io.config.ready.expect(false)
     }
   }
 
   it should "fetch sprite data during the idle state" in {
     test(new SpriteBlitter) { dut =>
-      dut.io.spriteData.valid.poke(true)
+      dut.io.config.valid.poke(true)
       waitForFetch(dut)
     }
   }
 
   it should "fetch pixel data during the load state" in {
     test(new SpriteBlitter) { dut =>
-      dut.io.spriteData.valid.poke(true)
+      dut.io.config.valid.poke(true)
       dut.io.pixelData.valid.poke(true)
       dut.io.pixelData.ready.expect(false)
       waitForFetch(dut)
@@ -83,9 +83,9 @@ class SpriteBlitterTest extends AnyFlatSpec with ChiselScalatestTester with Matc
 
   it should "return to the idle state after blitting a sprite" in {
     test(new SpriteBlitter) { dut =>
-      dut.io.spriteData.bits.enable.poke(true)
-      dut.io.spriteData.bits.size.poke(8)
-      dut.io.spriteData.valid.poke(true)
+      dut.io.config.bits.enable.poke(true)
+      dut.io.config.bits.size.poke(8)
+      dut.io.config.valid.poke(true)
       dut.io.pixelData.valid.poke(true)
       waitForBlit(dut)
       dut.clock.step(64) // 8x8 pixels
@@ -97,11 +97,11 @@ class SpriteBlitterTest extends AnyFlatSpec with ChiselScalatestTester with Matc
 
   it should "copy pixel data to the frame buffer" in {
     test(new SpriteBlitter) { dut =>
-      dut.io.spriteData.bits.enable.poke(true)
-      dut.io.spriteData.bits.size.poke(8)
-      dut.io.spriteData.bits.pos.x.poke(8)
-      dut.io.spriteData.bits.pos.y.poke(16)
-      dut.io.spriteData.valid.poke(true)
+      dut.io.config.bits.enable.poke(true)
+      dut.io.config.bits.size.poke(8)
+      dut.io.config.bits.pos.x.poke(8)
+      dut.io.config.bits.pos.y.poke(16)
+      dut.io.config.valid.poke(true)
       dut.io.pixelData.bits.poke("h01234567".U)
       dut.io.pixelData.valid.poke(true)
       waitForBlit(dut)
@@ -132,10 +132,10 @@ class SpriteBlitterTest extends AnyFlatSpec with ChiselScalatestTester with Matc
 
   it should "allow horizontal flipping" in {
     test(new SpriteBlitter) { dut =>
-      dut.io.spriteData.bits.enable.poke(true)
-      dut.io.spriteData.bits.size.poke(8)
-      dut.io.spriteData.bits.xFlip.poke(true)
-      dut.io.spriteData.valid.poke(true)
+      dut.io.config.bits.enable.poke(true)
+      dut.io.config.bits.size.poke(8)
+      dut.io.config.bits.xFlip.poke(true)
+      dut.io.config.valid.poke(true)
       dut.io.pixelData.bits.poke("h01234567".U)
       dut.io.pixelData.valid.poke(true)
       waitForBlit(dut)
@@ -166,10 +166,10 @@ class SpriteBlitterTest extends AnyFlatSpec with ChiselScalatestTester with Matc
 
   it should "allow vertical flipping" in {
     test(new SpriteBlitter) { dut =>
-      dut.io.spriteData.bits.enable.poke(true)
-      dut.io.spriteData.bits.size.poke(8)
-      dut.io.spriteData.bits.yFlip.poke(true)
-      dut.io.spriteData.valid.poke(true)
+      dut.io.config.bits.enable.poke(true)
+      dut.io.config.bits.size.poke(8)
+      dut.io.config.bits.yFlip.poke(true)
+      dut.io.config.valid.poke(true)
       dut.io.pixelData.bits.poke("h01234567".U)
       dut.io.pixelData.valid.poke(true)
       waitForBlit(dut)
@@ -202,9 +202,9 @@ class SpriteBlitterTest extends AnyFlatSpec with ChiselScalatestTester with Matc
 
   it should "fetch pixel data every 8 pixels" in {
     test(new SpriteBlitter) { dut =>
-      dut.io.spriteData.bits.enable.poke(true)
-      dut.io.spriteData.bits.size.poke(8)
-      dut.io.spriteData.valid.poke(true)
+      dut.io.config.bits.enable.poke(true)
+      dut.io.config.bits.size.poke(8)
+      dut.io.config.valid.poke(true)
       dut.io.pixelData.valid.poke(true)
       waitForBlit(dut)
 
@@ -218,9 +218,9 @@ class SpriteBlitterTest extends AnyFlatSpec with ChiselScalatestTester with Matc
 
   it should "not fetch pixel data at the last pixel" in {
     test(new SpriteBlitter) { dut =>
-      dut.io.spriteData.bits.enable.poke(true)
-      dut.io.spriteData.bits.size.poke(8)
-      dut.io.spriteData.valid.poke(true)
+      dut.io.config.bits.enable.poke(true)
+      dut.io.config.bits.size.poke(8)
+      dut.io.config.valid.poke(true)
       dut.io.pixelData.valid.poke(true)
       waitForBlit(dut)
 

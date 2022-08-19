@@ -61,15 +61,13 @@ trait SpriteLayerTestHelpers {
 class SpriteProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Matchers with SpriteLayerTestHelpers {
   behavior of "FSM"
 
-  it should "move to the load state when the VBLANK signal is deasserted" in {
+  it should "move to the load state when the VBLANK signal is asserted" in {
     test(new SpriteProcessor) { dut =>
-      // Assert VBLANK
-      dut.io.video.vBlank.poke(true)
+      dut.io.video.vBlank.poke(false)
       dut.clock.step()
       dut.io.debug.idle.expect(true)
 
-      // Deassert VBLANK
-      dut.io.video.vBlank.poke(false)
+      dut.io.video.vBlank.poke(true)
       dut.clock.step()
       dut.io.debug.load.expect(true)
     }
@@ -77,6 +75,7 @@ class SpriteProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Ma
 
   it should "move to the check state after loading a sprite" in {
     test(new SpriteProcessor) { dut =>
+      dut.io.video.vBlank.poke(true)
       waitForLoad(dut)
       dut.clock.step()
       dut.io.debug.check.expect(true)
@@ -85,6 +84,7 @@ class SpriteProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Ma
 
   it should "move to the next state after checking an invisible sprite" in {
     test(new SpriteProcessor) { dut =>
+      dut.io.video.vBlank.poke(true)
       waitForCheck(dut)
       dut.clock.step()
       dut.io.debug.next.expect(true)
@@ -93,6 +93,7 @@ class SpriteProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Ma
 
   it should "move to the ready state after checking a visible sprite" in {
     test(new SpriteProcessor) { dut =>
+      dut.io.video.vBlank.poke(true)
       dut.io.ctrl.vram.dout.poke(4)
       waitForCheck(dut)
       dut.clock.step()
@@ -102,6 +103,7 @@ class SpriteProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Ma
 
   it should "assert the tile ROM read enable signal during the check state" in {
     test(new SpriteProcessor) { dut =>
+      dut.io.video.vBlank.poke(true)
       dut.io.ctrl.vram.dout.poke(4)
       waitForLoad(dut)
       dut.io.ctrl.tileRom.rd.expect(false)
@@ -112,18 +114,17 @@ class SpriteProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Ma
 
   it should "return to the idle state when the VBLANK signal is asserted" in {
     test(new SpriteProcessor(numSprites = 1)) { dut =>
+      dut.io.video.vBlank.poke(true)
       dut.io.ctrl.vram.dout.poke(4)
       dut.io.ctrl.tileRom.waitReq.poke(true)
       dut.io.ctrl.tileRom.valid.poke(true)
       waitForDone(dut)
 
-      // Deassert VBLANK
-      dut.io.video.vBlank.poke(false)
+      dut.io.video.vBlank.poke(true)
       dut.clock.step()
       dut.io.debug.done.expect(true)
 
-      // Assert VBLANK
-      dut.io.video.vBlank.poke(true)
+      dut.io.video.vBlank.poke(false)
       dut.clock.step()
       dut.io.debug.idle.expect(true)
     }
@@ -133,6 +134,7 @@ class SpriteProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Ma
 
   it should "copy each sprite to the frame buffer" in {
     test(new SpriteProcessor(numSprites = 2)) { dut =>
+      dut.io.video.vBlank.poke(true)
       dut.io.ctrl.tileRom.waitReq.poke(true)
       dut.io.ctrl.tileRom.valid.poke(true)
 
@@ -156,6 +158,7 @@ class SpriteProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Ma
 
   it should "fetch pixel data for a 8x8 sprite" in {
     test(new SpriteProcessor(numSprites = 1)) { dut =>
+      dut.io.video.vBlank.poke(true)
       dut.io.ctrl.vram.rd.expect(true)
       dut.io.ctrl.vram.addr.expect(0)
       dut.io.ctrl.vram.dout.poke("h0000000000002314".U)
@@ -188,6 +191,7 @@ class SpriteProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Ma
 
   it should "fetch pixel data for a 16x16 sprite" in {
     test(new SpriteProcessor(numSprites = 1)) { dut =>
+      dut.io.video.vBlank.poke(true)
       dut.io.ctrl.vram.rd.expect(true)
       dut.io.ctrl.vram.addr.expect(0)
       dut.io.ctrl.vram.dout.poke("h0000000000012314".U)
@@ -235,6 +239,7 @@ class SpriteProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Ma
 
   it should "fetch pixel data for a 32x32 sprite" in {
     test(new SpriteProcessor(numSprites = 1)) { dut =>
+      dut.io.video.vBlank.poke(true)
       dut.io.ctrl.vram.rd.expect(true)
       dut.io.ctrl.vram.addr.expect(0)
       dut.io.ctrl.vram.dout.poke("h0000000000022314".U)
