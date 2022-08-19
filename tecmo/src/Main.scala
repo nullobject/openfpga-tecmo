@@ -55,6 +55,8 @@ class Main extends Module {
     val rom = new RomIO
     /** RGB output */
     val rgb = Output(RGB(Config.RGB_OUTPUT_BPP.W))
+    /** Sound control port */
+    val soundCtrl = Flipped(new SoundCtrlIO)
   })
 
   // Wires
@@ -65,7 +67,7 @@ class Main extends Module {
   val fgScrollReg = RegInit(UVec2(0.U(9.W), 0.U(9.W)))
   val bgScrollReg = RegInit(UVec2(0.U(9.W), 0.U(9.W)))
 
-  // Z80 CPU
+  // Main CPU
   val cpu = Module(new CPU)
   cpu.io.din := DontCare
   cpu.io.int := irq
@@ -155,6 +157,10 @@ class Main extends Module {
   // signal during the M1 cycle. This clears the interrupt, and the cycle starts over.
   irq := Util.latch(Util.falling(io.video.vBlank), cpu.io.m1 && cpu.io.iorq)
 
+  // Sound control
+  io.soundCtrl.req := false.B
+  io.soundCtrl.data := cpu.io.dout
+
   // Memory map
   val memMap = new MemMap(cpu.io)
   memMap(0x0000 to 0xbfff).readMem(io.rom.progRom)
@@ -197,5 +203,6 @@ class Main extends Module {
       is(2.U) { bgScrollReg.y := data }
     }
   }
+  memMap(0xf806).w { (_, _, _) => io.soundCtrl.req := true.B }
   memMap(0xf808).w { (_, _, data) => bankReg := data(6, 3) }
 }

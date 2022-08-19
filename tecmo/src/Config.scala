@@ -46,6 +46,9 @@ object Config {
   /** The width of a palette index */
   val COLOR_WIDTH = 4
 
+  /** The width of audio sample values */
+  val AUDIO_SAMPLE_WIDTH = 16
+
   /** The number of bits per color channel for the output RGB signal */
   val RGB_OUTPUT_BPP = 8
 
@@ -63,6 +66,9 @@ object Config {
 
   val WORK_RAM_ADDR_WIDTH = 12 // 4 kB
   val WORK_RAM_DATA_WIDTH = 8
+
+  val SOUND_RAM_ADDR_WIDTH = 11 // 2kB
+  val SOUND_RAM_DATA_WIDTH = 8
 
   val LAYER_RAM_GPU_ADDR_WIDTH = 10
   val LAYER_RAM_GPU_DATA_WIDTH = 16
@@ -129,35 +135,35 @@ object Config {
         dataWidth = Config.BANK_ROM_DATA_WIDTH,
         offset = 0x0c000
       ),
-//      // Sound ROM
-//      SlotConfig(
-//        addrWidth = Config.SOUND_ROM_ADDR_WIDTH,
-//        dataWidth = Config.SOUND_ROM_DATA_WIDTH,
-//        offset = 0x14000
-//      ),
       // Character ROM
       SlotConfig(
         addrWidth = Config.CHAR_ROM_ADDR_WIDTH,
         dataWidth = Config.CHAR_ROM_DATA_WIDTH,
-        offset = 0x16000
+        offset = 0x14000
       ),
       // Foreground ROM
       SlotConfig(
         addrWidth = Config.FG_ROM_ADDR_WIDTH,
         dataWidth = Config.FG_ROM_DATA_WIDTH,
-        offset = 0x1e000
+        offset = 0x1c000
       ),
       // Background ROM
       SlotConfig(
         addrWidth = Config.BG_ROM_ADDR_WIDTH,
         dataWidth = Config.BG_ROM_DATA_WIDTH,
-        offset = 0x3e000
+        offset = 0x3c000
       ),
       // Sprite ROM
       SlotConfig(
         addrWidth = Config.SPRITE_ROM_ADDR_WIDTH,
         dataWidth = Config.SPRITE_ROM_DATA_WIDTH,
-        offset = 0x5e000
+        offset = 0x5c000
+      ),
+      // Sound ROM
+      SlotConfig(
+        addrWidth = Config.SOUND_ROM_ADDR_WIDTH,
+        dataWidth = Config.SOUND_ROM_DATA_WIDTH,
+        offset = 0x7c000
       )
     )
   )

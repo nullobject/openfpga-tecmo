@@ -55,12 +55,16 @@ class Tecmo extends Module {
     val bridgeClock = Input(Clock())
     /** Video clock */
     val videoClock = Input(Clock())
+    /** Sound clock */
+    val soundClock = Input(Clock())
     /** Bridge port */
     val bridge = Bridge()
     /** Player port */
     val player = PlayerIO()
     /** Video port */
     val video = VideoIO()
+    /** Audio port */
+    val audio = Output(SInt(Config.AUDIO_SAMPLE_WIDTH.W))
     /** SDRAM port */
     val sdram = SDRAMIO(Config.sdramConfig)
     /** RGB output */
@@ -97,8 +101,6 @@ class Tecmo extends Module {
   main.io.debug := true.B
   main.io.player := io.player
   main.io.video := video
-//  main.io.rom.progRom <> progRom.io
-//  main.io.rom.bankRom <> bankRom.io
   main.io.rom.progRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(0)).asReadMemIO
   main.io.rom.bankRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(1)).asReadMemIO
   main.io.rom.charRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(2)).asReadMemIO
@@ -106,6 +108,12 @@ class Tecmo extends Module {
   main.io.rom.bgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(4)).asReadMemIO
   main.io.rom.spriteRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(5))
   main.io.rom.debugRom <> debugRom.io
+
+  // Sound PCB
+  val sound = withClockAndReset(io.soundClock, io.cpuReset) { Module(new Sound) }
+  sound.io.ctrl <> main.io.soundCtrl
+  sound.io.rom <> DataFreezer.freeze(io.soundClock, memSys.io.in(6)).asReadMemIO
+  sound.io.audio <> io.audio
 
   // Dotted border
   val dot = ((video.pos.x === 0.U || video.pos.x === 255.U) && video.pos.y(2) === 0.U) ||

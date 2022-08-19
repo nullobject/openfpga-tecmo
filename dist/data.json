@@ -30,22 +30,13 @@
         "address": "0x0000c000"
       },
       {
-        "name": "Sound ROM",
-        "id": 4,
-        "required": true,
-        "parameters": 3,
-        "filename": "cpu_4h.bin",
-        "size_exact": 8192,
-        "address": "0x00014000"
-      },
-      {
         "name": "Character ROM",
         "id": 4,
         "required": true,
         "parameters": 3,
         "filename": "cpu_8k.bin",
         "size_exact": 32768,
-        "address": "0x00016000"
+        "address": "0x00014000"
       },
       {
         "name": "Foreground ROM 0",
@@ -54,7 +45,7 @@
         "parameters": 3,
         "filename": "vid_6p.bin",
         "size_exact": 32768,
-        "address": "0x0001e000"
+        "address": "0x0001c000"
       },
       {
         "name": "Foreground ROM 1",
@@ -63,7 +54,7 @@
         "parameters": 3,
         "filename": "vid_6o.bin",
         "size_exact": 32768,
-        "address": "0x00026000"
+        "address": "0x00024000"
       },
       {
         "name": "Foreground ROM 2",
@@ -72,7 +63,7 @@
         "parameters": 3,
         "filename": "vid_6n.bin",
         "size_exact": 32768,
-        "address": "0x0002e000"
+        "address": "0x0002c000"
       },
       {
         "name": "Foreground ROM 3",
@@ -81,7 +72,7 @@
         "parameters": 3,
         "filename": "vid_6l.bin",
         "size_exact": 32768,
-        "address": "0x00036000"
+        "address": "0x00034000"
       },
       {
         "name": "Background ROM 0",
@@ -90,7 +81,7 @@
         "parameters": 3,
         "filename": "vid_6f.bin",
         "size_exact": 32768,
-        "address": "0x0003e000"
+        "address": "0x0003c000"
       },
       {
         "name": "Background ROM 1",
@@ -99,7 +90,7 @@
         "parameters": 3,
         "filename": "vid_6e.bin",
         "size_exact": 32768,
-        "address": "0x00046000"
+        "address": "0x00044000"
       },
       {
         "name": "Background ROM 2",
@@ -108,7 +99,7 @@
         "parameters": 3,
         "filename": "vid_6c.bin",
         "size_exact": 32768,
-        "address": "0x0004e000"
+        "address": "0x0004c000"
       },
       {
         "name": "Background ROM 3",
@@ -117,7 +108,7 @@
         "parameters": 3,
         "filename": "vid_6b.bin",
         "size_exact": 32768,
-        "address": "0x00056000"
+        "address": "0x00054000"
       },
       {
         "name": "Sprite ROM 0",
@@ -126,7 +117,7 @@
         "parameters": 3,
         "filename": "vid_6k.bin",
         "size_exact": 32768,
-        "address": "0x0005e000"
+        "address": "0x0005c000"
       },
       {
         "name": "Sprite ROM 1",
@@ -135,7 +126,7 @@
         "parameters": 3,
         "filename": "vid_6j.bin",
         "size_exact": 32768,
-        "address": "0x00066000"
+        "address": "0x00064000"
       },
       {
         "name": "Sprite ROM 2",
@@ -144,7 +135,7 @@
         "parameters": 3,
         "filename": "vid_6h.bin",
         "size_exact": 32768,
-        "address": "0x0006e000"
+        "address": "0x0006c000"
       },
       {
         "name": "Sprite ROM 3",
@@ -153,7 +144,25 @@
         "parameters": 3,
         "filename": "vid_6g.bin",
         "size_exact": 32768,
-        "address": "0x00076000"
+        "address": "0x00074000"
+      },
+      {
+        "name": "Sound ROM",
+        "id": 17,
+        "required": true,
+        "parameters": 3,
+        "filename": "cpu_4h.bin",
+        "size_exact": 8192,
+        "address": "0x0007c000"
+      },
+      {
+        "name": "ADPCM ROM",
+        "id": 18,
+        "required": true,
+        "parameters": 3,
+        "filename": "cpu_1f.bin",
+        "size_exact": 16384,
+        "address": "0x0007e000"
       }
     ]
   }

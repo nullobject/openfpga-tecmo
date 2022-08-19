@@ -40,6 +40,9 @@ package object tecmo {
   /** Bank ROM IO */
   class BankRomIO extends ReadMemIO(Config.BANK_ROM_ADDR_WIDTH, Config.BANK_ROM_DATA_WIDTH)
 
+  /** Sound ROM IO */
+  class SoundRomIO extends ReadMemIO(Config.SOUND_ROM_ADDR_WIDTH, Config.SOUND_ROM_DATA_WIDTH)
+
   /** Tile ROM IO */
   class TileRomIO extends ReadMemIO(Config.TILE_ROM_ADDR_WIDTH, Config.TILE_ROM_DATA_WIDTH)
 
