@@ -32,6 +32,7 @@
 
 package tecmo.snd
 
+import arcadia.Util
 import arcadia.cpu.z80._
 import arcadia.mem._
 import arcadia.snd._
@@ -53,14 +54,15 @@ class Sound extends Module {
   // Wires
   val irq = Wire(Bool())
 
+  // Latch control registers on rising request flag
+  val latch = Util.rising(io.ctrl.req)
+
   // Registers
-  val ctrlReqReg = ShiftRegister(io.ctrl.req, 2)
-  val ctrlDataReg = ShiftRegister(io.ctrl.data, 2)
-  val reqReg = RegEnable(true.B, false.B, ctrlReqReg)
-  val dataReg = RegEnable(ctrlDataReg, ctrlReqReg)
+  val reqReg = RegEnable(true.B, false.B, latch)
+  val dataReg = RegEnable(io.ctrl.data, latch)
 
   // Sound CPU
-  val cpu = Module(new CPU)
+  val cpu = Module(new CPU(24))
   cpu.io.din := DontCare
   cpu.io.int := irq
   cpu.io.nmi := reqReg
@@ -73,12 +75,12 @@ class Sound extends Module {
   soundRam.io.default()
 
   // FM
-  val opl = Module(new JTOPL)
+  val opl = Module(new OPL2(96))
   irq := opl.io.irq
   opl.io.cpu.default()
 
   // PCM
-  val pcm = Module(new JT5205(Config.SOUND_CLOCK_FREQ, Sound.SAMPLE_CLOCK_FREQ))
+  val pcm = Module(new JT5205(Config.CLOCK_FREQ, Sound.SAMPLE_CLOCK_FREQ))
 
   // PCM counter
   val pcmCounter = Module(new PCMCounter)

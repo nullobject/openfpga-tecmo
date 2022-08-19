@@ -114,10 +114,10 @@ class Tecmo extends Module {
   main.io.rom.debugRom <> debugRom.io
 
   // Sound PCB
-  val sound = withClockAndReset(io.soundClock, io.soundReset) { Module(new Sound) }
+  val sound = withReset(io.cpuReset) { Module(new Sound) }
   sound.io.ctrl <> main.io.soundCtrl
-  sound.io.rom.soundRom <> DataFreezer.freeze(io.soundClock, memSys.io.in(6)).asReadMemIO
-  sound.io.rom.pcmRom <> DataFreezer.freeze(io.soundClock, memSys.io.in(7)).asReadMemIO
+  sound.io.rom.soundRom <> memSys.io.in(6).asReadMemIO
+  sound.io.rom.pcmRom <> memSys.io.in(7).asReadMemIO
   sound.io.audio <> io.audio
 
   // Outputs
