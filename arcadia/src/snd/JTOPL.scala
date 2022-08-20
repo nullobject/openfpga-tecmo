@@ -52,7 +52,7 @@ class JTOPL extends Module {
     val audio = ValidIO(SInt(16.W))
   })
 
-  class JTOPLExternal extends BlackBox {
+  class JTOPL_ extends BlackBox {
     val io = IO(new Bundle {
       val rst = Input(Bool())
       val clk = Input(Bool())
@@ -70,19 +70,16 @@ class JTOPL extends Module {
     override def desiredName = "jtopl"
   }
 
-  val opl = Module(new JTOPLExternal)
-  opl.io.rst := reset.asBool
-  opl.io.clk := clock.asBool
-  opl.io.cen := true.B
-  opl.io.cs_n := false.B
-
-  opl.io.wr_n := !io.cpu.wr
-  opl.io.addr := io.cpu.addr(0)
-  opl.io.din := io.cpu.din
-  io.cpu.dout := opl.io.dout
-
-  io.irq := !opl.io.irq_n
-
-  io.audio.valid := opl.io.sample
-  io.audio.bits := opl.io.snd
+  val m = Module(new JTOPL_)
+  m.io.rst := reset.asBool
+  m.io.clk := clock.asBool
+  m.io.cen := true.B
+  m.io.cs_n := false.B
+  m.io.wr_n := !io.cpu.wr
+  m.io.addr := io.cpu.addr(0)
+  m.io.din := io.cpu.din
+  io.cpu.dout := m.io.dout
+  io.irq := !m.io.irq_n
+  io.audio.valid := m.io.sample
+  io.audio.bits := m.io.snd
 }
