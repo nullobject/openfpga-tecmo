@@ -40,6 +40,7 @@ import arcadia.pocket.Bridge
 import chisel3._
 import chisel3.experimental.FlatIO
 import chisel3.util.MuxCase
+import tecmo.snd.Sound
 
 /**
  * The top-level module.
@@ -112,7 +113,8 @@ class Tecmo extends Module {
   // Sound PCB
   val sound = withClockAndReset(io.soundClock, io.cpuReset) { Module(new Sound) }
   sound.io.ctrl <> main.io.soundCtrl
-  sound.io.rom <> DataFreezer.freeze(io.soundClock, memSys.io.in(6)).asReadMemIO
+  sound.io.rom.soundRom <> DataFreezer.freeze(io.soundClock, memSys.io.in(6)).asReadMemIO
+  sound.io.rom.pcmRom <> DataFreezer.freeze(io.soundClock, memSys.io.in(7)).asReadMemIO
   sound.io.audio <> io.audio
 
   // Dotted border

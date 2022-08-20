@@ -30,7 +30,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package tecmo
+package tecmo.snd
 
 import arcadia.Util
 import arcadia.cpu.z80._
@@ -38,19 +38,19 @@ import arcadia.mem._
 import arcadia.snd._
 import chisel3._
 import chisel3.util._
-
-/** A bundle that contains ports to control the sound PCB. */
-class SoundCtrlIO extends Bundle {
-  val req = Input(Bool())
-  val data = Input(Bits(8.W))
-}
+import tecmo._
 
 class Sound extends Module {
   val io = IO(new Bundle {
     /** Control port */
     val ctrl = new SoundCtrlIO
-    /** Sound ROM port */
-    val rom = new SoundRomIO
+    /** ROM port */
+    val rom = new Bundle {
+      /** Sound ROM port */
+      val soundRom = new SoundRomIO
+      /** PCM ROM port */
+      val pcmRom = new SampleRomIO
+    }
     /** Audio port */
     val audio = Output(SInt(Config.AUDIO_SAMPLE_WIDTH.W))
   })
@@ -84,17 +84,47 @@ class Sound extends Module {
   irq := opl.io.irq
   opl.io.cpu.default()
 
+  // PCM
+  val pcm = Module(new JT5205(Config.SOUND_CLOCK_FREQ, Sound.SAMPLE_CLOCK_FREQ))
+
+  // PCM counter
+  val pcmCounter = Module(new PCMCounter)
+  pcmCounter.io.cen := pcm.io.vclk
+  pcmCounter.io.wr := false.B
+  pcmCounter.io.high := DontCare
+  pcm.io.din := pcmCounter.io.dout
+  pcmCounter.io.din := cpu.io.dout
+  pcmCounter.io.rom <> io.rom.pcmRom
+
+  /**
+   * Sets the PCM address.
+   *
+   * @param high The high address flag.
+   */
+  def setAddr(high: Boolean): Unit = {
+    pcmCounter.io.wr := true.B
+    pcmCounter.io.high := high.B
+  }
+
   // Memory map
   val memMap = new MemMap(cpu.io)
-  memMap(0x0000 to 0x3fff).readMem(io.rom)
+  memMap(0x0000 to 0x3fff).readMem(io.rom.soundRom)
   memMap(0x4000 to 0x47ff).readWriteMem(soundRam.io)
   memMap(0x8000 to 0x8001).readWriteMem(opl.io.cpu)
   memMap(0xc000 to 0xc000).r { (_, _) => dataReg }
-  memMap(0xc000 to 0xc000).nopw() // PCM LO
-  memMap(0xd000 to 0xd000).nopw() // PCM HI
+  memMap(0xc000 to 0xc000).w { (_, _, _) => setAddr(false) }
+  memMap(0xd000 to 0xd000).w { (_, _, _) => setAddr(true) }
   memMap(0xe000 to 0xe000).nopw() // PCM VOL
   memMap(0xf000 to 0xf000).w { (_, _, _) => nmiReg := false.B }
 
-  // Outputs
-  io.audio := RegEnable(opl.io.audio.bits, opl.io.audio.valid)
+  // Audio mixer
+  io.audio := AudioMixer.sum(Config.AUDIO_SAMPLE_WIDTH,
+//    RegEnable(opl.io.audio.bits, opl.io.audio.valid) -> 1,
+    RegEnable(pcm.io.audio.bits, pcm.io.audio.valid) -> 1
+  )
+}
+
+object Sound {
+  /** The sample clock frequency (Hz) */
+  val SAMPLE_CLOCK_FREQ = 400_000
 }

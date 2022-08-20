@@ -38,14 +38,13 @@ import flatspec.AnyFlatSpec
 import matchers.should.Matchers
 
 trait LayerProcessorTestHelpers {
-  def mkLayerProcessor = {
+  def mkLayerProcessor =
     new LayerProcessor(LayerProcessorConfig(
       tileSize = 8,
       cols = 32,
       rows = 32,
       offset = 0
     ))
-  }
 }
 
 class LayerProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Matchers with LayerProcessorTestHelpers {

@@ -156,7 +156,7 @@
         "address": "0x0007c000"
       },
       {
-        "name": "ADPCM ROM",
+        "name": "PCM ROM",
         "id": 18,
         "required": true,
         "parameters": 3,

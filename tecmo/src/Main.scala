@@ -39,6 +39,7 @@ import arcadia.mem._
 import chisel3._
 import chisel3.util._
 import tecmo.gfx._
+import tecmo.snd.SoundCtrlIO
 
 /** Represents the main PCB. */
 class Main extends Module {

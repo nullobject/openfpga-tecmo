@@ -30,34 +30,52 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import arcadia.mem.{AsyncReadMemIO, ReadMemIO}
-import tecmo.Config
+package arcadia.snd
 
-package object tecmo {
-  /** Program ROM IO */
-  class ProgRomIO extends ReadMemIO(Config.PROG_ROM_ADDR_WIDTH, Config.PROG_ROM_DATA_WIDTH)
+import arcadia.clk.ClockDivider
+import chisel3._
+import chisel3.util._
 
-  /** Bank ROM IO */
-  class BankRomIO extends ReadMemIO(Config.BANK_ROM_ADDR_WIDTH, Config.BANK_ROM_DATA_WIDTH)
+/**
+ * The 5205 is a ADPCM sound chip.
+ *
+ * @param clockFreq  The system clock frequency (Hz).
+ * @param sampleFreq The sample clock frequency (Hz).
+ * @note This module wraps jotego's JT5205 implementation.
+ * @see https://github.com/jotego/jt5205
+ */
+class JT5205(clockFreq: Double, sampleFreq: Double) extends Module {
+  val io = IO(new Bundle {
+    /** Data input port */
+    val din = Input(Bits(4.W))
+    /** Audio output port */
+    val audio = ValidIO(SInt(12.W))
+    /** Sample clock */
+    val vclk = Output(Bool())
+  })
 
-  /** Sound ROM IO */
-  class SoundRomIO extends ReadMemIO(Config.SOUND_ROM_ADDR_WIDTH, Config.SOUND_ROM_DATA_WIDTH)
+  class JT5205_ extends BlackBox {
+    val io = IO(new Bundle {
+      val rst = Input(Bool())
+      val clk = Input(Bool())
+      val cen = Input(Bool())
+      val sel = Input(Bits(2.W))
+      val din = Input(Bits(4.W))
+      val sound = Output(SInt(12.W))
+      val sample = Output(Bool())
+      val vclk_o = Output(Bool())
+    })
 
-  /** Sample ROM IO */
-  class SampleRomIO extends ReadMemIO(Config.PCM_ROM_ADDR_WIDTH, Config.PCM_ROM_DATA_WIDTH)
+    override def desiredName = "jt5205"
+  }
 
-  /** Tile ROM IO */
-  class TileRomIO extends ReadMemIO(Config.TILE_ROM_ADDR_WIDTH, Config.TILE_ROM_DATA_WIDTH)
-
-  /** Sprite ROM IO */
-  class SpriteRomIO extends AsyncReadMemIO(Config.SPRITE_ROM_ADDR_WIDTH, Config.SPRITE_ROM_DATA_WIDTH)
-
-  /** Layer RAM IO (GPU-side) */
-  class LayerRamIO extends ReadMemIO(Config.LAYER_RAM_GPU_ADDR_WIDTH, Config.LAYER_RAM_GPU_DATA_WIDTH)
-
-  /** Sprite RAM IO (GPU-side) */
-  class SpriteRamIO extends ReadMemIO(Config.SPRITE_RAM_GPU_ADDR_WIDTH, Config.SPRITE_RAM_GPU_DATA_WIDTH)
-
-  /** Palette RAM IO (GPU-side) */
-  class PaletteRamIO extends ReadMemIO(Config.PALETTE_RAM_GPU_ADDR_WIDTH, Config.PALETTE_RAM_GPU_DATA_WIDTH)
+  val m = Module(new JT5205_)
+  m.io.clk := clock.asBool
+  m.io.rst := reset.asBool
+  m.io.cen := ClockDivider(clockFreq / sampleFreq)
+  m.io.sel := "b10".U // 8 kHz
+  m.io.din := io.din
+  io.audio.valid := m.io.sample
+  io.audio.bits := m.io.sound
+  io.vclk := m.io.vclk_o
 }

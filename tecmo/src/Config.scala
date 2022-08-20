@@ -37,7 +37,10 @@ import arcadia.mem._
 
 object Config {
   /** The system clock frequency (Hz) */
-  val CLOCK_FREQ = 96000000
+  val CLOCK_FREQ = 96_000_000
+
+  /** The sound clock frequency (Hz) */
+  val SOUND_CLOCK_FREQ = 4_000_000
 
   /** The width of a priority value */
   val PRIO_WIDTH = 2
@@ -61,8 +64,11 @@ object Config {
   val BANK_ROM_ADDR_WIDTH = 15 // 32 kB
   val BANK_ROM_DATA_WIDTH = 8
 
-  val SOUND_ROM_ADDR_WIDTH = 13 // 64 kB
+  val SOUND_ROM_ADDR_WIDTH = 13 // 8 kB
   val SOUND_ROM_DATA_WIDTH = 8
+
+  val PCM_ROM_ADDR_WIDTH = 14 // 16 kB
+  val PCM_ROM_DATA_WIDTH = 8
 
   val WORK_RAM_ADDR_WIDTH = 12 // 4 kB
   val WORK_RAM_DATA_WIDTH = 8
@@ -164,6 +170,12 @@ object Config {
         addrWidth = Config.SOUND_ROM_ADDR_WIDTH,
         dataWidth = Config.SOUND_ROM_DATA_WIDTH,
         offset = 0x7c000
+      ),
+      // PCM ROM
+      SlotConfig(
+        addrWidth = Config.PCM_ROM_ADDR_WIDTH,
+        dataWidth = Config.PCM_ROM_DATA_WIDTH,
+        offset = 0x7e000
       )
     )
   )

@@ -30,34 +30,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import arcadia.mem.{AsyncReadMemIO, ReadMemIO}
-import tecmo.Config
+package tecmo.snd
 
-package object tecmo {
-  /** Program ROM IO */
-  class ProgRomIO extends ReadMemIO(Config.PROG_ROM_ADDR_WIDTH, Config.PROG_ROM_DATA_WIDTH)
+import chisel3._
 
-  /** Bank ROM IO */
-  class BankRomIO extends ReadMemIO(Config.BANK_ROM_ADDR_WIDTH, Config.BANK_ROM_DATA_WIDTH)
-
-  /** Sound ROM IO */
-  class SoundRomIO extends ReadMemIO(Config.SOUND_ROM_ADDR_WIDTH, Config.SOUND_ROM_DATA_WIDTH)
-
-  /** Sample ROM IO */
-  class SampleRomIO extends ReadMemIO(Config.PCM_ROM_ADDR_WIDTH, Config.PCM_ROM_DATA_WIDTH)
-
-  /** Tile ROM IO */
-  class TileRomIO extends ReadMemIO(Config.TILE_ROM_ADDR_WIDTH, Config.TILE_ROM_DATA_WIDTH)
-
-  /** Sprite ROM IO */
-  class SpriteRomIO extends AsyncReadMemIO(Config.SPRITE_ROM_ADDR_WIDTH, Config.SPRITE_ROM_DATA_WIDTH)
-
-  /** Layer RAM IO (GPU-side) */
-  class LayerRamIO extends ReadMemIO(Config.LAYER_RAM_GPU_ADDR_WIDTH, Config.LAYER_RAM_GPU_DATA_WIDTH)
-
-  /** Sprite RAM IO (GPU-side) */
-  class SpriteRamIO extends ReadMemIO(Config.SPRITE_RAM_GPU_ADDR_WIDTH, Config.SPRITE_RAM_GPU_DATA_WIDTH)
-
-  /** Palette RAM IO (GPU-side) */
-  class PaletteRamIO extends ReadMemIO(Config.PALETTE_RAM_GPU_ADDR_WIDTH, Config.PALETTE_RAM_GPU_DATA_WIDTH)
+/** A bundle that contains ports to control the sound PCB. */
+class SoundCtrlIO extends Bundle {
+  val req = Input(Bool())
+  val data = Input(Bits(8.W))
 }
