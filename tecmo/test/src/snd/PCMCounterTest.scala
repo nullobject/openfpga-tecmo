@@ -79,7 +79,6 @@ class PCMCounterTest extends AnyFlatSpec with ChiselScalatestTester with Matcher
     test(new PCMCounter) { dut =>
       setHighAddr(dut, 0x13)
       setLowAddr(dut, 0x12)
-
       dut.io.rom.addr.expect(0x1200)
       stepCounter(dut)
       dut.io.rom.addr.expect(0x1200)
@@ -89,27 +88,17 @@ class PCMCounterTest extends AnyFlatSpec with ChiselScalatestTester with Matcher
     }
   }
 
-  it should "set the output nibble" in {
+  it should "set the output data" in {
     test(new PCMCounter) { dut =>
+      setHighAddr(dut, 0x13)
+      setLowAddr(dut, 0x12)
       dut.io.rom.dout.poke(0xab)
-
-      setHighAddr(dut, 0x13)
-      setLowAddr(dut, 0x12)
-
       dut.io.dout.expect(0xb)
       stepCounter(dut)
       dut.io.dout.expect(0xa)
       stepCounter(dut)
-
       0.until(512).foreach { _ => stepCounter(dut) }
-
-      setHighAddr(dut, 0x13)
-      setLowAddr(dut, 0x12)
-
-      dut.io.dout.expect(0xb)
-      stepCounter(dut)
-      dut.io.dout.expect(0xa)
-      stepCounter(dut)
+      dut.io.dout.expect(0x0)
     }
   }
 }

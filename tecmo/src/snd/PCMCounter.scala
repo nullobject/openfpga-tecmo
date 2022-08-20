@@ -34,6 +34,7 @@ package tecmo.snd
 
 import arcadia.Util
 import chisel3._
+import chisel3.util.MuxCase
 import tecmo._
 
 /**
@@ -91,10 +92,13 @@ class PCMCounter extends Module {
   }
 
   // Outputs
-  io.dout := Mux(addrReg(0), io.rom.dout(7, 4), io.rom.dout(3, 0))
+  io.dout := MuxCase(0.U, Seq(
+    (busyReg && addrReg(0)) -> io.rom.dout(7, 4),
+    busyReg -> io.rom.dout(3, 0)
+  ))
   io.rom.rd := busyReg
   io.rom.addr := addrReg(16, 1)
 
   // Debug
-  printf(p"PCMCounter(rd: ${io.rom.rd}, addr: 0x${Hexadecimal(addrReg)}, high: 0x${Hexadecimal(highReg)})\n")
+  printf(p"PCMCounter(rd: ${io.rom.rd}, addr: 0x${Hexadecimal(addrReg)}, high: 0x${Hexadecimal(highReg)}, dout: 0x${Hexadecimal(io.dout)})\n")
 }
