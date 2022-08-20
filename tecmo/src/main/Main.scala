@@ -30,7 +30,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package tecmo
+package tecmo.main
 
 import arcadia._
 import arcadia.cpu.z80._
@@ -38,6 +38,7 @@ import arcadia.gfx.VideoIO
 import arcadia.mem._
 import chisel3._
 import chisel3.util._
+import tecmo.Config
 import tecmo.gfx._
 import tecmo.snd.SoundCtrlIO
 

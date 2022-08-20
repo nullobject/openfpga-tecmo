@@ -30,11 +30,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package tecmo
+package tecmo.main
 
 import chisel3._
+import tecmo.{BankRomIO, ProgRomIO, SpriteRomIO, TileRomIO}
 
-/** A bundle that contains memory ports for all ROMs. */
+/** A bundle that contains memory ports for main ROMs. */
 class RomIO extends Bundle {
   /** Program ROM */
   val progRom = new ProgRomIO

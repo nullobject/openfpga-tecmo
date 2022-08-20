@@ -40,6 +40,7 @@ import arcadia.pocket.Bridge
 import chisel3._
 import chisel3.experimental.FlatIO
 import chisel3.util.MuxCase
+import main.Main
 import tecmo.snd.Sound
 
 /**
