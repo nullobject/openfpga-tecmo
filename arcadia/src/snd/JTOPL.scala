@@ -45,7 +45,7 @@ import chisel3.util._
 class JTOPL extends Module {
   val io = IO(new Bundle {
     /** CPU port */
-    val cpu = Flipped(MemIO(16, 8))
+    val cpu = Flipped(MemIO(1, 8))
     /** IRQ */
     val irq = Output(Bool())
     /** Audio output port */
