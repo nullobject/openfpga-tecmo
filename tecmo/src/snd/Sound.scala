@@ -119,7 +119,7 @@ class Sound extends Module {
 
   // Audio mixer
   io.audio := AudioMixer.sum(Config.AUDIO_SAMPLE_WIDTH,
-//    RegEnable(opl.io.audio.bits, opl.io.audio.valid) -> 1,
+    RegEnable(opl.io.audio.bits, opl.io.audio.valid) -> 1,
     RegEnable(pcm.io.audio.bits, pcm.io.audio.valid) -> 1
   )
 }

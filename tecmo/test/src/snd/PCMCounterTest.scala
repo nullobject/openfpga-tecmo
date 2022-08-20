@@ -38,6 +38,22 @@ import flatspec.AnyFlatSpec
 import matchers.should.Matchers
 
 trait PCMCounterTestHelpers {
+  def setLowAddr(dut: PCMCounter, addr: Int) = {
+    dut.io.high.poke(false)
+    dut.io.wr.poke(true)
+    dut.io.din.poke(addr)
+    dut.clock.step()
+    dut.io.wr.poke(false)
+  }
+
+  def setHighAddr(dut: PCMCounter, addr: Int) = {
+    dut.io.high.poke(true)
+    dut.io.wr.poke(true)
+    dut.io.din.poke(addr)
+    dut.clock.step()
+    dut.io.wr.poke(false)
+  }
+
   def stepCounter(dut: PCMCounter) = {
     dut.io.cen.poke(true)
     dut.clock.step()
@@ -47,44 +63,53 @@ trait PCMCounterTestHelpers {
 }
 
 class PCMCounterTest extends AnyFlatSpec with ChiselScalatestTester with Matchers with PCMCounterTestHelpers {
+  it should "assert the ROM read signal" in {
+    test(new PCMCounter) { dut =>
+      dut.io.rom.rd.expect(false)
+      setHighAddr(dut, 0x13)
+      dut.io.rom.rd.expect(false)
+      setLowAddr(dut, 0x12)
+      dut.io.rom.rd.expect(true)
+      0.until(514).foreach { _ => stepCounter(dut) }
+      dut.io.rom.rd.expect(false)
+    }
+  }
+
   it should "step the address counter" in {
     test(new PCMCounter) { dut =>
-      // Set high address
-      dut.io.rom.rd.expect(false)
-      dut.io.high.poke(true)
-      dut.io.wr.poke(true)
-      dut.io.din.poke(0x13)
-      dut.clock.step()
+      setHighAddr(dut, 0x13)
+      setLowAddr(dut, 0x12)
 
-      // Set low address
-      dut.io.rom.rd.expect(false)
-      dut.io.high.poke(false)
-      dut.io.din.poke(0x12)
-      dut.clock.step()
-      dut.io.wr.poke(false)
-
-      // Load data
-      dut.io.rom.dout.poke(0xab)
-      dut.io.rom.rd.expect(true)
       dut.io.rom.addr.expect(0x1200)
       stepCounter(dut)
-      dut.io.rom.rd.expect(true)
       dut.io.rom.addr.expect(0x1200)
+      stepCounter(dut)
+      0.until(514).foreach { _ => stepCounter(dut) }
+      dut.io.rom.addr.expect(0x1300)
+    }
+  }
+
+  it should "set the output nibble" in {
+    test(new PCMCounter) { dut =>
+      dut.io.rom.dout.poke(0xab)
+
+      setHighAddr(dut, 0x13)
+      setLowAddr(dut, 0x12)
+
       dut.io.dout.expect(0xb)
       stepCounter(dut)
-      dut.io.rom.rd.expect(true)
-      dut.io.rom.addr.expect(0x1201)
       dut.io.dout.expect(0xa)
       stepCounter(dut)
 
-      // Continue to high address
-      0.until(510).foreach { _ => stepCounter(dut) }
-      dut.io.rom.rd.expect(true)
-      dut.io.rom.addr.expect(0x1300)
-      stepCounter(dut)
+      0.until(512).foreach { _ => stepCounter(dut) }
 
-      // Done
-      dut.io.rom.rd.expect(false)
+      setHighAddr(dut, 0x13)
+      setLowAddr(dut, 0x12)
+
+      dut.io.dout.expect(0xb)
+      stepCounter(dut)
+      dut.io.dout.expect(0xa)
+      stepCounter(dut)
     }
   }
 }

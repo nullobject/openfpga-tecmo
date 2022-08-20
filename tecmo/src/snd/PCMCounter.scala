@@ -36,6 +36,13 @@ import arcadia.Util
 import chisel3._
 import tecmo._
 
+/**
+ * The PCM counter controller loads data from the sample ROM for the ADPCM decoder.
+ *
+ * The MSM5205 is a 4-bit ADPCM decoder, so the sample data must be provided in 4-bit nibbles. When
+ * the ADPCM decoder requires another sample, the counter controller increments the ROM address and
+ * loads the next sample.
+ */
 class PCMCounter extends Module {
   val io = IO(new Bundle {
     /** Clock enable */
@@ -54,42 +61,40 @@ class PCMCounter extends Module {
 
   // Registers
   val busyReg = RegInit(false.B)
-  val addrReg = Reg(UInt(16.W))
-  val highReg = Reg(UInt(16.W))
-  val nibbleReg = RegInit(false.B)
+  val addrReg = Reg(UInt(17.W))
+  val highReg = Reg(UInt(17.W))
 
   // Control signals
-  val latchLow = io.wr && !io.high
   val latchHigh = io.wr && io.high
-  val increment = busyReg && Util.falling(io.cen)
-  val done = addrReg === highReg && nibbleReg
-
-  // Latch low address
-  when(latchLow) {
-    busyReg := true.B
-    addrReg := io.din ## 0.U(8.W)
-  }
+  val latchLow = io.wr && !io.high
+  val step = busyReg && Util.falling(io.cen)
+  val done = addrReg === highReg
 
   // Latch high address
   when(latchHigh) {
-    highReg := io.din ## 0.U(8.W)
+    highReg := io.din ## 0.U(9.W)
   }
 
-  // Increment address
-  when(increment) {
+  // Latch low address and start counter
+  when(latchLow) {
+    busyReg := true.B
+    addrReg := io.din ## 0.U(9.W)
+  }
+
+  // Increment counter
+  when(step) {
     when(done) {
       busyReg := false.B
     }.otherwise {
-      when(nibbleReg) { addrReg := addrReg + 1.U }
-      nibbleReg := !nibbleReg
+      addrReg := addrReg + 1.U
     }
   }
 
   // Outputs
   io.dout := Mux(addrReg(0), io.rom.dout(7, 4), io.rom.dout(3, 0))
   io.rom.rd := busyReg
-  io.rom.addr := addrReg
+  io.rom.addr := addrReg(16, 1)
 
   // Debug
-  printf(p"PCMCounter(rd: ${io.rom.rd}, nibble: $nibbleReg, addr: 0x${Hexadecimal(addrReg)}, high: 0x${Hexadecimal(highReg)})\n")
+  printf(p"PCMCounter(rd: ${io.rom.rd}, addr: 0x${Hexadecimal(addrReg)}, high: 0x${Hexadecimal(highReg)})\n")
 }
