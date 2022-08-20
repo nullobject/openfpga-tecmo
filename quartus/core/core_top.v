@@ -379,9 +379,8 @@ core_bridge_cmd icb (
 
 );
 
-
-wire sys_clock;
-wire snd_clock;
+wire sys_clock, snd_clock;
+wire cpu_reset, snd_reset;
 wire pll_core_locked;
 
 mf_pllbase mp1 (
@@ -394,6 +393,18 @@ mf_pllbase mp1 (
     .outclk_3       ( snd_clock ),
 
     .locked         ( pll_core_locked )
+);
+
+reset_ctrl cpu_reset_ctrl (
+  .clk(video_rgb_clock),
+  .rst_i(~reset_n),
+  .rst_o(cpu_reset)
+);
+
+reset_ctrl snd_reset_ctrl (
+  .clk(snd_clock),
+  .rst_i(~reset_n),
+  .rst_o(snd_reset)
 );
 
 wire        dram_oe;
@@ -409,7 +420,8 @@ wire [15:0] audio;
 
 Tecmo tecmo (
   .reset(~pll_core_locked),
-  .cpuReset(~reset_n),
+  .cpuReset(cpu_reset),
+  .soundReset(snd_reset),
 
   .clock(sys_clock),
   .bridgeClock(clk_74a),

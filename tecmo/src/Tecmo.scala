@@ -52,6 +52,8 @@ class Tecmo extends Module {
   val io = FlatIO(new Bundle {
     /** CPU reset */
     val cpuReset = Input(Bool())
+    /** Sound reset */
+    val soundReset = Input(Bool())
     /** Bridge clock */
     val bridgeClock = Input(Clock())
     /** Video clock */
@@ -111,7 +113,7 @@ class Tecmo extends Module {
   main.io.rom.debugRom <> debugRom.io
 
   // Sound PCB
-  val sound = withClockAndReset(io.soundClock, io.cpuReset) { Module(new Sound) }
+  val sound = withClockAndReset(io.soundClock, io.soundReset) { Module(new Sound) }
   sound.io.ctrl <> main.io.soundCtrl
   sound.io.rom.soundRom <> DataFreezer.freeze(io.soundClock, memSys.io.in(6)).asReadMemIO
   sound.io.rom.pcmRom <> DataFreezer.freeze(io.soundClock, memSys.io.in(7)).asReadMemIO
