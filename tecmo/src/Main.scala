@@ -187,7 +187,7 @@ class Main extends Module {
     bankReg ## addr(10, 0)
   }
   memMap(0xf800).r { (_, _) => Cat(io.player.up, io.player.down, io.player.right, io.player.left) }
-  memMap(0xf801).r { (_, _) => Cat(io.player.buttons(2), io.player.buttons(1), io.player.buttons(0)) }
+  memMap(0xf801).r { (_, _) => Cat(io.player.buttons(1), io.player.buttons(0)) }
   memMap(0xf804).r { (_, _) => Cat(io.player.coin, 0.U, io.player.start, 0.U) }
   memMap(0xf800 to 0xf802).w { (_, offset, data) =>
     switch(offset) {
