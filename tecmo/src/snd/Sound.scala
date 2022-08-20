@@ -40,17 +40,13 @@ import chisel3._
 import chisel3.util._
 import tecmo._
 
+/** Represents the sound PCB. */
 class Sound extends Module {
   val io = IO(new Bundle {
     /** Control port */
     val ctrl = new SoundCtrlIO
     /** ROM port */
-    val rom = new Bundle {
-      /** Sound ROM port */
-      val soundRom = new SoundRomIO
-      /** PCM ROM port */
-      val pcmRom = new SampleRomIO
-    }
+    val rom = new RomIO
     /** Audio port */
     val audio = Output(SInt(Config.AUDIO_SAMPLE_WIDTH.W))
   })
@@ -61,16 +57,14 @@ class Sound extends Module {
   // Registers
   val ctrlReqReg = ShiftRegister(io.ctrl.req, 2)
   val ctrlDataReg = ShiftRegister(io.ctrl.data, 2)
-
-  val latch = Util.rising(ctrlReqReg)
-  val nmiReg = RegEnable(true.B, false.B, latch)
-  val dataReg = RegEnable(ctrlDataReg, latch)
+  val reqReg = RegEnable(true.B, false.B, ctrlReqReg)
+  val dataReg = RegEnable(ctrlDataReg, ctrlReqReg)
 
   // Sound CPU
   val cpu = Module(new CPU)
   cpu.io.din := DontCare
   cpu.io.int := irq
-  cpu.io.nmi := nmiReg
+  cpu.io.nmi := reqReg
 
   // Sound RAM
   val soundRam = Module(new SinglePortRam(
@@ -115,7 +109,7 @@ class Sound extends Module {
   memMap(0xc000 to 0xc000).w { (_, _, _) => setAddr(false) }
   memMap(0xd000 to 0xd000).w { (_, _, _) => setAddr(true) }
   memMap(0xe000 to 0xe000).nopw() // PCM VOL
-  memMap(0xf000 to 0xf000).w { (_, _, _) => nmiReg := false.B }
+  memMap(0xf000 to 0xf000).w { (_, _, _) => reqReg := false.B }
 
   // Audio mixer
   io.audio := AudioMixer.sum(Config.AUDIO_SAMPLE_WIDTH,
