@@ -94,13 +94,13 @@ class GPU extends Module {
   charProcessor.io.flip := io.flip
 
   // Foreground processor
-  val fgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 58)))
+  val fgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 54)))
   fgProcessor.io.ctrl <> io.fgCtrl
   fgProcessor.io.video <> io.video
   fgProcessor.io.flip := io.flip
 
   // Background processor
-  val bgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 58)))
+  val bgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 54)))
   bgProcessor.io.ctrl <> io.bgCtrl
   bgProcessor.io.video <> io.video
   bgProcessor.io.flip := io.flip
