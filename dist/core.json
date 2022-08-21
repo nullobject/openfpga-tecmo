@@ -3,12 +3,12 @@
     "magic": "APF_VER_1",
     "metadata": {
       "platform_ids": [],
-      "shortname": "rygar",
-      "description": "Core template. Displays gray test screen.",
+      "shortname": "tecmo",
+      "description": "Tecmo arcade core.",
       "author": "nullobject",
-      "url": "https://github.com/open-fpga/core-template",
+      "url": "https://github.com/nullobject/openfpga-tecmo",
       "version": "1.0",
-      "date_release": "2022-06-30"
+      "date_release": "2022-08-20"
     },
     "framework": {
       "target_product": "Analogue Pocket",
