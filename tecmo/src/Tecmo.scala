@@ -102,7 +102,7 @@ class Tecmo extends Module {
   // Main PCB
   val main = withClockAndReset(io.videoClock, io.cpuReset) { Module(new Main) }
   main.io.flip := false.B
-  main.io.debug := true.B
+  main.io.debug := false.B
   main.io.player := io.player
   main.io.video := video
   main.io.rom.progRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(0)).asReadMemIO
