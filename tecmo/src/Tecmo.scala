@@ -120,17 +120,7 @@ class Tecmo extends Module {
   sound.io.rom.pcmRom <> DataFreezer.freeze(io.soundClock, memSys.io.in(7)).asReadMemIO
   sound.io.audio <> io.audio
 
-  // Dotted border
-  val dot = ((video.pos.x === 0.U || video.pos.x === 255.U) && video.pos.y(2) === 0.U) ||
-    ((video.pos.y === 16.U || video.pos.y === 239.U) && video.pos.x(2) === 0.U)
-
-  // Final pixel color
-  val rgb = MuxCase(main.io.rgb, Seq(
-    !video.displayEnable -> RGB(0.U(8.W)),
-//    dot -> RGB(0xff.U(8.W)),
-  ))
-
   // Outputs
   io.video := RegNext(video)
-  io.rgb := RegNext(rgb)
+  io.rgb := RegNext(main.io.rgb)
 }
