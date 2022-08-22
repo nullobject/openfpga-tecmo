@@ -2,7 +2,7 @@
   "core": {
     "magic": "APF_VER_1",
     "metadata": {
-      "platform_ids": [],
+      "platform_ids": ["tecmo"],
       "shortname": "tecmo",
       "description": "Tecmo arcade core.",
       "author": "nullobject",
