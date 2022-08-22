@@ -35,6 +35,7 @@ package tecmo.gfx
 import arcadia._
 import arcadia.gfx._
 import chisel3._
+import chisel3.util.MuxCase
 import tecmo._
 
 /** Graphics Processor */
@@ -123,8 +124,15 @@ class GPU extends Module {
   colorMixer.io.bgPen := bgProcessor.io.pen
   colorMixer.io.debugPen := debugLayer.io.data.asTypeOf(new PaletteEntry)
 
-  // Decode color mixer data and write it to the RGB output
-  io.rgb := GPU.decodeRGB(colorMixer.io.dout)
+  // Dotted border
+  val dot = ((io.video.pos.x === 0.U || io.video.pos.x === 255.U) && io.video.pos.y(2) === 0.U) ||
+    ((io.video.pos.y === 16.U || io.video.pos.y === 239.U) && io.video.pos.x(2) === 0.U)
+
+  // Final pixel color
+  io.rgb := MuxCase(RGB(0.U(8.W)), Seq(
+    (io.video.displayEnable && io.debug && dot) -> RGB(0xff.U(8.W)),
+    io.video.displayEnable -> GPU.decodeRGB(colorMixer.io.dout)
+  ))
 }
 
 object GPU {

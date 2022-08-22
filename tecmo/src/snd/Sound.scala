@@ -32,7 +32,6 @@
 
 package tecmo.snd
 
-import arcadia.Util
 import arcadia.cpu.z80._
 import arcadia.mem._
 import arcadia.snd._
