@@ -53,6 +53,8 @@ class Main extends Module {
     val debug = Input(Bool())
     /** Player port */
     val player = PlayerIO()
+    /** Pause flag */
+    val pause = Input(Bool())
     /** Video port */
     val video = Flipped(VideoIO())
     /** ROM port */
@@ -73,6 +75,7 @@ class Main extends Module {
 
   // Main CPU
   val cpu = Module(new CPU(Config.CPU_CLOCK_DIV))
+  cpu.io.halt := ShiftRegister(io.pause, 2)
   cpu.io.din := DontCare
   cpu.io.int := irq
   cpu.io.nmi := false.B

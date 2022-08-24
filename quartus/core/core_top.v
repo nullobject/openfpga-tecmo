@@ -468,6 +468,7 @@ Tecmo tecmo (
   .bridge_wr(bridge_wr),
   .bridge_addr(bridge_addr),
   .bridge_dout(bridge_wr_data),
+  .bridge_pause(osnotify_inmenu),
   .bridge_done(dataslot_allcomplete),
 
   .player_up(cont1_key[0]),
@@ -477,7 +478,6 @@ Tecmo tecmo (
   .player_buttons(cont1_key[7:4]),
   .player_start(cont1_key[15]),
   .player_coin(cont1_key[14]),
-  .player_pause(0),
 
   .sdram_cke(dram_cke),
   .sdram_ras_n(dram_ras_n),

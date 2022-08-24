@@ -61,6 +61,7 @@ class Sound extends Module {
 
   // Sound CPU
   val cpu = Module(new CPU(Config.SOUND_CLOCK_DIV))
+  cpu.io.halt := false.B
   cpu.io.din := DontCare
   cpu.io.int := irq
   cpu.io.nmi := reqReg

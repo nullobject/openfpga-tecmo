@@ -50,8 +50,6 @@ class PlayerIO extends Bundle {
   val start = Input(Bool())
   /** Coin */
   val coin = Input(Bool())
-  /** Pause */
-  val pause = Input(Bool())
 }
 
 object PlayerIO {

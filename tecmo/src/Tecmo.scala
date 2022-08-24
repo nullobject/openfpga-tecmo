@@ -102,6 +102,7 @@ class Tecmo extends Module {
   main.io.flip := false.B
   main.io.debug := false.B
   main.io.player := io.player
+  main.io.pause := io.bridge.pause
   main.io.video := video
   main.io.rom.progRom <> Crossing.freeze(io.cpuClock, memSys.io.in(0)).asReadMemIO
   main.io.rom.bankRom <> Crossing.freeze(io.cpuClock, memSys.io.in(1)).asReadMemIO

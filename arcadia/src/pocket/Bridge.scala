@@ -44,6 +44,8 @@ class Bridge extends Bundle {
   val addr = Input(UInt(Bridge.ADDR_WIDTH.W))
   /** Output data bus */
   val dout = Input(Bits(Bridge.DATA_WIDTH.W))
+  /** Pause flag */
+  val pause = Input(Bool())
   /** Done flag */
   val done = Input(Bool())
 

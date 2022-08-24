@@ -37,6 +37,8 @@ import chisel3._
 
 /** An interface for the Z80 CPU. */
 class CPUIO extends Bundle {
+  /** Halt */
+  val halt = Input(Bool())
   /** Address bus */
   val addr = Output(UInt(CPU.ADDR_WIDTH.W))
   /** Data input */
@@ -59,8 +61,6 @@ class CPUIO extends Bundle {
   val nmi = Input(Bool())
   /** Asserted during the M1 cycle */
   val m1 = Output(Bool())
-  /** Asserted when the CPU has halted */
-  val halt = Output(Bool())
   /** Asserted during a bus acknowledge */
   val busak = Output(Bool())
   /** Register file output (for debugging) */
@@ -102,7 +102,7 @@ class CPU(clockDiv: Int = 1) extends Module {
   cpu.io.RESET_n := !reset.asBool
   cpu.io.CLK := clock
   cpu.io.CEN := cen
-  cpu.io.WAIT_n := true.B
+  cpu.io.WAIT_n := !io.halt
   cpu.io.INT_n := !io.int
   cpu.io.NMI_n := !io.nmi
   cpu.io.BUSRQ_n := true.B
@@ -112,7 +112,6 @@ class CPU(clockDiv: Int = 1) extends Module {
   io.rd := !cpu.io.RD_n
   io.wr := !cpu.io.WR_n
   io.rfsh := !cpu.io.RFSH_n
-  io.halt := !cpu.io.HALT_n
   io.busak := !cpu.io.BUSAK_n
   io.m1 := !cpu.io.M1_n
   io.addr := cpu.io.A
