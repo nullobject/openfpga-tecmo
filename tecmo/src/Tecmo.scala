@@ -39,7 +39,6 @@ import arcadia.mem.sdram.{SDRAM, SDRAMIO}
 import arcadia.pocket.Bridge
 import chisel3._
 import chisel3.experimental.FlatIO
-import chisel3.util.MuxCase
 import main.Main
 import tecmo.snd.Sound
 
@@ -105,19 +104,19 @@ class Tecmo extends Module {
   main.io.debug := false.B
   main.io.player := io.player
   main.io.video := video
-  main.io.rom.progRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(0)).asReadMemIO
-  main.io.rom.bankRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(1)).asReadMemIO
-  main.io.rom.charRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(2)).asReadMemIO
-  main.io.rom.fgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(3)).asReadMemIO
-  main.io.rom.bgRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(4)).asReadMemIO
-  main.io.rom.spriteRom <> DataFreezer.freeze(io.videoClock, memSys.io.in(5))
+  main.io.rom.progRom <> Crossing.freeze(io.videoClock, memSys.io.in(0)).asReadMemIO
+  main.io.rom.bankRom <> Crossing.freeze(io.videoClock, memSys.io.in(1)).asReadMemIO
+  main.io.rom.charRom <> Crossing.freeze(io.videoClock, memSys.io.in(2)).asReadMemIO
+  main.io.rom.fgRom <> Crossing.freeze(io.videoClock, memSys.io.in(3)).asReadMemIO
+  main.io.rom.bgRom <> Crossing.freeze(io.videoClock, memSys.io.in(4)).asReadMemIO
+  main.io.rom.spriteRom <> Crossing.freeze(io.videoClock, memSys.io.in(5))
   main.io.rom.debugRom <> debugRom.io
 
   // Sound PCB
   val sound = withClockAndReset(io.soundClock, io.soundReset) { Module(new Sound) }
   sound.io.ctrl <> main.io.soundCtrl
-  sound.io.rom.soundRom <> DataFreezer.freeze(io.soundClock, memSys.io.in(6)).asReadMemIO
-  sound.io.rom.pcmRom <> DataFreezer.freeze(io.soundClock, memSys.io.in(7)).asReadMemIO
+  sound.io.rom.soundRom <> Crossing.freeze(io.soundClock, memSys.io.in(6)).asReadMemIO
+  sound.io.rom.pcmRom <> Crossing.freeze(io.soundClock, memSys.io.in(7)).asReadMemIO
 
   // Outputs
   io.video := RegNext(video)

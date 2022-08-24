@@ -32,6 +32,7 @@
 
 package arcadia.mem
 
+import arcadia.Util
 import chisel3._
 
 /**
@@ -78,6 +79,60 @@ class Crossing(addrWidth: Int, dataWidth: Int, depth: Int = 4) extends Module {
   io.in.dout := dataFifo.io.deq.deq()
 }
 
+/**
+ * Transfers a memory interface between clock domains.
+ *
+ * Signals transferred from the fast clock domain are stretched so that they can be latched in the
+ * slow clock domain. Signals transferred from the slow clock domain are unchanged.
+ *
+ * The data freezer requires that the clock domain frequencies are phase-aligned integer multiples
+ * of each other. This ensures that the signals can be transferred between the clock domains without
+ * data loss.
+ *
+ * @param addrWidth The width of the address bus.
+ * @param dataWidth The width of the data bus.
+ */
+class DataFreezer(addrWidth: Int, dataWidth: Int) extends Module {
+  val io = IO(new Bundle {
+    /** Target clock domain */
+    val targetClock = Input(Clock())
+    /** Input port */
+    val in = Flipped(AsyncReadMemIO(addrWidth, dataWidth))
+    /** Output port */
+    val out = AsyncReadMemIO(addrWidth, dataWidth)
+  })
+
+  // Detect rising edges of the target clock
+  val clear = Util.sync(io.targetClock)
+
+  // Latch wait/valid signals
+  val waitReq = !Util.latch(!io.out.waitReq, clear)
+  val valid = Util.latch(io.out.valid, clear)
+
+  // Latch valid output data
+  val data = Util.latchData(io.out.dout, io.out.valid, clear)
+
+  // Latch pending requests until they have completed
+  val pendingRead = RegInit(false.B)
+  val effectiveRead = io.in.rd && !io.out.waitReq
+  val clearRead = clear && RegNext(valid)
+  when(effectiveRead) { pendingRead := true.B }.elsewhen(clearRead) { pendingRead := false.B }
+
+  // Connect I/O ports
+  io.in <> io.out
+
+  // Outputs
+  io.in.waitReq := waitReq
+  io.in.valid := valid
+  io.in.dout := data
+  io.out.rd := io.in.rd && (!pendingRead || clearRead)
+
+  // Debug
+  if (sys.env.get("DEBUG").contains("1")) {
+    printf(p"DataFreezer(read: ${ io.out.rd }, wait: $waitReq, valid: $valid, clear: $clear)\n")
+  }
+}
+
 object Crossing {
   /**
    * Wraps the given asynchronous read-only memory interface with a `ClockDomain` module.
@@ -86,7 +141,20 @@ object Crossing {
    * @param mem         The memory interface.
    */
   def syncronize(targetClock: Clock, mem: AsyncReadMemIO): AsyncReadMemIO = {
-    val freezer = Module(new Crossing(mem.addrWidth, mem.dataWidth))
+    val crossing = Module(new Crossing(mem.addrWidth, mem.dataWidth, 4))
+    crossing.io.targetClock := targetClock
+    crossing.io.out <> mem
+    crossing.io.in
+  }
+
+  /**
+   * Wraps the given memory interface with a data freezer.
+   *
+   * @param targetClock The target clock domain.
+   * @param mem         The memory interface.
+   */
+  def freeze(targetClock: Clock, mem: AsyncReadMemIO): AsyncReadMemIO = {
+    val freezer = Module(new DataFreezer(mem.addrWidth, mem.dataWidth))
     freezer.io.targetClock := targetClock
     freezer.io.out <> mem
     freezer.io.in
