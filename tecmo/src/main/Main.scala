@@ -57,12 +57,12 @@ class Main extends Module {
     val pause = Input(Bool())
     /** Video port */
     val video = Flipped(VideoIO())
+    /** Sound control port */
+    val soundCtrl = Flipped(SoundCtrlIO())
     /** ROM port */
     val rom = new RomIO
     /** RGB output */
     val rgb = Output(RGB(Config.RGB_OUTPUT_BPP.W))
-    /** Sound control port */
-    val soundCtrl = Flipped(SoundCtrlIO())
   })
 
   // Wires

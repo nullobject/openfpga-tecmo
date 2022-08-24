@@ -66,10 +66,10 @@ class Tecmo extends Module {
     val video = VideoIO()
     /** Audio port */
     val audio = Output(SInt(Config.AUDIO_SAMPLE_WIDTH.W))
-    /** SDRAM port */
-    val sdram = SDRAMIO(Config.sdramConfig)
     /** RGB output */
     val rgb = Output(RGB(Config.RGB_OUTPUT_BPP.W))
+    /** SDRAM port */
+    val sdram = SDRAMIO(Config.sdramConfig)
   })
 
   // SDRAM controller
