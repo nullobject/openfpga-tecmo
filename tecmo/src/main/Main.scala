@@ -45,6 +45,8 @@ import tecmo.snd.SoundCtrlIO
 /** Represents the main PCB. */
 class Main extends Module {
   val io = IO(new Bundle {
+    /** Video clock */
+    val videoClock = Input(Clock())
     /** Flip video */
     val flip = Input(Bool())
     /** Enable debug mode */
@@ -70,7 +72,7 @@ class Main extends Module {
   val bgScrollReg = RegInit(UVec2(0.U(9.W), 0.U(9.W)))
 
   // Main CPU
-  val cpu = Module(new CPU)
+  val cpu = Module(new CPU(Config.CPU_CLOCK_DIV))
   cpu.io.din := DontCare
   cpu.io.int := irq
   cpu.io.nmi := false.B
@@ -134,6 +136,7 @@ class Main extends Module {
 
   // GPU
   val gpu = Module(new GPU)
+  gpu.io.videoClock := io.videoClock
   gpu.io.flip := io.flip
   gpu.io.debug := io.debug
   gpu.io.pc := cpu.io.regs.pc

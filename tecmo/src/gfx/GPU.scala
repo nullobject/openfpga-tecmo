@@ -41,6 +41,8 @@ import tecmo._
 /** Graphics Processor */
 class GPU extends Module {
   val io = IO(new Bundle {
+    /** Video clock */
+    val videoClock = Input(Clock())
     /** Flip video flag */
     val flip = Input(Bool())
     /** Enable debug mode */
@@ -65,74 +67,76 @@ class GPU extends Module {
     val rgb = Output(RGB(Config.RGB_OUTPUT_BPP.W))
   })
 
-  // Frame buffer read position
-  val frameBufferPos = {
-    val x = Mux(io.flip, ~io.video.pos.x, io.video.pos.x)
-    val y = Mux(io.flip, ~io.video.pos.y, io.video.pos.y)
-    UVec2(x, y)
+  withClock(io.videoClock) {
+    // Frame buffer read position
+    val frameBufferPos = {
+      val x = Mux(io.flip, ~io.video.pos.x, io.video.pos.x)
+      val y = Mux(io.flip, ~io.video.pos.y, io.video.pos.y)
+      UVec2(x, y)
+    }
+
+    // The sprite layer renders to a page in the frame buffer. At the same time, the GPU reads pixels
+    // from the alternate page, and renders them to the video output.
+    //
+    // The frame buffer pages are flipped at the end of each frame (i.e. at the rising edge of the
+    // vertical blank signal).
+    val frameBuffer = Module(new FrameBuffer(Config.FRAME_BUFFER_ADDR_WIDTH, Config.FRAME_BUFFER_DATA_WIDTH))
+    frameBuffer.io.portB.rd := io.video.displayEnable
+    frameBuffer.io.portB.addr := frameBufferPos.y(7, 0) ## (frameBufferPos.x(7, 0) + 3.U)
+    frameBuffer.io.swap := Util.toggle(Util.rising(io.video.vBlank))
+
+    // Sprite processor
+    val spriteProcessor = Module(new SpriteProcessor)
+    spriteProcessor.io.ctrl <> io.spriteCtrl
+    spriteProcessor.io.frameBuffer <> frameBuffer.io.portA
+    spriteProcessor.io.video <> io.video
+
+    // Character processor
+    val charProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 8, cols = 32, rows = 32, offset = 2)))
+    charProcessor.io.ctrl <> io.charCtrl
+    charProcessor.io.video <> io.video
+    charProcessor.io.flip := io.flip
+
+    // Foreground processor
+    val fgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 54)))
+    fgProcessor.io.ctrl <> io.fgCtrl
+    fgProcessor.io.video <> io.video
+    fgProcessor.io.flip := io.flip
+
+    // Background processor
+    val bgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 54)))
+    bgProcessor.io.ctrl <> io.bgCtrl
+    bgProcessor.io.video <> io.video
+    bgProcessor.io.flip := io.flip
+
+    // Debug layer
+    val debugLayer = Module(new DebugLayer("PC:$%04X"))
+    debugLayer.io.args := Seq(io.pc)
+    debugLayer.io.enable := io.debug
+    debugLayer.io.pos := UVec2(0.U, 232.U)
+    debugLayer.io.color := 1.U
+    debugLayer.io.tileRom <> io.debugRom
+    debugLayer.io.video <> io.video
+
+    // Color mixer
+    val colorMixer = Module(new ColorMixer)
+    colorMixer.io.paletteRam <> io.paletteRam
+    colorMixer.io.spritePen := frameBuffer.io.portB.dout.asTypeOf(new PaletteEntry)
+    colorMixer.io.charPen := charProcessor.io.pen
+    colorMixer.io.fgPen := fgProcessor.io.pen
+    colorMixer.io.bgPen := bgProcessor.io.pen
+    colorMixer.io.debugPen := debugLayer.io.data.asTypeOf(new PaletteEntry)
+
+    // Dotted border
+    val dot = ((io.video.pos.x === 0.U || io.video.pos.x === 255.U) && io.video.pos.y(2) === 0.U) ||
+      ((io.video.pos.y === 16.U || io.video.pos.y === 239.U) && io.video.pos.x(2) === 0.U)
+
+    // Final pixel color
+    io.rgb := MuxCase(RGB(0.U(8.W)), Seq(
+      (io.video.displayEnable && io.debug && dot) -> RGB(0xff.U(8.W)),
+      io.video.displayEnable -> GPU.decodeRGB(colorMixer.io.dout)
+    ))
   }
-
-  // The sprite layer renders to a page in the frame buffer. At the same time, the GPU reads pixels
-  // from the alternate page, and renders them to the video output.
-  //
-  // The frame buffer pages are flipped at the end of each frame (i.e. at the rising edge of the
-  // vertical blank signal).
-  val frameBuffer = Module(new FrameBuffer(Config.FRAME_BUFFER_ADDR_WIDTH, Config.FRAME_BUFFER_DATA_WIDTH))
-  frameBuffer.io.portB.rd := io.video.displayEnable
-  frameBuffer.io.portB.addr := frameBufferPos.y(7, 0) ## (frameBufferPos.x(7, 0) + 3.U)
-  frameBuffer.io.swap := Util.toggle(Util.rising(io.video.vBlank))
-
-  // Sprite processor
-  val spriteProcessor = Module(new SpriteProcessor)
-  spriteProcessor.io.ctrl <> io.spriteCtrl
-  spriteProcessor.io.frameBuffer <> frameBuffer.io.portA
-  spriteProcessor.io.video <> io.video
-
-  // Character processor
-  val charProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 8, cols = 32, rows = 32, offset = 2)))
-  charProcessor.io.ctrl <> io.charCtrl
-  charProcessor.io.video <> io.video
-  charProcessor.io.flip := io.flip
-
-  // Foreground processor
-  val fgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 54)))
-  fgProcessor.io.ctrl <> io.fgCtrl
-  fgProcessor.io.video <> io.video
-  fgProcessor.io.flip := io.flip
-
-  // Background processor
-  val bgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 54)))
-  bgProcessor.io.ctrl <> io.bgCtrl
-  bgProcessor.io.video <> io.video
-  bgProcessor.io.flip := io.flip
-
-  // Debug layer
-  val debugLayer = Module(new DebugLayer("PC:$%04X"))
-  debugLayer.io.args := Seq(io.pc)
-  debugLayer.io.enable := io.debug
-  debugLayer.io.pos := UVec2(0.U, 232.U)
-  debugLayer.io.color := 1.U
-  debugLayer.io.tileRom <> io.debugRom
-  debugLayer.io.video <> io.video
-
-  // Color mixer
-  val colorMixer = Module(new ColorMixer)
-  colorMixer.io.paletteRam <> io.paletteRam
-  colorMixer.io.spritePen := frameBuffer.io.portB.dout.asTypeOf(new PaletteEntry)
-  colorMixer.io.charPen := charProcessor.io.pen
-  colorMixer.io.fgPen := fgProcessor.io.pen
-  colorMixer.io.bgPen := bgProcessor.io.pen
-  colorMixer.io.debugPen := debugLayer.io.data.asTypeOf(new PaletteEntry)
-
-  // Dotted border
-  val dot = ((io.video.pos.x === 0.U || io.video.pos.x === 255.U) && io.video.pos.y(2) === 0.U) ||
-    ((io.video.pos.y === 16.U || io.video.pos.y === 239.U) && io.video.pos.x(2) === 0.U)
-
-  // Final pixel color
-  io.rgb := MuxCase(RGB(0.U(8.W)), Seq(
-    (io.video.displayEnable && io.debug && dot) -> RGB(0xff.U(8.W)),
-    io.video.displayEnable -> GPU.decodeRGB(colorMixer.io.dout)
-  ))
 }
 
 object GPU {

@@ -52,14 +52,12 @@ class Tecmo extends Module {
   val io = FlatIO(new Bundle {
     /** CPU reset */
     val cpuReset = Input(Bool())
-    /** Sound reset */
-    val soundReset = Input(Bool())
     /** Bridge clock */
     val bridgeClock = Input(Clock())
+    /** CPU clock */
+    val cpuClock = Input(Clock())
     /** Video clock */
     val videoClock = Input(Clock())
-    /** Sound clock */
-    val soundClock = Input(Clock())
     /** Bridge port */
     val bridge = Bridge()
     /** Player port */
@@ -99,13 +97,14 @@ class Tecmo extends Module {
   val video = videoTiming.io.timing
 
   // Main PCB
-  val main = withClockAndReset(io.videoClock, io.cpuReset) { Module(new Main) }
+  val main = withClockAndReset(io.cpuClock, io.cpuReset) { Module(new Main) }
+  main.io.videoClock := io.videoClock
   main.io.flip := false.B
   main.io.debug := false.B
   main.io.player := io.player
   main.io.video := video
-  main.io.rom.progRom <> Crossing.freeze(io.videoClock, memSys.io.in(0)).asReadMemIO
-  main.io.rom.bankRom <> Crossing.freeze(io.videoClock, memSys.io.in(1)).asReadMemIO
+  main.io.rom.progRom <> Crossing.freeze(io.cpuClock, memSys.io.in(0)).asReadMemIO
+  main.io.rom.bankRom <> Crossing.freeze(io.cpuClock, memSys.io.in(1)).asReadMemIO
   main.io.rom.charRom <> Crossing.freeze(io.videoClock, memSys.io.in(2)).asReadMemIO
   main.io.rom.fgRom <> Crossing.freeze(io.videoClock, memSys.io.in(3)).asReadMemIO
   main.io.rom.bgRom <> Crossing.freeze(io.videoClock, memSys.io.in(4)).asReadMemIO
@@ -113,10 +112,10 @@ class Tecmo extends Module {
   main.io.rom.debugRom <> debugRom.io
 
   // Sound PCB
-  val sound = withClockAndReset(io.soundClock, io.soundReset) { Module(new Sound) }
+  val sound = withClockAndReset(io.cpuClock, io.cpuReset) { Module(new Sound) }
   sound.io.ctrl <> main.io.soundCtrl
-  sound.io.rom.soundRom <> Crossing.freeze(io.soundClock, memSys.io.in(6)).asReadMemIO
-  sound.io.rom.pcmRom <> Crossing.freeze(io.soundClock, memSys.io.in(7)).asReadMemIO
+  sound.io.rom.soundRom <> Crossing.freeze(io.cpuClock, memSys.io.in(6)).asReadMemIO
+  sound.io.rom.pcmRom <> Crossing.freeze(io.cpuClock, memSys.io.in(7)).asReadMemIO
 
   // Outputs
   io.video := RegNext(video)

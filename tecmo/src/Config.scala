@@ -36,11 +36,15 @@ import arcadia.gfx.VideoTimingConfig
 import arcadia.mem._
 
 object Config {
-  /** The system clock frequency (Hz) */
-  val CLOCK_FREQ = 96_000_000
+  /** System clock frequency (Hz) */
+  val CLOCK_FREQ = 96_000_000D
 
-  /** The sound clock frequency (Hz) */
-  val SOUND_CLOCK_FREQ = 4_000_000
+  /** CPU clock frequency (Hz) */
+  val CPU_CLOCK_FREQ = 12_000_000D
+  /** CPU clock divider */
+  val CPU_CLOCK_DIV = 2 // 6 MHz
+  /** Sound clock divider */
+  val SOUND_CLOCK_DIV = 3 // 4 MHz
 
   /** The width of a priority value */
   val PRIO_WIDTH = 2

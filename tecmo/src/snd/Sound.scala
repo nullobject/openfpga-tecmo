@@ -60,7 +60,7 @@ class Sound extends Module {
   val dataReg = RegEnable(ctrlDataReg, ctrlReqReg)
 
   // Sound CPU
-  val cpu = Module(new CPU)
+  val cpu = Module(new CPU(Config.SOUND_CLOCK_DIV))
   cpu.io.din := DontCare
   cpu.io.int := irq
   cpu.io.nmi := reqReg
@@ -73,12 +73,12 @@ class Sound extends Module {
   soundRam.io.default()
 
   // FM
-  val opl = Module(new JTOPL)
+  val opl = Module(new JTOPL(Config.CPU_CLOCK_FREQ, Sound.FM_SAMPLE_CLOCK_FREQ))
   irq := opl.io.irq
   opl.io.cpu.default()
 
   // PCM
-  val pcm = Module(new JT5205(Config.SOUND_CLOCK_FREQ, Sound.SAMPLE_CLOCK_FREQ))
+  val pcm = Module(new JT5205(Config.CPU_CLOCK_FREQ, Sound.PCM_SAMPLE_CLOCK_FREQ))
 
   // PCM counter
   val pcmCounter = Module(new PCMCounter)
@@ -118,6 +118,8 @@ class Sound extends Module {
 }
 
 object Sound {
-  /** The sample clock frequency (Hz) */
-  val SAMPLE_CLOCK_FREQ = 400_000
+  /** The FM sample clock frequency (Hz) */
+  val FM_SAMPLE_CLOCK_FREQ = 4_000_000
+  /** The PCM sample clock frequency (Hz) */
+  val PCM_SAMPLE_CLOCK_FREQ = 400_000
 }

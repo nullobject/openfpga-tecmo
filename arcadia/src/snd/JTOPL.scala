@@ -32,6 +32,7 @@
 
 package arcadia.snd
 
+import arcadia.clk.ClockDivider
 import arcadia.mem._
 import chisel3._
 import chisel3.util._
@@ -39,10 +40,12 @@ import chisel3.util._
 /**
  * The OPL is a FM sound synthesizer.
  *
+ * @param clockFreq  The system clock frequency (Hz).
+ * @param sampleFreq The sample clock frequency (Hz).
  * @note This module wraps jotego's JTOPL implementation.
  * @see https://github.com/jotego/jtopl
  */
-class JTOPL extends Module {
+class JTOPL(clockFreq: Double, sampleFreq: Double) extends Module {
   val io = IO(new Bundle {
     /** CPU port */
     val cpu = Flipped(MemIO(1, 8))
@@ -73,7 +76,7 @@ class JTOPL extends Module {
   val m = Module(new JTOPL_)
   m.io.rst := reset.asBool
   m.io.clk := clock.asBool
-  m.io.cen := true.B
+  m.io.cen := ClockDivider(clockFreq / sampleFreq)
   m.io.cs_n := false.B
   m.io.wr_n := !io.cpu.wr
   m.io.addr := io.cpu.addr(0)
