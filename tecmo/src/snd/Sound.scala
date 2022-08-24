@@ -45,7 +45,7 @@ class Sound extends Module {
     /** Control port */
     val ctrl = new SoundCtrlIO
     /** ROM port */
-    val rom = new RomIO
+    val rom = RomIO()
     /** Audio port */
     val audio = Output(SInt(Config.AUDIO_SAMPLE_WIDTH.W))
   })

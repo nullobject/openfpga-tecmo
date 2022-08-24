@@ -42,3 +42,7 @@ class RomIO extends Bundle {
   /** PCM ROM port */
   val pcmRom = new SampleRomIO
 }
+
+object RomIO {
+  def apply(): RomIO = new RomIO
+}
