@@ -58,6 +58,7 @@ class Sound extends Module {
   val ctrlDataReg = ShiftRegister(io.ctrl.data, 2)
   val reqReg = RegEnable(true.B, false.B, ctrlReqReg)
   val dataReg = RegEnable(ctrlDataReg, ctrlReqReg)
+  val pcmGainReg = RegInit(0.U(8.W))
 
   // Sound CPU
   val cpu = Module(new CPU(Config.SOUND_CLOCK_DIV))
@@ -100,6 +101,15 @@ class Sound extends Module {
     pcmCounter.io.high := high.B
   }
 
+  /**
+   * Sets the PCM gain.
+   *
+   * @param value The gain value.
+   */
+  def setGain(value: UInt): Unit = {
+    pcmGainReg := value
+  }
+
   // Memory map
   val memMap = new MemMap(cpu.io)
   memMap(0x0000 to 0x3fff).readMem(io.rom.soundRom)
@@ -108,7 +118,7 @@ class Sound extends Module {
   memMap(0xc000 to 0xc000).r { (_, _) => dataReg }
   memMap(0xc000 to 0xc000).w { (_, _, _) => setAddr(false) }
   memMap(0xd000 to 0xd000).w { (_, _, _) => setAddr(true) }
-  memMap(0xe000 to 0xe000).nopw() // PCM VOL
+  memMap(0xe000 to 0xe000).w { (_, _, data) => setGain(data.asUInt) }
   memMap(0xf000 to 0xf000).w { (_, _, _) => reqReg := false.B }
 
   // Audio mixer
