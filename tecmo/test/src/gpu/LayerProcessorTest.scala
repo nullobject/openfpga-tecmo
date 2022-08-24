@@ -105,13 +105,16 @@ class LayerProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Mat
 
   it should "assert the read signal" in {
     test(mkLayerProcessor) { dut =>
+      dut.io.video.clockEnable.poke(true)
+      dut.io.video.pos.x.poke(2)
       dut.io.ctrl.tileRom.rd.expect(true)
     }
   }
 
   it should "set the ROM address" in {
     test(mkLayerProcessor) { dut =>
-      dut.io.video.pos.x.poke(2)
+      dut.io.video.clockEnable.poke(true)
+      dut.io.video.pos.x.poke(1)
 
       // Offset 0
       dut.io.video.pos.y.poke(0)
