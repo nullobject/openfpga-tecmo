@@ -1,6 +1,7 @@
 {
   "platform": {
-    "name": "Arcade - Tecmo",
+    "category": "Arcade",
+    "name": "Tecmo",
     "year": 1986,
     "manufacturer": "Tecmo"
   }
