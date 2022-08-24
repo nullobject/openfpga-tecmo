@@ -118,9 +118,9 @@ class Tecmo extends Module {
   sound.io.ctrl <> main.io.soundCtrl
   sound.io.rom.soundRom <> DataFreezer.freeze(io.soundClock, memSys.io.in(6)).asReadMemIO
   sound.io.rom.pcmRom <> DataFreezer.freeze(io.soundClock, memSys.io.in(7)).asReadMemIO
-  sound.io.audio <> io.audio
 
   // Outputs
   io.video := RegNext(video)
   io.rgb := RegNext(main.io.rgb)
+  io.audio := sound.io.audio
 }

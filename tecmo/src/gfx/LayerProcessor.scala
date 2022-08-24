@@ -71,10 +71,12 @@ class LayerProcessor(config: LayerProcessorConfig) extends Module {
   // Tile offset
   val tileOffset = LayerProcessor.tileOffset(config, pos)
 
-  // Latch signals
-  val latchTile = tileOffset.x === (config.tileSize - 6).U
-  val latchColor = tileOffset.x === (config.tileSize - 1).U
-  val latchPix = tileOffset.x(2, 0) === 7.U
+  // Control signals
+  val enable = io.video.clockEnable && !io.video.vBlank
+  val latchTile = enable && tileOffset.x === (config.tileSize - 7).U
+  val tileRomRead = enable && tileOffset.x(2, 0) === 2.U
+  val latchColor = enable && tileOffset.x === (config.tileSize - 1).U
+  val latchPix = enable && tileOffset.x(2, 0) === 7.U
 
   // Tile registers
   val tileReg = RegEnable(Tile.decode(io.ctrl.vram.dout), latchTile)
@@ -87,7 +89,7 @@ class LayerProcessor(config: LayerProcessorConfig) extends Module {
   // Outputs
   io.ctrl.vram.rd := true.B // read-only
   io.ctrl.vram.addr := LayerProcessor.vramAddr(config, pos)
-  io.ctrl.tileRom.rd := true.B // read-only
+  io.ctrl.tileRom.rd := tileRomRead
   io.ctrl.tileRom.addr := LayerProcessor.tileRomAddr(config, tileReg.code, tileOffset)
   io.pen := pen
 }
