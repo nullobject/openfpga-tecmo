@@ -58,7 +58,7 @@ class Main extends Module {
     /** RGB output */
     val rgb = Output(RGB(Config.RGB_OUTPUT_BPP.W))
     /** Sound control port */
-    val soundCtrl = Flipped(new SoundCtrlIO)
+    val soundCtrl = Flipped(SoundCtrlIO())
   })
 
   // Wires

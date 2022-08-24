@@ -39,3 +39,7 @@ class SoundCtrlIO extends Bundle {
   val req = Input(Bool())
   val data = Input(Bits(8.W))
 }
+
+object SoundCtrlIO {
+  def apply(): SoundCtrlIO = new SoundCtrlIO
+}

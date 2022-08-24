@@ -43,7 +43,7 @@ import tecmo._
 class Sound extends Module {
   val io = IO(new Bundle {
     /** Control port */
-    val ctrl = new SoundCtrlIO
+    val ctrl = SoundCtrlIO()
     /** ROM port */
     val rom = RomIO()
     /** Audio port */
