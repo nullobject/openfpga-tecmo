@@ -6,9 +6,9 @@
       "shortname": "tecmo",
       "description": "Tecmo arcade core.",
       "author": "nullobject",
-      "url": "https://github.com/nullobject/openfpga-tecmo",
+      "url": "https://github.com/nullobject/pocket-tecmo",
       "version": "1.0",
-      "date_release": "2022-08-20"
+      "date_release": "2022-08-26"
     },
     "framework": {
       "target_product": "Analogue Pocket",
