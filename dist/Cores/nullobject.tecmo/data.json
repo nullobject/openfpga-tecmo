@@ -53,7 +53,7 @@
           "bin"
         ],
         "size_exact": 32768,
-        "address": "0x00014000"
+        "address": "0x0001c000"
       },
       {
         "name": "Foreground ROM 0",
@@ -64,7 +64,7 @@
           "bin"
         ],
         "size_exact": 32768,
-        "address": "0x0001c000"
+        "address": "0x00024000"
       },
       {
         "name": "Foreground ROM 1",
@@ -75,7 +75,7 @@
           "bin"
         ],
         "size_exact": 32768,
-        "address": "0x00024000"
+        "address": "0x0002c000"
       },
       {
         "name": "Foreground ROM 2",
@@ -86,7 +86,7 @@
           "bin"
         ],
         "size_exact": 32768,
-        "address": "0x0002c000"
+        "address": "0x00034000"
       },
       {
         "name": "Foreground ROM 3",
@@ -97,7 +97,7 @@
           "bin"
         ],
         "size_exact": 32768,
-        "address": "0x00034000"
+        "address": "0x0003c000"
       },
       {
         "name": "Background ROM 0",
@@ -108,7 +108,7 @@
           "bin"
         ],
         "size_exact": 32768,
-        "address": "0x0003c000"
+        "address": "0x00044000"
       },
       {
         "name": "Background ROM 1",
@@ -119,7 +119,7 @@
           "bin"
         ],
         "size_exact": 32768,
-        "address": "0x00044000"
+        "address": "0x0004c000"
       },
       {
         "name": "Background ROM 2",
@@ -130,7 +130,7 @@
           "bin"
         ],
         "size_exact": 32768,
-        "address": "0x0004c000"
+        "address": "0x00054000"
       },
       {
         "name": "Background ROM 3",
@@ -141,7 +141,7 @@
           "bin"
         ],
         "size_exact": 32768,
-        "address": "0x00054000"
+        "address": "0x0005c000"
       },
       {
         "name": "Sprite ROM 0",
@@ -152,7 +152,7 @@
           "bin"
         ],
         "size_exact": 32768,
-        "address": "0x0005c000"
+        "address": "0x00064000"
       },
       {
         "name": "Sprite ROM 1",
@@ -163,7 +163,7 @@
           "bin"
         ],
         "size_exact": 32768,
-        "address": "0x00064000"
+        "address": "0x0006c000"
       },
       {
         "name": "Sprite ROM 2",
@@ -174,7 +174,7 @@
           "bin"
         ],
         "size_exact": 32768,
-        "address": "0x0006c000"
+        "address": "0x00074000"
       },
       {
         "name": "Sprite ROM 3",
@@ -185,7 +185,7 @@
           "bin"
         ],
         "size_exact": 32768,
-        "address": "0x00074000"
+        "address": "0x0007c000"
       },
       {
         "name": "Sound ROM",
@@ -196,7 +196,7 @@
           "bin"
         ],
         "size_exact": 8192,
-        "address": "0x0007c000"
+        "address": "0x00084000"
       },
       {
         "name": "PCM ROM",
@@ -207,7 +207,7 @@
           "bin"
         ],
         "size_exact": 16384,
-        "address": "0x0007e000"
+        "address": "0x00086000"
       }
     ]
   }
