@@ -40,30 +40,30 @@ import chisel3.util._
  *
  * The write port runs in the default clock domain, and the read port runs in the read clock domain.
  *
- * @param dataWidth The width of the data bus.
- * @param depth     The depth of the FIFO.
+ * @param t     The input data type.
+ * @param depth The depth of the FIFO.
  */
-class DualClockFIFO(dataWidth: Int, depth: Int) extends Module {
+class DualClockFIFO[T <: Data](t: T, depth: Int) extends Module {
   val io = IO(new Bundle {
     /** Read clock */
     val readClock = Input(Clock())
     /** Read port */
-    val deq = Flipped(DeqIO(Bits(dataWidth.W)))
+    val deq = Flipped(DeqIO(t))
     /** Write port */
-    val enq = Flipped(EnqIO(Bits(dataWidth.W)))
+    val enq = Flipped(EnqIO(t))
   })
 
   class WrappedDualClockFIFO extends BlackBox(Map(
-    "DATA_WIDTH" -> dataWidth,
+    "DATA_WIDTH" -> t.getWidth,
     "DEPTH" -> depth
   )) {
     val io = IO(new Bundle {
-      val data = Input(Bits(dataWidth.W))
+      val data = Input(Bits(t.getWidth.W))
       val rdclk = Input(Clock())
       val rdreq = Input(Bool())
       val wrclk = Input(Clock())
       val wrreq = Input(Bool())
-      val q = Output(Bits(dataWidth.W))
+      val q = Output(Bits(t.getWidth.W))
       val rdempty = Output(Bool())
       val wrfull = Output(Bool())
     })
@@ -77,11 +77,11 @@ class DualClockFIFO(dataWidth: Int, depth: Int) extends Module {
   fifo.io.wrclk := clock
   fifo.io.wrreq := io.enq.fire
   io.enq.ready := !fifo.io.wrfull // allow writing while the FIFO isn't full
-  fifo.io.data := io.enq.bits
+  fifo.io.data := io.enq.bits.asUInt
 
   // Read port
   fifo.io.rdclk := io.readClock
   fifo.io.rdreq := io.deq.fire
   io.deq.valid := !fifo.io.rdempty // allow reading while the FIFO isn't empty
-  io.deq.bits := fifo.io.q
+  io.deq.bits := fifo.io.q.asTypeOf(t)
 }
