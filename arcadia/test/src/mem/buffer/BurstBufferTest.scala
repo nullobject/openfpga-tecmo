@@ -91,7 +91,7 @@ class BurstBufferTest extends AnyFlatSpec with ChiselScalatestTester with Matche
       dut.io.out.burstDone.poke(true)
       dut.io.out.wr.expect(true)
       dut.io.out.burstLength.expect(1)
-      dut.io.out.addr.expect(0x02)
+      dut.io.out.addr.expect(0x04)
       dut.io.out.din.expect(0x7856)
       dut.io.out.mask.expect(0x3)
       dut.clock.step()
@@ -138,6 +138,7 @@ class BurstBufferTest extends AnyFlatSpec with ChiselScalatestTester with Matche
       dut.io.in.waitReq.expect(true)
       dut.io.out.burstDone.poke(true)
       dut.io.out.wr.expect(true)
+      dut.io.out.addr.expect(0x00)
       dut.io.out.din.expect(0x7856)
       dut.clock.step()
 
@@ -169,6 +170,7 @@ class BurstBufferTest extends AnyFlatSpec with ChiselScalatestTester with Matche
       dut.io.in.waitReq.expect(true)
       dut.io.out.burstDone.poke(true)
       dut.io.out.wr.expect(true)
+      dut.io.out.addr.expect(0x04)
       dut.io.out.din.expect(0xefcd)
     }
   }
@@ -267,6 +269,7 @@ class BurstBufferTest extends AnyFlatSpec with ChiselScalatestTester with Matche
       dut.io.in.waitReq.expect(true)
       dut.io.out.burstDone.poke(true)
       dut.io.out.wr.expect(true)
+      dut.io.out.addr.expect(0x00)
       dut.io.out.din.expect(0x7856)
       dut.clock.step()
 
@@ -291,6 +294,7 @@ class BurstBufferTest extends AnyFlatSpec with ChiselScalatestTester with Matche
       dut.io.in.waitReq.expect(true)
       dut.io.out.burstDone.poke(true)
       dut.io.out.wr.expect(true)
+      dut.io.out.addr.expect(0x04)
       dut.io.out.din.expect(0xefcd)
     }
   }

@@ -54,15 +54,24 @@ class BurstBuffer(config: Config) extends Module {
   // Registers
   val writePendingReg = RegInit(false.B)
   val lineReg = Reg(new Line(config))
+  val addrReg = Reg(UInt())
+  val busyReg = RegInit(false.B)
 
   // Control signals
-  val latch = io.in.wr && !writePendingReg
+  val latchAddr = io.in.wr && !busyReg
+  val latchData = io.in.wr && !writePendingReg
   val effectiveWrite = writePendingReg && !io.out.waitReq
 
   // Counters
-  val (addrCounter, _) = Counter.static(1L << config.outAddrWidth, enable = io.out.burstDone)
-  val (wordCounter, wordCounterWrap) = Counter.static(config.inWords, enable = latch)
+  val (wordCounter, wordCounterWrap) = Counter.static(config.inWords, enable = latchData)
   val (burstCounter, burstCounterWrap) = Counter.static(config.burstLength, enable = effectiveWrite)
+
+  // Toggle busy register
+  when(io.out.burstDone) {
+    busyReg := false.B
+  }.elsewhen(io.in.wr) {
+    busyReg := true.B
+  }
 
   // Toggle write pending register
   when(io.out.burstDone) {
@@ -71,8 +80,13 @@ class BurstBuffer(config: Config) extends Module {
     writePendingReg := true.B
   }
 
+  // Latch address
+  when(latchAddr) {
+    addrReg := io.in.addr
+  }
+
   // Latch input words
-  when(latch) {
+  when(latchData) {
     val words = WireInit(lineReg.inWords)
     words(wordCounter) := io.in.din
     lineReg.words := words.asTypeOf(chiselTypeOf(lineReg.words))
@@ -82,7 +96,7 @@ class BurstBuffer(config: Config) extends Module {
   io.in.waitReq := writePendingReg
   io.out.wr := writePendingReg
   io.out.burstLength := config.burstLength.U
-  io.out.addr := addrCounter << log2Ceil(config.outBytes * config.burstLength)
+  io.out.addr := (addrReg >> log2Ceil(config.outBytes)) << log2Ceil(config.outBytes)
   io.out.din := lineReg.outWords(burstCounter)
   io.out.mask := Fill(config.outBytes, 1.U)
 
