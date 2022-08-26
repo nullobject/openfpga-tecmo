@@ -8,5 +8,6 @@
 !.vscode/launch.json
 !.vscode/extensions.json
 dist/**/*.rbf_r
+dist/**/*.zip
 out
 test_run_dir
