@@ -46,7 +46,7 @@ import chisel3.util._
 class BurstBuffer(config: Config) extends Module {
   val io = IO(new Bundle {
     /** Input port */
-    val in = DeqIO(Bits(config.inDataWidth.W))
+    val in = Flipped(AsyncWriteMemIO(config.inAddrWidth, config.inDataWidth))
     /** Output port */
     val out = BurstWriteMemIO(config.outAddrWidth, config.outDataWidth)
   })
@@ -56,7 +56,7 @@ class BurstBuffer(config: Config) extends Module {
   val lineReg = Reg(new Line(config))
 
   // Control signals
-  val latch = io.in.valid && !writePendingReg
+  val latch = io.in.wr && !writePendingReg
   val effectiveWrite = writePendingReg && !io.out.waitReq
 
   // Counters
@@ -74,13 +74,12 @@ class BurstBuffer(config: Config) extends Module {
   // Latch input words
   when(latch) {
     val words = WireInit(lineReg.inWords)
-    words(wordCounter) := io.in.deq()
+    words(wordCounter) := io.in.din
     lineReg.words := words.asTypeOf(chiselTypeOf(lineReg.words))
-  } otherwise {
-    io.in.nodeq()
   }
 
   // Outputs
+  io.in.waitReq := writePendingReg
   io.out.wr := writePendingReg
   io.out.burstLength := config.burstLength.U
   io.out.addr := addrCounter << log2Ceil(config.outBytes * config.burstLength)

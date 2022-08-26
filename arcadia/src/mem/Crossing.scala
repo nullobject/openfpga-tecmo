@@ -53,11 +53,11 @@ class Crossing(addrWidth: Int, dataWidth: Int, depth: Int = 4) extends Module {
   })
 
   // Address FIFO
-  val addrFifo = withClock(io.targetClock) { Module(new DualClockFIFO(addrWidth, depth)) }
+  val addrFifo = withClock(io.targetClock) { Module(new DualClockFIFO(UInt(addrWidth.W), depth)) }
   addrFifo.io.readClock := clock
 
   // Data FIFO
-  val dataFifo = withClock(clock) { Module(new DualClockFIFO(dataWidth, depth)) }
+  val dataFifo = withClock(clock) { Module(new DualClockFIFO(Bits(dataWidth.W), depth)) }
   dataFifo.io.readClock := io.targetClock
 
   // input port -> address FIFO

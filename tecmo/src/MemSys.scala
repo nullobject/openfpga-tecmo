@@ -36,6 +36,7 @@ import arcadia.Util
 import arcadia.mem._
 import arcadia.mem.arbiter.BurstMemArbiter
 import arcadia.mem.buffer.BurstBuffer
+import arcadia.mem.request.WriteRequest
 import arcadia.pocket.Bridge
 import chisel3._
 import chisel3.util._
@@ -84,9 +85,9 @@ class MemSys(config: MemSysConfig) extends Module {
   })
 
   // The FIFO is used to buffer download data
-  val fifo = withClock(io.prog.clock) { Module(new DualClockFIFO(Bridge.DATA_WIDTH, MemSys.FIFO_DEPTH)) }
+  val fifo = withClock(io.prog.clock) { Module(new DualClockFIFO(new WriteRequest(UInt(Bridge.ADDR_WIDTH.W), Bits(Bridge.DATA_WIDTH.W)), MemSys.FIFO_DEPTH)) }
   fifo.io.readClock := clock
-  fifo.io.enq.bits := io.prog.rom.din
+  fifo.io.enq.bits := WriteRequest(io.prog.rom)
   fifo.io.enq.valid := io.prog.rom.wr
   io.prog.rom.waitReq := !fifo.io.enq.ready
 
@@ -99,7 +100,11 @@ class MemSys(config: MemSysConfig) extends Module {
     outDataWidth = config.dataWidth,
     burstLength = config.burstLength
   )))
-  downloadBuffer.io.in <> fifo.io.deq
+  downloadBuffer.io.in.addr := fifo.io.deq.bits.addr
+  downloadBuffer.io.in.din := fifo.io.deq.bits.din
+  downloadBuffer.io.in.mask := Fill(Bridge.DATA_WIDTH / 8, 1.U)
+  downloadBuffer.io.in.wr := fifo.io.deq.valid
+  fifo.io.deq.ready := !downloadBuffer.io.in.waitReq
 
   // Arbiter
   val arbiter = Module(new BurstMemArbiter(config.slots.size + 1, config.addrWidth, config.dataWidth))
@@ -128,5 +133,5 @@ class MemSys(config: MemSysConfig) extends Module {
 
 object MemSys {
   /** The depth of the download FIFO in words. */
-  val FIFO_DEPTH = 64
+  val FIFO_DEPTH = 16
 }
