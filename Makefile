@@ -10,7 +10,7 @@ build:
 	bin/reverse quartus/output_files/$(REVISION_NAME).rbf dist/Cores/$(CORE_NAME)/bitstream.rbf_r
 
 copy:
-	rsync -avh --progress dist/ /media/josh/2470-BED0 && umount /media/josh/2470-BED0
+	rsync -avh --progress --exclude \*.zip dist/ /media/josh/2470-BED0 && umount /media/josh/2470-BED0
 
 program:
 	cd quartus; quartus_pgm -m jtag -c USB-Blaster -o "p;output_files/$(REVISION_NAME).sof@1"
