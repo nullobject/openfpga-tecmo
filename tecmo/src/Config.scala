@@ -149,37 +149,37 @@ object Config {
       SlotConfig(
         addrWidth = Config.CHAR_ROM_ADDR_WIDTH,
         dataWidth = Config.CHAR_ROM_DATA_WIDTH,
-        offset = 0x1c000
+        offset = 0x20000
       ),
       // Foreground ROM
       SlotConfig(
         addrWidth = Config.FG_ROM_ADDR_WIDTH,
         dataWidth = Config.FG_ROM_DATA_WIDTH,
-        offset = 0x24000
+        offset = 0x30000
       ),
       // Background ROM
       SlotConfig(
         addrWidth = Config.BG_ROM_ADDR_WIDTH,
         dataWidth = Config.BG_ROM_DATA_WIDTH,
-        offset = 0x44000
+        offset = 0x50000
       ),
       // Sprite ROM
       SlotConfig(
         addrWidth = Config.SPRITE_ROM_ADDR_WIDTH,
         dataWidth = Config.SPRITE_ROM_DATA_WIDTH,
-        offset = 0x64000
+        offset = 0x70000
       ),
       // Sound ROM
       SlotConfig(
         addrWidth = Config.SOUND_ROM_ADDR_WIDTH,
         dataWidth = Config.SOUND_ROM_DATA_WIDTH,
-        offset = 0x84000
+        offset = 0x90000
       ),
       // PCM ROM
       SlotConfig(
         addrWidth = Config.PCM_ROM_ADDR_WIDTH,
         dataWidth = Config.PCM_ROM_DATA_WIDTH,
-        offset = 0x86000
+        offset = 0x92000
       )
     )
   )
