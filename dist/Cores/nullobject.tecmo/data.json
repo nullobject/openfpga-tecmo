@@ -16,15 +16,14 @@
         "id": 1,
         "required": true,
         "parameters": 0,
-        "size_exact": "0x8000",
+        "size_maximum": "0x10000",
         "address": "0x00000000"
       },
       {
         "name": "Main ROM 1",
         "id": 2,
-        "required": true,
+        "required": false,
         "parameters": 0,
-        "size_exact": "0x4000",
         "address": "0x00008000"
       },
       {
@@ -32,8 +31,8 @@
         "id": 3,
         "required": true,
         "parameters": 0,
-        "size_exact": "0x8000",
-        "address": "0x0000c000"
+        "size_maximum": "0x10000",
+        "address": "0x00010000"
       },
       {
         "name": "Character ROM",
@@ -44,7 +43,7 @@
         "address": "0x00020000"
       },
       {
-        "name": "Foreground ROM 0",
+        "name": "Foreground ROM 0 (32 kB)",
         "id": 5,
         "required": true,
         "parameters": 0,
@@ -52,7 +51,7 @@
         "address": "0x00030000"
       },
       {
-        "name": "Foreground ROM 1",
+        "name": "Foreground ROM 1 (32 kB)",
         "id": 6,
         "required": true,
         "parameters": 0,
@@ -60,7 +59,7 @@
         "address": "0x00038000"
       },
       {
-        "name": "Foreground ROM 2",
+        "name": "Foreground ROM 2 (32 kB)",
         "id": 7,
         "required": true,
         "parameters": 0,
@@ -68,7 +67,7 @@
         "address": "0x00040000"
       },
       {
-        "name": "Foreground ROM 3",
+        "name": "Foreground ROM 3 (32 kB)",
         "id": 8,
         "required": true,
         "parameters": 0,
@@ -76,84 +75,84 @@
         "address": "0x00048000"
       },
       {
-        "name": "Background ROM 0",
+        "name": "Background ROM 0 (32 kB)",
         "id": 9,
-        "required": true,
-        "parameters": 0,
-        "size_exact": "0x8000",
-        "address": "0x00050000"
-      },
-      {
-        "name": "Background ROM 1",
-        "id": 10,
-        "required": true,
-        "parameters": 0,
-        "size_exact": "0x8000",
-        "address": "0x00058000"
-      },
-      {
-        "name": "Background ROM 2",
-        "id": 11,
-        "required": true,
-        "parameters": 0,
-        "size_exact": "0x8000",
-        "address": "0x00060000"
-      },
-      {
-        "name": "Background ROM 3",
-        "id": 12,
-        "required": true,
-        "parameters": 0,
-        "size_exact": "0x8000",
-        "address": "0x00068000"
-      },
-      {
-        "name": "Sprite ROM 0",
-        "id": 13,
         "required": true,
         "parameters": 0,
         "size_exact": "0x8000",
         "address": "0x00070000"
       },
       {
-        "name": "Sprite ROM 1",
-        "id": 14,
+        "name": "Background ROM 1 (32 kB)",
+        "id": 10,
         "required": true,
         "parameters": 0,
         "size_exact": "0x8000",
         "address": "0x00078000"
       },
       {
-        "name": "Sprite ROM 2",
-        "id": 15,
+        "name": "Background ROM 2 (32 kB)",
+        "id": 11,
         "required": true,
         "parameters": 0,
         "size_exact": "0x8000",
         "address": "0x00080000"
       },
       {
-        "name": "Sprite ROM 3",
-        "id": 16,
+        "name": "Background ROM 3 (32 kB)",
+        "id": 12,
         "required": true,
         "parameters": 0,
         "size_exact": "0x8000",
         "address": "0x00088000"
       },
       {
+        "name": "Sprite ROM 0 (32 kB)",
+        "id": 13,
+        "required": true,
+        "parameters": 0,
+        "size_exact": "0x8000",
+        "address": "0x000b0000"
+      },
+      {
+        "name": "Sprite ROM 1 (32 kB)",
+        "id": 14,
+        "required": true,
+        "parameters": 0,
+        "size_exact": "0x8000",
+        "address": "0x000b8000"
+      },
+      {
+        "name": "Sprite ROM 2 (32 kB)",
+        "id": 15,
+        "required": true,
+        "parameters": 0,
+        "size_exact": "0x8000",
+        "address": "0x000c0000"
+      },
+      {
+        "name": "Sprite ROM 3 (32 kB)",
+        "id": 16,
+        "required": true,
+        "parameters": 0,
+        "size_exact": "0x8000",
+        "address": "0x000c8000"
+      },
+      {
         "name": "Sound ROM",
         "id": 17,
         "required": true,
         "parameters": 0,
-        "size_exact": "0x2000",
-        "address": "0x00090000"
+        "size_minimum": "0x2000",
+        "address": "0x000f0000"
       },
       {
         "name": "PCM ROM",
         "id": 18,
         "required": true,
         "parameters": 0,
-        "size_exact": "0x4000",
-        "address": "0x00092000"
+        "size_minimum": "0x4000",
+        "address": "0x000f8000"
       }
     ]
   }
