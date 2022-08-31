@@ -42,3 +42,7 @@ class SpriteCtrlIO extends Bundle {
   /** Tile ROM port */
   val tileRom = new SpriteRomIO
 }
+
+object SpriteCtrlIO {
+  def apply(): SpriteCtrlIO = new SpriteCtrlIO
+}
