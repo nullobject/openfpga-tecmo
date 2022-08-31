@@ -5,79 +5,10 @@
       "id" : 777,
       "select" : false
     },
-    "data_path": "rygar",
     "data_slots": [
       {
         "id": 1,
-        "filename": "5.5p"
-      },
-      {
-        "id": 2,
-        "filename": "cpu_5m.bin"
-      },
-      {
-        "id": 3,
-        "filename": "cpu_5j.bin"
-      },
-      {
-        "id": 4,
-        "filename": "cpu_8k.bin"
-      },
-      {
-        "id": 5,
-        "filename": "vid_6p.bin"
-      },
-      {
-        "id": 6,
-        "filename": "vid_6o.bin"
-      },
-      {
-        "id": 7,
-        "filename": "vid_6n.bin"
-      },
-      {
-        "id": 8,
-        "filename": "vid_6l.bin"
-      },
-      {
-        "id": 9,
-        "filename": "vid_6f.bin"
-      },
-      {
-        "id": 10,
-        "filename": "vid_6e.bin"
-      },
-      {
-        "id": 11,
-        "filename": "vid_6c.bin"
-      },
-      {
-        "id": 12,
-        "filename": "vid_6b.bin"
-      },
-      {
-        "id": 13,
-        "filename": "vid_6k.bin"
-      },
-      {
-        "id": 14,
-        "filename": "vid_6j.bin"
-      },
-      {
-        "id": 15,
-        "filename": "vid_6h.bin"
-      },
-      {
-        "id": 16,
-        "filename": "vid_6g.bin"
-      },
-      {
-        "id": 17,
-        "filename": "cpu_4h.bin"
-      },
-      {
-        "id": 18,
-        "filename": "cpu_1f.bin"
+        "filename": "rygar.rom"
       }
     ],
     "memory_writes": [
