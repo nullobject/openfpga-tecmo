@@ -36,7 +36,7 @@ import arcadia._
 import arcadia.gfx._
 import arcadia.mem._
 import arcadia.mem.sdram.{SDRAM, SDRAMIO}
-import arcadia.pocket.Bridge
+import arcadia.pocket.{Bridge, BridgeIO}
 import chisel3._
 import chisel3.experimental.FlatIO
 import main.Main
@@ -59,7 +59,7 @@ class Tecmo extends Module {
     /** Video clock */
     val videoClock = Input(Clock())
     /** Bridge port */
-    val bridge = Bridge()
+    val bridge = BridgeIO()
     /** Player port */
     val player = PlayerIO()
     /** Video port */
@@ -76,11 +76,19 @@ class Tecmo extends Module {
   val sdram = Module(new SDRAM(Config.sdramConfig))
   sdram.io.sdram <> io.sdram
 
+  // Pocket bridge controller
+  val bridge = Module(new Bridge(
+    addrWidth = Config.sdramConfig.addrWidth,
+    dataWidth = Config.sdramConfig.dataWidth,
+    burstLength = Config.sdramConfig.burstLength
+  ))
+  bridge.io.bridgeClock := io.bridgeClock
+  bridge.io.bridge <> io.bridge
+
   // Memory subsystem
   val memSys = Module(new MemSys(Config.memSysConfig))
-  memSys.io.prog.clock := io.bridgeClock
-  memSys.io.prog.rom <> io.bridge.rom
-  memSys.io.prog.done := io.bridge.done
+  memSys.io.enable := io.bridge.done
+  memSys.io.rom <> bridge.io.rom
   memSys.io.out <> sdram.io.mem
 
   // The debug ROM contains alphanumeric character tiles
@@ -99,8 +107,7 @@ class Tecmo extends Module {
   // Main PCB
   val main = withClockAndReset(io.cpuClock, io.cpuReset) { Module(new Main) }
   main.io.videoClock := io.videoClock
-  main.io.flip := false.B
-  main.io.debug := false.B
+  main.io.options := bridge.io.options
   main.io.player := io.player
   main.io.pause := io.bridge.pause
   main.io.video := video

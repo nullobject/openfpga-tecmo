@@ -1,7 +1,17 @@
 {
   "interact": {
     "magic": "APF_VER_1",
-    "variables": [],
-    "messages": []
+    "variables": [
+      {
+        "name": "Debug",
+        "id": 1,
+        "type": "check",
+        "enabled": true,
+        "address": "0xf9000000",
+        "writeonly": true,
+        "defaultval": 0,
+        "value": 1
+      }
+    ]
   }
 }

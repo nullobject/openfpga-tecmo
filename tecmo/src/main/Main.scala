@@ -36,6 +36,7 @@ import arcadia._
 import arcadia.cpu.z80._
 import arcadia.gfx.VideoIO
 import arcadia.mem._
+import arcadida.pocket.OptionsIO
 import chisel3._
 import chisel3.util._
 import tecmo.Config
@@ -47,10 +48,8 @@ class Main extends Module {
   val io = IO(new Bundle {
     /** Video clock */
     val videoClock = Input(Clock())
-    /** Flip video */
-    val flip = Input(Bool())
-    /** Enable debug mode */
-    val debug = Input(Bool())
+    /** Options port */
+    val options = Flipped(OptionsIO())
     /** Player port */
     val player = PlayerIO()
     /** Pause flag */
@@ -140,8 +139,7 @@ class Main extends Module {
   // GPU
 
   val gpu = withClock(io.videoClock) { Module(new GPU) }
-  gpu.io.flip := io.flip
-  gpu.io.debug := io.debug
+  gpu.io.options := io.options
   gpu.io.pc := cpu.io.regs.pc
   gpu.io.paletteRam <> paletteRam.io.portB
   gpu.io.debugRom <> io.rom.debugRom

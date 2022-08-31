@@ -34,6 +34,7 @@ package tecmo.gfx
 
 import arcadia._
 import arcadia.gfx._
+import arcadida.pocket.OptionsIO
 import chisel3._
 import chisel3.util.MuxCase
 import tecmo._
@@ -41,10 +42,8 @@ import tecmo._
 /** Graphics Processor */
 class GPU extends Module {
   val io = IO(new Bundle {
-    /** Flip video flag */
-    val flip = Input(Bool())
-    /** Enable debug mode */
-    val debug = Input(Bool())
+    /** Options port */
+    val options = Flipped(OptionsIO())
     /** Program counter (debug) */
     val pc = Input(UInt(16.W))
     /** Palette RAM port */
@@ -67,8 +66,8 @@ class GPU extends Module {
 
   // Frame buffer read position
   val frameBufferPos = {
-    val x = Mux(io.flip, ~io.video.pos.x, io.video.pos.x)
-    val y = Mux(io.flip, ~io.video.pos.y, io.video.pos.y)
+    val x = Mux(io.options.flip, ~io.video.pos.x, io.video.pos.x)
+    val y = Mux(io.options.flip, ~io.video.pos.y, io.video.pos.y)
     UVec2(x, y)
   }
 
@@ -92,24 +91,24 @@ class GPU extends Module {
   val charProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 8, cols = 32, rows = 32, offset = 2)))
   charProcessor.io.ctrl <> io.charCtrl
   charProcessor.io.video <> io.video
-  charProcessor.io.flip := io.flip
+  charProcessor.io.flip := io.options.flip
 
   // Foreground processor
   val fgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 54)))
   fgProcessor.io.ctrl <> io.fgCtrl
   fgProcessor.io.video <> io.video
-  fgProcessor.io.flip := io.flip
+  fgProcessor.io.flip := io.options.flip
 
   // Background processor
   val bgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 54)))
   bgProcessor.io.ctrl <> io.bgCtrl
   bgProcessor.io.video <> io.video
-  bgProcessor.io.flip := io.flip
+  bgProcessor.io.flip := io.options.flip
 
   // Debug layer
   val debugLayer = Module(new DebugLayer("PC:$%04X"))
   debugLayer.io.args := Seq(io.pc)
-  debugLayer.io.enable := io.debug
+  debugLayer.io.enable := io.options.debug
   debugLayer.io.pos := UVec2(0.U, 232.U)
   debugLayer.io.color := 1.U
   debugLayer.io.tileRom <> io.debugRom
@@ -130,7 +129,7 @@ class GPU extends Module {
 
   // Final pixel color
   io.rgb := MuxCase(RGB(0.U(8.W)), Seq(
-    (io.video.displayEnable && io.debug && dot) -> RGB(0xff.U(8.W)),
+    (io.video.displayEnable && io.options.debug && dot) -> RGB(0xff.U(8.W)),
     io.video.displayEnable -> GPU.decodeRGB(colorMixer.io.dout)
   ))
 }

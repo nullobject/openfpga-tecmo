@@ -32,12 +32,8 @@
 
 package tecmo
 
-import arcadia.Util
 import arcadia.mem._
 import arcadia.mem.arbiter.BurstMemArbiter
-import arcadia.mem.buffer.BurstBuffer
-import arcadia.mem.request.WriteRequest
-import arcadia.pocket.Bridge
 import chisel3._
 import chisel3.util._
 
@@ -68,47 +64,18 @@ case class MemSysConfig(addrWidth: Int, dataWidth: Int, burstLength: Int, slots:
  */
 class MemSys(config: MemSysConfig) extends Module {
   val io = IO(new Bundle {
-    val prog = new Bundle {
-      /** Download clock */
-      val clock = Input(Clock())
-      /** ROM download port */
-      val rom = Flipped(AsyncWriteMemIO(Bridge.ADDR_WIDTH, Bridge.DATA_WIDTH))
-      /** Asserted when the ROM has finished downloading */
-      val done = Input(Bool())
-    }
+    val rom = Flipped(BurstWriteMemIO(config.addrWidth, config.dataWidth))
     /** Input port */
     val in = Flipped(MixedVec(config.slots.map(slot => AsyncReadMemIO(slot.addrWidth, slot.dataWidth))))
     /** Output port */
     val out = BurstMemIO(config.addrWidth, config.dataWidth)
-    /** Asserted when the memory system is ready */
-    val ready = Output(Bool())
+    /** Enable memory system */
+    val enable = Input(Bool())
   })
-
-  // The FIFO is used to buffer download data
-  val fifo = withClock(io.prog.clock) { Module(new DualClockFIFO(new WriteRequest(UInt(Bridge.ADDR_WIDTH.W), Bits(Bridge.DATA_WIDTH.W)), MemSys.FIFO_DEPTH)) }
-  fifo.io.readClock := clock
-  fifo.io.enq.bits := WriteRequest(io.prog.rom)
-  fifo.io.enq.valid := io.prog.rom.wr
-  io.prog.rom.waitReq := !fifo.io.enq.ready
-
-  // The download buffer is used to buffer ROM data from the bridge, so that complete words are
-  // written to memory.
-  val downloadBuffer = Module(new BurstBuffer(buffer.Config(
-    inAddrWidth = Bridge.ADDR_WIDTH,
-    inDataWidth = Bridge.DATA_WIDTH,
-    outAddrWidth = config.addrWidth,
-    outDataWidth = config.dataWidth,
-    burstLength = config.burstLength
-  )))
-  downloadBuffer.io.in.addr := fifo.io.deq.bits.addr
-  downloadBuffer.io.in.din := fifo.io.deq.bits.din
-  downloadBuffer.io.in.mask := Fill(Bridge.DATA_WIDTH / 8, 1.U)
-  downloadBuffer.io.in.wr := fifo.io.deq.valid
-  fifo.io.deq.ready := !downloadBuffer.io.in.waitReq
 
   // Arbiter
   val arbiter = Module(new BurstMemArbiter(config.slots.size + 1, config.addrWidth, config.dataWidth))
-  arbiter.io.in(0) <> downloadBuffer.io.out.asBurstMemIO
+  arbiter.io.in(0) <> io.rom.asBurstMemIO
   arbiter.io.out <> io.out
 
   // Slots
@@ -122,16 +89,8 @@ class MemSys(config: MemSysConfig) extends Module {
       depth = slotConfig.depth,
       wrapping = true
     )))
-    slot.io.enable := io.ready
+    slot.io.enable := io.enable
     slot.io.in <> io.in(i)
     slot.io.out.mapAddr(_ + slotConfig.offset.U).asBurstMemIO <> arbiter.io.in(i + 1)
   }
-
-  // Latch ready flag
-  io.ready := Util.latchSync(io.prog.done)
-}
-
-object MemSys {
-  /** The depth of the download FIFO in words. */
-  val FIFO_DEPTH = 16
 }
