@@ -224,4 +224,29 @@ class Main extends Module {
     memMap(0xf807).w { (_, _, data) => flipReg := data }
     memMap(0xf808).w { (_, _, data) => bankReg := data(7, 3) }
   }
+
+  when(io.options.gameIndex === Game.GEMINI.U) {
+    memMap(0x0000 to 0xbfff).readMem(io.rom.progRom)
+    memMap(0xc000 to 0xcfff).readWriteMem(workRam.io)
+    vramMap(0xd000 to 0xd7ff, charRam.io.portA)
+    vramMap(0xd800 to 0xdbff, fgRam.io.portA)
+    vramMap(0xdc00 to 0xdfff, bgRam.io.portA)
+    memMap(0xe000 to 0xe7ff).readWriteMem(paletteRam.io.portA)
+    memMap(0xe800 to 0xefff).readWriteMem(spriteRam.io.portA)
+    memMap(0xf000 to 0xf7ff).readMemT(io.rom.bankRom) { addr => bankReg ## addr(10, 0) }
+    memMap(0xf800).r { (_, _) => Cat(io.player.up, io.player.down, io.player.right, io.player.left) }
+    memMap(0xf801).r { (_, _) => Cat(io.player.buttons(0), io.player.buttons(1)) }
+    memMap(0xf802).nopr() // JOY 1
+    memMap(0xf803).nopr() // BUTTONS 1
+    memMap(0xf804).nopr() // SYS 0
+    memMap(0xf805).r { (_, _) => Cat(0.U, io.player.coin, 0.U, io.player.start) }
+    memMap(0xf806 to 0xf807).nopr() // DIP 0
+    memMap(0xf808 to 0xf809).nopr() // DIP 1
+    memMap(0xf80f).nopr() // SYS 2
+    memMap(0xf800 to 0xf802).w { (_, offset, data) => setScroll(offset, data, fgScrollReg) }
+    memMap(0xf803 to 0xf805).w { (_, offset, data) => setScroll(offset, data, bgScrollReg) }
+    memMap(0xf806).w { (_, _, _) => io.soundCtrl.req := true.B }
+    memMap(0xf807).w { (_, _, data) => flipReg := data }
+    memMap(0xf808).w { (_, _, data) => bankReg := data(7, 3) }
+  }
 }

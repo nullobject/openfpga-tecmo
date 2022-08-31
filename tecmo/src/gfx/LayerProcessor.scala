@@ -79,8 +79,14 @@ class LayerProcessor(config: LayerProcessorConfig) extends Module {
   val latchColor = enable && tileOffset.x === (config.tileSize - 1).U
   val latchPix = enable && tileOffset.x(2, 0) === 7.U
 
+  // Decode tile
+  val tile = Mux(io.options.gameIndex === Game.GEMINI.U,
+    Tile.decodeGemini(io.ctrl.vram.dout),
+    Tile.decode(io.ctrl.vram.dout)
+  )
+
   // Tile registers
-  val tileReg = RegEnable(Tile.decode(io.ctrl.vram.dout), latchTile)
+  val tileReg = RegEnable(tile, latchTile)
   val colorReg = RegEnable(tileReg.colorCode, latchColor)
   val pixReg = RegEnable(GPU.decodeTileRow(io.ctrl.tileRom.dout), latchPix)
 

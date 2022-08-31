@@ -68,4 +68,25 @@ object Tile {
     tile.code := words(1)(2, 0) ## words(0)(7, 0)
     tile
   }
+
+  /**
+   * Decodes a Gemini Wing tile from the given data.
+   *
+   * {{{
+   *  byte   bits       description
+   * ------+-7654-3210-+-------------
+   *     0 | xxxx xxxx | lo code
+   *     1 | ---- xxxx | color
+   *       | -xxx ---- | hi code
+   * }}}
+   *
+   * @param data The tile data.
+   */
+  def decodeGemini(data: Bits): Tile = {
+    val words = Util.decode(data, 2, 8)
+    val tile = Wire(new Tile)
+    tile.colorCode := words(1)(3, 0)
+    tile.code := words(1)(6, 4) ## words(0)(7, 0)
+    tile
+  }
 }
