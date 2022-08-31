@@ -138,8 +138,8 @@ class Main extends Module {
   paletteRam.io.portA.default()
 
   // GPU
-  val gpu = Module(new GPU)
-  gpu.io.videoClock := io.videoClock
+
+  val gpu = withClock(io.videoClock) { Module(new GPU) }
   gpu.io.flip := io.flip
   gpu.io.debug := io.debug
   gpu.io.pc := cpu.io.regs.pc
