@@ -34,6 +34,16 @@ import arcadia.mem.{AsyncReadMemIO, ReadMemIO}
 import tecmo.Config
 
 package object tecmo {
+  /** Game enum */
+  object Game {
+    /** Rygar */
+    val RYGAR = 0
+    /** Gemini Wing */
+    val GEMINI = 1
+    /** Silkworm */
+    val SILKWORM = 2
+  }
+
   /** Program ROM IO */
   class ProgRomIO extends ReadMemIO(Config.PROG_ROM_ADDR_WIDTH, Config.PROG_ROM_DATA_WIDTH)
 
