@@ -45,3 +45,7 @@ class LayerCtrlIO extends Bundle {
   /** Scroll position */
   val scroll = Input(UVec2(9.W))
 }
+
+object LayerCtrlIO {
+  def apply(): LayerCtrlIO = new LayerCtrlIO
+}

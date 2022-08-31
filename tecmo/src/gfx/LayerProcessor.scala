@@ -56,7 +56,7 @@ case class LayerProcessorConfig(tileSize: Int, cols: Int, rows: Int, offset: Int
 class LayerProcessor(config: LayerProcessorConfig) extends Module {
   val io = IO(new Bundle {
     /** Control port */
-    val ctrl = new LayerCtrlIO
+    val ctrl = LayerCtrlIO()
     /** Video port */
     val video = Flipped(VideoIO())
     /** Flip video */
