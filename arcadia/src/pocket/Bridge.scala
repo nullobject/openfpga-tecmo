@@ -62,6 +62,7 @@ class Bridge(addrWidth: Int, dataWidth: Int, burstLength: Int) extends Module {
 
   // Control signals
   val latchRom = io.bridge.rom.wr && io.bridge.rom.addr(31, 28) === 0.U
+  val latchGameIndexReg = io.bridge.rom.wr && io.bridge.rom.addr === Bridge.GAME_INDEX_ADDR.U
   val latchDebugReg = io.bridge.rom.wr && io.bridge.rom.addr === Bridge.DEBUG_ADDR.U
 
   // The Pocket bridge writes to the FIFO in the bridge clock domain. The FIFO is read in the system
@@ -93,13 +94,16 @@ class Bridge(addrWidth: Int, dataWidth: Int, burstLength: Int) extends Module {
   val din = Util.swapEndianness(io.bridge.rom.din)
 
   // Options
+  io.options.gameIndex := RegEnable(din, latchGameIndexReg)
   io.options.debug := RegEnable(din, latchDebugReg)
   io.options.flip := false.B
 }
 
 object Bridge {
-  /** The depth of the download FIFO in words. */
+  /** The depth of the download FIFO in words */
   val FIFO_DEPTH = 16
-  /** The address of the debug register. */
-  val DEBUG_ADDR = 0xf9000000L
+  /** The address of the game index register */
+  val GAME_INDEX_ADDR = 0xf9000000L
+  /** The address of the debug register */
+  val DEBUG_ADDR = 0xf9000004L
 }

@@ -35,6 +35,8 @@ package arcadida.pocket
 import chisel3._
 
 class OptionsIO extends Bundle {
+  /** Game index */
+  val gameIndex = Output(UInt(32.W))
   /** Enable debugging */
   val debug = Output(Bool())
   /** Flip video output */
