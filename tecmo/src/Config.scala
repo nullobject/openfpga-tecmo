@@ -46,6 +46,11 @@ object Config {
   /** Sound clock divider */
   val SOUND_CLOCK_DIV = 3 // 4 MHz
 
+  /** Video clock frequency (Hz) */
+  val VIDEO_CLOCK_FREQ = 6_000_000D
+  /** Video clock divider */
+  val VIDEO_CLOCK_DIV = 1 // 6 MHz
+
   /** The width of a priority value */
   val PRIO_WIDTH = 2
   /** The width of a color code value */
@@ -186,8 +191,8 @@ object Config {
 
   /** Video timing configuration */
   val videoTimingConfig = VideoTimingConfig(
-    clockFreq = 6000000,
-    clockDiv = 1,
+    clockFreq = VIDEO_CLOCK_FREQ,
+    clockDiv = VIDEO_CLOCK_DIV,
     hFreq = 15625, // Hz
     vFreq = 59.19, // Hz
     hDisplay = 256,
