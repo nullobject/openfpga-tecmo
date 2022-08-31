@@ -64,9 +64,6 @@ object Config {
   /** The width of the final RGB values */
   val RGB_WIDTH = 24
 
-  val SPRITE_CODE_WIDTH = 13
-  val SPRITE_SIZE_WIDTH = 7
-
   val PROG_ROM_ADDR_WIDTH = 16 // 64 kB
   val PROG_ROM_DATA_WIDTH = 8
 
