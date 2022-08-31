@@ -70,13 +70,13 @@ object Config {
   val PROG_ROM_ADDR_WIDTH = 16 // 64 kB
   val PROG_ROM_DATA_WIDTH = 8
 
-  val BANK_ROM_ADDR_WIDTH = 15 // 32 kB
+  val BANK_ROM_ADDR_WIDTH = 16 // 64 kB
   val BANK_ROM_DATA_WIDTH = 8
 
-  val SOUND_ROM_ADDR_WIDTH = 13 // 8 kB
+  val SOUND_ROM_ADDR_WIDTH = 15 // 32 kB
   val SOUND_ROM_DATA_WIDTH = 8
 
-  val PCM_ROM_ADDR_WIDTH = 14 // 16 kB
+  val PCM_ROM_ADDR_WIDTH = 15 // 32 kB
   val PCM_ROM_DATA_WIDTH = 8
 
   val WORK_RAM_ADDR_WIDTH = 12 // 4 kB
@@ -148,7 +148,7 @@ object Config {
       SlotConfig(
         addrWidth = Config.BANK_ROM_ADDR_WIDTH,
         dataWidth = Config.BANK_ROM_DATA_WIDTH,
-        offset = 0x0c000
+        offset = 0x10000
       ),
       // Character ROM
       SlotConfig(
@@ -166,25 +166,25 @@ object Config {
       SlotConfig(
         addrWidth = Config.BG_ROM_ADDR_WIDTH,
         dataWidth = Config.BG_ROM_DATA_WIDTH,
-        offset = 0x50000
+        offset = 0x70000
       ),
       // Sprite ROM
       SlotConfig(
         addrWidth = Config.SPRITE_ROM_ADDR_WIDTH,
         dataWidth = Config.SPRITE_ROM_DATA_WIDTH,
-        offset = 0x70000
+        offset = 0xb0000
       ),
       // Sound ROM
       SlotConfig(
         addrWidth = Config.SOUND_ROM_ADDR_WIDTH,
         dataWidth = Config.SOUND_ROM_DATA_WIDTH,
-        offset = 0x90000
+        offset = 0xf0000
       ),
       // PCM ROM
       SlotConfig(
         addrWidth = Config.PCM_ROM_ADDR_WIDTH,
         dataWidth = Config.PCM_ROM_DATA_WIDTH,
-        offset = 0x92000
+        offset = 0xf8000
       )
     )
   )
