@@ -451,9 +451,6 @@ wire [15:0] dram_din;
 assign dram_clk = sys_clock;
 assign dram_dq = dram_oe ? dram_din : 16'bZ;
 
-wire [7:0] r, g, b;
-assign video_rgb = {r, g, b};
-
 wire [15:0] audio;
 
 Tecmo tecmo (
@@ -495,9 +492,7 @@ Tecmo tecmo (
 
   .audio(audio),
 
-  .rgb_r(r),
-  .rgb_g(g),
-  .rgb_b(b),
+  .rgb(video_rgb),
 );
 
 i2s i2s (

@@ -60,8 +60,8 @@ class Main extends Module {
     val soundCtrl = Flipped(SoundCtrlIO())
     /** ROM port */
     val rom = new RomIO
-    /** RGB output */
-    val rgb = Output(RGB(Config.RGB_OUTPUT_BPP.W))
+    /** RGB port */
+    val rgb = Output(UInt(Config.RGB_WIDTH.W))
   })
 
   // Wires

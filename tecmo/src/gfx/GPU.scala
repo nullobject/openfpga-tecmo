@@ -60,8 +60,8 @@ class GPU extends Module {
     val spriteCtrl = new SpriteCtrlIO
     /** Video port */
     val video = Flipped(VideoIO())
-    /** RGB output */
-    val rgb = Output(RGB(Config.RGB_OUTPUT_BPP.W))
+    /** RGB port */
+    val rgb = Output(UInt(Config.RGB_WIDTH.W))
   })
 
   // Frame buffer read position
@@ -128,8 +128,8 @@ class GPU extends Module {
     ((io.video.pos.y === 16.U || io.video.pos.y === 239.U) && io.video.pos.x(2) === 0.U)
 
   // Final pixel color
-  io.rgb := MuxCase(RGB(0.U(8.W)), Seq(
-    (io.video.displayEnable && io.options.debug && dot) -> RGB(0xff.U(8.W)),
+  io.rgb := MuxCase(0.U, Seq(
+    (io.video.displayEnable && io.options.debug && dot) -> 0xffffff.U,
     io.video.displayEnable -> GPU.decodeRGB(colorMixer.io.dout)
   ))
 }
@@ -148,11 +148,11 @@ object GPU {
    * @param data The pixel data.
    * @return A 24 bit RGB value.
    */
-  private def decodeRGB(data: Bits) = {
+  private def decodeRGB(data: Bits): UInt = {
     val r = data(15, 12) ## data(15, 12)
     val g = data(11, 8) ## data(11, 8)
     val b = data(3, 0) ## data(3, 0)
-    RGB(r, g, b)
+    r ## g ## b
   }
 
   /**
