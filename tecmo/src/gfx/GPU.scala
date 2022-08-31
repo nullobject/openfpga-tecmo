@@ -83,26 +83,22 @@ class GPU extends Module {
 
   // Sprite processor
   val spriteProcessor = Module(new SpriteProcessor)
-  spriteProcessor.io.options := io.options
   spriteProcessor.io.ctrl <> io.spriteCtrl
   spriteProcessor.io.frameBuffer <> frameBuffer.io.portA
   spriteProcessor.io.video <> io.video
 
   // Character processor
   val charProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 8, cols = 32, rows = 32, offset = 1)))
-  charProcessor.io.options := io.options
   charProcessor.io.ctrl <> io.charCtrl
   charProcessor.io.video <> io.video
 
   // Foreground processor
   val fgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 54)))
-  fgProcessor.io.options := io.options
   fgProcessor.io.ctrl <> io.fgCtrl
   fgProcessor.io.video <> io.video
 
   // Background processor
   val bgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 54)))
-  bgProcessor.io.options := io.options
   bgProcessor.io.ctrl <> io.bgCtrl
   bgProcessor.io.video <> io.video
 

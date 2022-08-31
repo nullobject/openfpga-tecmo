@@ -36,7 +36,6 @@ import arcadia.Util
 import arcadia.gfx.VideoIO
 import arcadia.mem._
 import arcadia.util.Counter
-import arcadida.pocket.OptionsIO
 import chisel3._
 import chisel3.util._
 import tecmo._
@@ -48,8 +47,6 @@ import tecmo._
  */
 class SpriteProcessor(numSprites: Int = 256) extends Module {
   val io = IO(new Bundle {
-    /** Options port */
-    val options = Flipped(OptionsIO())
     /** Control port */
     val ctrl = SpriteCtrlIO()
     /** Frame buffer port */
@@ -77,7 +74,7 @@ class SpriteProcessor(numSprites: Int = 256) extends Module {
   val effectiveRead = Wire(Bool())
 
   // Decode sprite
-  val sprite = Mux(io.options.gameIndex === Game.GEMINI.U,
+  val sprite = Mux(io.ctrl.format === Config.GFX_FORMAT_GEMINI.U,
     Sprite.decodeGemini(io.ctrl.vram.dout),
     Sprite.decode(io.ctrl.vram.dout)
   )

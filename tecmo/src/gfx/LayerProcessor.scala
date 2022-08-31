@@ -34,7 +34,6 @@ package tecmo.gfx
 
 import arcadia._
 import arcadia.gfx.VideoIO
-import arcadida.pocket.OptionsIO
 import chisel3._
 import chisel3.util._
 import tecmo._
@@ -56,8 +55,6 @@ case class LayerProcessorConfig(tileSize: Int, cols: Int, rows: Int, offset: Int
  */
 class LayerProcessor(config: LayerProcessorConfig) extends Module {
   val io = IO(new Bundle {
-    /** Options port */
-    val options = Flipped(OptionsIO())
     /** Control port */
     val ctrl = LayerCtrlIO()
     /** Video port */
@@ -80,7 +77,7 @@ class LayerProcessor(config: LayerProcessorConfig) extends Module {
   val latchPix = enable && tileOffset.x(2, 0) === 7.U
 
   // Decode tile
-  val tile = Mux(io.options.gameIndex === Game.GEMINI.U,
+  val tile = Mux(io.ctrl.format === Config.GFX_FORMAT_GEMINI.U,
     Tile.decodeGemini(io.ctrl.vram.dout),
     Tile.decode(io.ctrl.vram.dout)
   )

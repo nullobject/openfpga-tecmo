@@ -107,6 +107,7 @@ class Tecmo extends Module {
   // Main PCB
   val main = withClockAndReset(io.cpuClock, io.cpuReset) { Module(new Main) }
   main.io.videoClock := io.videoClock
+  main.io.gameConfig := GameConfig(bridge.io.options.gameIndex)
   main.io.options := bridge.io.options
   main.io.player := io.player
   main.io.pause := io.bridge.pause

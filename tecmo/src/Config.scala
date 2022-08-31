@@ -123,6 +123,13 @@ object Config {
   val DEBUG_ROM_ADDR_WIDTH = 9
   val DEBUG_ROM_DATA_WIDTH = 32
 
+  /** The width of the graphics format value */
+  val GFX_FORMAT_WIDTH = 1
+  /** Default graphics format */
+  val GFX_FORMAT_DEFAULT = 0
+  /** Gemini Wing graphics format */
+  val GFX_FORMAT_GEMINI = 1
+
   val FRAME_BUFFER_ADDR_WIDTH = 16
   val FRAME_BUFFER_DATA_WIDTH = 10
 

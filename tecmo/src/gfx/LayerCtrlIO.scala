@@ -38,12 +38,14 @@ import tecmo._
 
 /** A bundle that contains control signals for the layer processor. */
 class LayerCtrlIO extends Bundle {
+  /** Format */
+  val format = Input(Bool())
+  /** Scroll position */
+  val scroll = Input(UVec2(9.W))
   /** VRAM port */
   val vram = new LayerRamIO
   /** Tile ROM port */
   val tileRom = new TileRomIO
-  /** Scroll position */
-  val scroll = Input(UVec2(9.W))
 }
 
 object LayerCtrlIO {

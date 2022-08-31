@@ -48,6 +48,8 @@ class Main extends Module {
   val io = IO(new Bundle {
     /** Video clock */
     val videoClock = Input(Clock())
+    /** Game configuration port */
+    val gameConfig = Input(GameConfig())
     /** Options port */
     val options = Flipped(OptionsIO())
     /** Player port */
@@ -148,15 +150,19 @@ class Main extends Module {
   gpu.io.pc := cpu.io.regs.pc
   gpu.io.paletteRam <> paletteRam.io.portB
   gpu.io.debugRom <> io.rom.debugRom
+  gpu.io.charCtrl.format := io.gameConfig.char.format
+  gpu.io.charCtrl.scroll := UVec2(0.U, 0.U)
   gpu.io.charCtrl.vram <> charRam.io.portB
   gpu.io.charCtrl.tileRom <> io.rom.charRom
-  gpu.io.charCtrl.scroll := UVec2(0.U, 0.U)
+  gpu.io.fgCtrl.format := io.gameConfig.fg.format
+  gpu.io.fgCtrl.scroll := fgScrollReg
   gpu.io.fgCtrl.vram <> fgRam.io.portB
   gpu.io.fgCtrl.tileRom <> io.rom.fgRom
-  gpu.io.fgCtrl.scroll := fgScrollReg
+  gpu.io.bgCtrl.format := io.gameConfig.bg.format
+  gpu.io.bgCtrl.scroll := bgScrollReg
   gpu.io.bgCtrl.vram <> bgRam.io.portB
   gpu.io.bgCtrl.tileRom <> io.rom.bgRom
-  gpu.io.bgCtrl.scroll := bgScrollReg
+  gpu.io.spriteCtrl.format := io.gameConfig.sprite.format
   gpu.io.spriteCtrl.vram <> spriteRam.io.portB
   gpu.io.spriteCtrl.tileRom <> io.rom.spriteRom
   gpu.io.video <> io.video

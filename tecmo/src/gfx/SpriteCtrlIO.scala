@@ -37,6 +37,8 @@ import tecmo._
 
 /** A bundle that contains control signals for the sprite processor. */
 class SpriteCtrlIO extends Bundle {
+  /** Format */
+  val format = Input(Bool())
   /** VRAM port */
   val vram = new SpriteRamIO
   /** Tile ROM port */
