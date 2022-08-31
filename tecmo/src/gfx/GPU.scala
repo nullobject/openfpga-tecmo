@@ -89,7 +89,7 @@ class GPU extends Module {
   spriteProcessor.io.video <> io.video
 
   // Character processor
-  val charProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 8, cols = 32, rows = 32, offset = 2)))
+  val charProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 8, cols = 32, rows = 32, offset = 1)))
   charProcessor.io.options := io.options
   charProcessor.io.ctrl <> io.charCtrl
   charProcessor.io.video <> io.video
