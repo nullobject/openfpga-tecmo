@@ -171,6 +171,11 @@ class MemMap(cpu: CPUIO) {
       when(cs && cpu.mreq && cpu.wr) { f(cpu.addr, offset, cpu.dout) }
     }
 
+    /** Ignores read access for the address range. */
+    def nopr(): Unit = {
+      r((_, _) => 0.U)
+    }
+
     /** Ignores write access for the address range. */
     def nopw(): Unit = {
       w((_, _, _) => {})

@@ -39,7 +39,7 @@ import arcadia.mem._
 import arcadida.pocket.OptionsIO
 import chisel3._
 import chisel3.util._
-import tecmo.Config
+import tecmo._
 import tecmo.gfx._
 import tecmo.snd.SoundCtrlIO
 
@@ -68,16 +68,22 @@ class Main extends Module {
   val irq = Wire(Bool())
 
   // Registers
-  val bankReg = RegInit(0.U(4.W))
+  val bankReg = RegInit(0.U(5.W))
   val fgScrollReg = RegInit(UVec2(0.U(9.W), 0.U(9.W)))
   val bgScrollReg = RegInit(UVec2(0.U(9.W), 0.U(9.W)))
+  val flipReg = RegInit(false.B)
 
   // Main CPU
   val cpu = Module(new CPU(Config.CPU_CLOCK_DIV))
+  val memMap = new MemMap(cpu.io)
   cpu.io.halt := ShiftRegister(io.pause, 2)
   cpu.io.din := DontCare
   cpu.io.int := irq
   cpu.io.nmi := false.B
+
+  // Set interface defaults
+  io.rom.progRom.default()
+  io.rom.bankRom.default()
 
   // Work RAM
   val workRam = Module(new SinglePortRam(
@@ -137,7 +143,6 @@ class Main extends Module {
   paletteRam.io.portA.default()
 
   // GPU
-
   val gpu = withClock(io.videoClock) { Module(new GPU) }
   gpu.io.options := io.options
   gpu.io.pc := cpu.io.regs.pc
@@ -167,48 +172,56 @@ class Main extends Module {
   io.soundCtrl.req := false.B
   io.soundCtrl.data := cpu.io.dout
 
-  // Memory map
-  val memMap = new MemMap(cpu.io)
-  memMap(0x0000 to 0xbfff).readMem(io.rom.progRom)
-  memMap(0xc000 to 0xcfff).readWriteMem(workRam.io)
-  memMap(0xd000 to 0xd7ff).readWriteMemT(charRam.io.portA) { addr =>
-    // Rotate the address to keep the tile codes and colors contiguous in memory. Normally they are
-    // split across the lower and upper halves of the character RAM.
-    Util.rotateLeft(addr(Config.CHAR_RAM_ADDR_WIDTH - 1, 0))
+  /**
+   * Maps video RAM to the given address range.
+   *
+   * The address is rotated to keep the tile codes and colors contiguous in memory. In the arcade
+   * hardware they are split between the lower and upper halves of the VRAM.
+   *
+   * @param r   The address range.
+   * @param mem The VRAM memory interface.
+   */
+  def vramMap(r: Range, mem: MemIO): Unit = {
+    memMap(r).readWriteMemT(mem) { addr => Util.rotateLeft(addr(mem.addrWidth - 1, 0)) }
   }
-  memMap(0xd800 to 0xdbff).readWriteMemT(fgRam.io.portA) { addr =>
-    // Rotate the address to keep the tile codes and colors contiguous in memory. Normally they are
-    // split across the lower and upper halves of the foreground RAM.
-    Util.rotateLeft(addr(Config.FG_RAM_ADDR_WIDTH - 1, 0))
-  }
-  memMap(0xdc00 to 0xdfff).readWriteMemT(bgRam.io.portA) { addr =>
-    // Rotate the address to keep the tile codes and colors contiguous in memory. Normally they are
-    // split across the lower and upper halves of the background RAM.
-    Util.rotateLeft(addr(Config.BG_RAM_ADDR_WIDTH - 1, 0))
-  }
-  memMap(0xe000 to 0xe7ff).readWriteMem(spriteRam.io.portA)
-  memMap(0xe800 to 0xefff).readWriteMem(paletteRam.io.portA)
-  memMap(0xf000 to 0xf7ff).readMemT(io.rom.bankRom) { addr =>
-    // Select the current bank
-    bankReg ## addr(10, 0)
-  }
-  memMap(0xf800).r { (_, _) => Cat(io.player.up, io.player.down, io.player.right, io.player.left) }
-  memMap(0xf801).r { (_, _) => Cat(io.player.buttons(1), io.player.buttons(0)) }
-  memMap(0xf804).r { (_, _) => Cat(io.player.coin, 0.U, io.player.start, 0.U) }
-  memMap(0xf800 to 0xf802).w { (_, offset, data) =>
+
+  /**
+   * Sets the scroll register.
+   *
+   * @param offset The address offset.
+   * @param data   The data to be written.
+   * @param reg    The scroll register.
+   */
+  def setScroll(offset: UInt, data: Bits, reg: UVec2): Unit = {
     switch(offset) {
-      is(0.U) { fgScrollReg.x := fgScrollReg.x(8) ## data }
-      is(1.U) { fgScrollReg.x := data(0) ## fgScrollReg.x(7, 0) }
-      is(2.U) { fgScrollReg.y := data }
+      is(0.U) { reg.x := reg.x(8) ## data }
+      is(1.U) { reg.x := data(0) ## reg.x(7, 0) }
+      is(2.U) { reg.y := data }
     }
   }
-  memMap(0xf803 to 0xf805).w { (_, offset, data) =>
-    switch(offset) {
-      is(0.U) { bgScrollReg.x := bgScrollReg.x(8) ## data }
-      is(1.U) { bgScrollReg.x := data(0) ## bgScrollReg.x(7, 0) }
-      is(2.U) { bgScrollReg.y := data }
-    }
+
+  when(io.options.gameIndex === Game.RYGAR.U) {
+    memMap(0x0000 to 0xbfff).readMem(io.rom.progRom)
+    memMap(0xc000 to 0xcfff).readWriteMem(workRam.io)
+    vramMap(0xd000 to 0xd7ff, charRam.io.portA)
+    vramMap(0xd800 to 0xdbff, fgRam.io.portA)
+    vramMap(0xdc00 to 0xdfff, bgRam.io.portA)
+    memMap(0xe000 to 0xe7ff).readWriteMem(spriteRam.io.portA)
+    memMap(0xe800 to 0xefff).readWriteMem(paletteRam.io.portA)
+    memMap(0xf000 to 0xf7ff).readMemT(io.rom.bankRom) { addr => bankReg ## addr(10, 0) }
+    memMap(0xf800).r { (_, _) => Cat(io.player.up, io.player.down, io.player.right, io.player.left) }
+    memMap(0xf801).r { (_, _) => Cat(io.player.buttons(1), io.player.buttons(0)) }
+    memMap(0xf802).nopr() // JOY 1
+    memMap(0xf803).nopr() // BUTTONS 1
+    memMap(0xf804).r { (_, _) => Cat(io.player.coin, 0.U, io.player.start, 0.U) }
+    memMap(0xf805).nopr() // SYS 1
+    memMap(0xf806 to 0xf807).nopr() // DIP 0
+    memMap(0xf808 to 0xf809).nopr() // DIP 1
+    memMap(0xf80f).nopr() // SYS 2
+    memMap(0xf800 to 0xf802).w { (_, offset, data) => setScroll(offset, data, fgScrollReg) }
+    memMap(0xf803 to 0xf805).w { (_, offset, data) => setScroll(offset, data, bgScrollReg) }
+    memMap(0xf806).w { (_, _, _) => io.soundCtrl.req := true.B }
+    memMap(0xf807).w { (_, _, data) => flipReg := data }
+    memMap(0xf808).w { (_, _, data) => bankReg := data(7, 3) }
   }
-  memMap(0xf806).w { (_, _, _) => io.soundCtrl.req := true.B }
-  memMap(0xf808).w { (_, _, data) => bankReg := data(6, 3) }
 }
