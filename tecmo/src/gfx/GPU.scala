@@ -89,21 +89,21 @@ class GPU extends Module {
 
   // Character processor
   val charProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 8, cols = 32, rows = 32, offset = 2)))
+  charProcessor.io.options := io.options
   charProcessor.io.ctrl <> io.charCtrl
   charProcessor.io.video <> io.video
-  charProcessor.io.flip := io.options.flip
 
   // Foreground processor
   val fgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 54)))
+  fgProcessor.io.options := io.options
   fgProcessor.io.ctrl <> io.fgCtrl
   fgProcessor.io.video <> io.video
-  fgProcessor.io.flip := io.options.flip
 
   // Background processor
   val bgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 54)))
+  bgProcessor.io.options := io.options
   bgProcessor.io.ctrl <> io.bgCtrl
   bgProcessor.io.video <> io.video
-  bgProcessor.io.flip := io.options.flip
 
   // Debug layer
   val debugLayer = Module(new DebugLayer("PC:$%04X"))

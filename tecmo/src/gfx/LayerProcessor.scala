@@ -34,6 +34,7 @@ package tecmo.gfx
 
 import arcadia._
 import arcadia.gfx.VideoIO
+import arcadida.pocket.OptionsIO
 import chisel3._
 import chisel3.util._
 import tecmo._
@@ -55,12 +56,12 @@ case class LayerProcessorConfig(tileSize: Int, cols: Int, rows: Int, offset: Int
  */
 class LayerProcessor(config: LayerProcessorConfig) extends Module {
   val io = IO(new Bundle {
+    /** Options port */
+    val options = Flipped(OptionsIO())
     /** Control port */
     val ctrl = LayerCtrlIO()
     /** Video port */
     val video = Flipped(VideoIO())
-    /** Flip video */
-    val flip = Input(Bool())
     /** Palette entry output */
     val pen = Output(new PaletteEntry)
   })
