@@ -35,6 +35,7 @@ package tecmo.snd
 import arcadia.cpu.z80._
 import arcadia.mem._
 import arcadia.snd._
+import arcadida.pocket.OptionsIO
 import chisel3._
 import chisel3.util._
 import tecmo._
@@ -42,6 +43,8 @@ import tecmo._
 /** Represents the sound PCB. */
 class Sound extends Module {
   val io = IO(new Bundle {
+    /** Options port */
+    val options = Flipped(OptionsIO())
     /** Control port */
     val ctrl = SoundCtrlIO()
     /** ROM port */
@@ -62,10 +65,14 @@ class Sound extends Module {
 
   // Sound CPU
   val cpu = Module(new CPU(Config.SOUND_CLOCK_DIV))
+  val memMap = new MemMap(cpu.io)
   cpu.io.halt := false.B
   cpu.io.din := DontCare
   cpu.io.int := irq
   cpu.io.nmi := reqReg
+
+  // Set interface defaults
+  io.rom.soundRom.default()
 
   // Sound RAM
   val soundRam = Module(new SinglePortRam(
@@ -92,7 +99,7 @@ class Sound extends Module {
   pcmCounter.io.rom <> io.rom.pcmRom
 
   /**
-   * Sets the PCM address.
+   * Sets the PCM address register.
    *
    * @param high The high address flag.
    */
@@ -102,24 +109,24 @@ class Sound extends Module {
   }
 
   /**
-   * Sets the PCM gain.
+   * Sets the PCM gain register.
    *
    * @param value The gain value.
    */
-  def setGain(value: UInt): Unit = {
-    pcmGainReg := value
+  def setGain(value: Bits): Unit = {
+    pcmGainReg := value.asUInt
   }
 
-  // Memory map
-  val memMap = new MemMap(cpu.io)
-  memMap(0x0000 to 0x3fff).readMem(io.rom.soundRom)
-  memMap(0x4000 to 0x47ff).readWriteMem(soundRam.io)
-  memMap(0x8000 to 0x8001).readWriteMem(opl.io.cpu)
-  memMap(0xc000 to 0xc000).r { (_, _) => dataReg }
-  memMap(0xc000 to 0xc000).w { (_, _, _) => setAddr(false) }
-  memMap(0xd000 to 0xd000).w { (_, _, _) => setAddr(true) }
-  memMap(0xe000 to 0xe000).w { (_, _, data) => setGain(data.asUInt) }
-  memMap(0xf000 to 0xf000).w { (_, _, _) => reqReg := false.B }
+  when(io.options.gameIndex === Game.RYGAR.U) {
+    memMap(0x0000 to 0x3fff).readMem(io.rom.soundRom)
+    memMap(0x4000 to 0x47ff).readWriteMem(soundRam.io)
+    memMap(0x8000 to 0x8001).readWriteMem(opl.io.cpu)
+    memMap(0xc000).r { (_, _) => dataReg }
+    memMap(0xc000).w { (_, _, _) => setAddr(false) }
+    memMap(0xd000).w { (_, _, _) => setAddr(true) }
+    memMap(0xe000).w { (_, _, data) => setGain(data) }
+    memMap(0xf000).w { (_, _, _) => reqReg := false.B }
+  }
 
   // Audio mixer
   io.audio := AudioMixer.sum(Config.AUDIO_SAMPLE_WIDTH,

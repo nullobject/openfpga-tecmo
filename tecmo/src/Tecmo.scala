@@ -121,6 +121,7 @@ class Tecmo extends Module {
 
   // Sound PCB
   val sound = withClockAndReset(io.cpuClock, io.cpuReset) { Module(new Sound) }
+  sound.io.options := bridge.io.options
   sound.io.ctrl <> main.io.soundCtrl
   sound.io.rom.soundRom <> Crossing.freeze(io.cpuClock, memSys.io.in(6)).asReadMemIO
   sound.io.rom.pcmRom <> Crossing.freeze(io.cpuClock, memSys.io.in(7)).asReadMemIO
