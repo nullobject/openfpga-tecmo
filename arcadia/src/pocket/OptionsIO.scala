@@ -37,6 +37,8 @@ import chisel3._
 class OptionsIO extends Bundle {
   /** Game index */
   val gameIndex = Output(UInt(32.W))
+  /** Scaler mode */
+  val scalerMode = Output(UInt(3.W))
   /** Enable debugging */
   val debug = Output(Bool())
   /** Flip video output */

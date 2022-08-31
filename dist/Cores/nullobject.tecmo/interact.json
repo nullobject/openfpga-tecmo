@@ -7,7 +7,7 @@
         "id": 1,
         "type": "check",
         "enabled": true,
-        "address": "0xf9000004",
+        "address": "0xf9000008",
         "writeonly": true,
         "defaultval": 0,
         "value": 1
