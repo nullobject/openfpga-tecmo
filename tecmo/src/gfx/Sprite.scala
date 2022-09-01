@@ -56,10 +56,10 @@ class Sprite extends Bundle {
   val priority = UInt(Config.PRIO_WIDTH.W)
 
   /** Number of columns of tiles */
-  def cols: UInt = size / 8.U
+  def cols: UInt = (size >> 3).asUInt
 
   /** Number of rows of tiles */
-  def rows: UInt = size / 8.U
+  def rows: UInt = (size >> 3).asUInt
 }
 
 object Sprite {
