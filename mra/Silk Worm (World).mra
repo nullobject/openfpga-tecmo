@@ -1,0 +1,40 @@
+<misterromdescription>
+  <name>Silkworm</name>
+  <platform>Tecmo</platform>
+  <year>1988</year>
+  <manufacturer>Tecmo</manufacturer>
+  <category>Shooter - Horizontal</category>
+
+  <setname>silkworm</setname>
+  <parent>silkworm</parent>
+  <mameversion>0220</mameversion>
+  <rbf>tecmo</rbf>
+
+  <rom index="0" md5="none" zip="silkworm.zip">
+    <!-- main cpu -->
+    <part crc="a5277cce" name="4.5s" />
+    <part crc="a6c7bb51" name="5.6s" />
+    <!-- char -->
+    <part crc="e80a1cd9" name="2.3j" />
+    <part repeat="0x8000">00</part>
+    <!-- fg -->
+    <part crc="8c7138bb" name="10.1p" />
+    <part crc="6c03c476" name="11.12p" />
+    <part crc="bb0f568f" name="12.2p" />
+    <part crc="773ad0a4" name="13.3p" />
+    <!-- bg -->
+    <part crc="409df64b" name="14.1s" />
+    <part crc="6e4052c9" name="15.12s" />
+    <part crc="9292ed63" name="16.2s" />
+    <part crc="3fa4563d" name="17.3s" />
+    <!-- sprite -->
+    <part crc="1138d159" name="6.1c" />
+    <part crc="d96214f7" name="7.1d" />
+    <part crc="0494b38e" name="8.1f" />
+    <part crc="8ce3cdf5" name="9.1h" />
+    <!-- sound cpu -->
+    <part crc="b589f587" name="3.5j" />
+    <!-- pcm -->
+    <part crc="5b553644" name="1.6b" />
+  </rom>
+</misterromdescription>

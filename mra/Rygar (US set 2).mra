@@ -1,0 +1,47 @@
+<misterromdescription>
+  <name>Rygar (US set 2)</name>
+  <platform>Tecmo</platform>
+  <year>1986</year>
+  <manufacturer>Tecmo</manufacturer>
+  <category>Platform</category>
+
+  <setname>rygar2</setname>
+  <parent>rygar</parent>
+  <mameversion>0220</mameversion>
+  <rbf>tecmo</rbf>
+
+  <rom index="0" md5="none" zip="rygar2.zip|rygar.zip">
+    <!-- main cpu -->
+    <part crc="151ffc0b" name="5p.bin" />
+    <part crc="7ac5191b" name="cpu_5m.bin" />
+    <part repeat="0x4000">00</part>
+    <part crc="ed76d606" name="cpu_5j.bin" />
+    <part repeat="0x8000">00</part>
+    <!-- char -->
+    <part crc="4d482fb6" name="cpu_8k.bin" />
+    <part repeat="0x8000">00</part>
+    <!-- fg -->
+    <part crc="9eae5f8e" name="vid_6p.bin" />
+    <part crc="5a10a396" name="vid_6o.bin" />
+    <part crc="7b12cf3f" name="vid_6n.bin" />
+    <part crc="3cea7eaa" name="vid_6l.bin" />
+    <part repeat="0x20000">00</part>
+    <!-- bg -->
+    <part crc="9840edd8" name="vid_6f.bin" />
+    <part crc="ff65e074" name="vid_6e.bin" />
+    <part crc="89868c85" name="vid_6c.bin" />
+    <part crc="35389a7b" name="vid_6b.bin" />
+    <part repeat="0x20000">00</part>
+    <!-- sprite -->
+    <part crc="aba6db9e" name="vid_6k.bin" />
+    <part crc="ae1f2ed6" name="vid_6j.bin" />
+    <part crc="46d9e7df" name="vid_6h.bin" />
+    <part crc="45839c9a" name="vid_6g.bin" />
+    <part repeat="0x20000">00</part>
+    <!-- sound cpu -->
+    <part crc="e4a2fa87" name="cpu_4h.bin" />
+    <part repeat="0x6000">00</part>
+    <!-- pcm -->
+    <part crc="3cc98c5a" name="cpu_1f.bin" />
+  </rom>
+</misterromdescription>

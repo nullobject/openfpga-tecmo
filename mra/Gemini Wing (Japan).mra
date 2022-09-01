@@ -1,0 +1,40 @@
+<misterromdescription>
+  <name>Gemini Wing (Japan)</name>
+  <platform>Tecmo</platform>
+  <year>1987</year>
+  <manufacturer>Tecmo</manufacturer>
+  <category>Shooter - Vertical</category>
+
+  <setname>geminij</setname>
+  <parent>gemini</parent>
+  <mameversion>0220</mameversion>
+  <rbf>tecmo</rbf>
+
+  <rom index="0" md5="none" zip="geminij.zip|gemini.zip">
+    <!-- main cpu -->
+    <part crc="ff9de855" name="gw04-5s.rom" />
+    <part crc="5a6947a9" name="gw05-6s.rom" />
+    <!-- char -->
+    <part crc="7acc8d35" name="gw02-3h.rom" />
+    <part repeat="0x8000">00</part>
+    <!-- fg -->
+    <part crc="5e84cd4f" name="gw10-1n.rom" />
+    <part crc="08b458e1" name="gw11-2na.rom" />
+    <part crc="229c9714" name="gw12-2nb.rom" />
+    <part crc="c5dfaf47" name="gw13-3n.rom" />
+    <!-- bg -->
+    <part crc="9c10e5b5" name="gw14-1r.rom" />
+    <part crc="4cd18cfa" name="gw15-2ra.rom" />
+    <part crc="f911c7be" name="gw16-2rb.rom" />
+    <part crc="79a9ce25" name="gw17-3r.rom" />
+    <!-- sprite -->
+    <part crc="4ea51631" name="gw06-1c.rom" />
+    <part crc="da42637e" name="gw07-1d.rom" />
+    <part crc="0b4e8d70" name="gw08-1f.rom" />
+    <part crc="b65c5e4c" name="gw09-1h.rom" />
+    <!-- sound cpu -->
+    <part crc="9bc79596" name="gw03-5h.rom" />
+    <!-- pcm -->
+    <part crc="d78afa05" name="gw01-6a.rom" />
+  </rom>
+</misterromdescription>
