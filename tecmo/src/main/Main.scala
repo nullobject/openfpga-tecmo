@@ -151,14 +151,17 @@ class Main extends Module {
   gpu.io.paletteRam <> paletteRam.io.portB
   gpu.io.debugRom <> io.rom.debugRom
   gpu.io.charCtrl.format := io.gameConfig.char.format
+  gpu.io.charCtrl.enable := io.options.layer(0)
   gpu.io.charCtrl.scroll := UVec2(0.U, 0.U)
   gpu.io.charCtrl.vram <> charRam.io.portB
   gpu.io.charCtrl.tileRom <> io.rom.charRom
   gpu.io.fgCtrl.format := io.gameConfig.fg.format
+  gpu.io.fgCtrl.enable := io.options.layer(1)
   gpu.io.fgCtrl.scroll := fgScrollReg
   gpu.io.fgCtrl.vram <> fgRam.io.portB
   gpu.io.fgCtrl.tileRom <> io.rom.fgRom
   gpu.io.bgCtrl.format := io.gameConfig.bg.format
+  gpu.io.bgCtrl.enable := io.options.layer(2)
   gpu.io.bgCtrl.scroll := bgScrollReg
   gpu.io.bgCtrl.vram <> bgRam.io.portB
   gpu.io.bgCtrl.tileRom <> io.rom.bgRom

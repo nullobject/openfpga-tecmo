@@ -41,6 +41,8 @@ class OptionsIO extends Bundle {
   val scalerMode = Output(UInt(3.W))
   /** Enable debugging */
   val debug = Output(Bool())
+  /** Layer enable */
+  val layer = Output(Vec(3, Bool()))
   /** Flip video output */
   val flip = Output(Bool())
 }

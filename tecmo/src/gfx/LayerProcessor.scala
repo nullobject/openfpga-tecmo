@@ -95,7 +95,7 @@ class LayerProcessor(config: LayerProcessorConfig) extends Module {
   io.ctrl.vram.addr := LayerProcessor.vramAddr(config, pos)
   io.ctrl.tileRom.rd := tileRomRead
   io.ctrl.tileRom.addr := LayerProcessor.tileRomAddr(config, tileReg.code, tileOffset)
-  io.pen := pen
+  io.pen := Mux(io.ctrl.enable, pen, PaletteEntry.zero)
 }
 
 object LayerProcessor {

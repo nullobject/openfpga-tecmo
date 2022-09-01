@@ -60,12 +60,6 @@ class Bridge(addrWidth: Int, dataWidth: Int, burstLength: Int) extends Module {
     val options = OptionsIO()
   })
 
-  // Control signals
-  val latchRom = io.bridge.rom.wr && io.bridge.rom.addr(31, 28) === 0.U
-  val latchGameIndex = io.bridge.rom.wr && io.bridge.rom.addr === Bridge.GAME_INDEX_ADDR.U
-  val latchScalerMode = io.bridge.rom.wr && io.bridge.rom.addr === Bridge.SCALER_MODE_ADDR.U
-  val latchDebug = io.bridge.rom.wr && io.bridge.rom.addr === Bridge.DEBUG_ADDR.U
-
   // The Pocket bridge writes to the FIFO in the bridge clock domain. The FIFO is read in the system
   // clock domain.
   val fifo = withClock(io.bridgeClock) { Module(new DualClockFIFO(
@@ -73,7 +67,7 @@ class Bridge(addrWidth: Int, dataWidth: Int, burstLength: Int) extends Module {
   ) }
   fifo.io.readClock := clock
   fifo.io.enq.bits := WriteRequest(io.bridge.rom)
-  fifo.io.enq.valid := latchRom
+  fifo.io.enq.valid := io.bridge.rom.wr && io.bridge.rom.addr(31, 28) === 0.U
 
   // The download buffer is used to buffer ROM data from the bridge, so that complete words are
   // bursted to memory.
@@ -94,20 +88,20 @@ class Bridge(addrWidth: Int, dataWidth: Int, burstLength: Int) extends Module {
   // Swap endianness for writing to registers
   val din = Util.swapEndianness(io.bridge.rom.din)
 
+  /** Returns true if the register at the given address should be latched, false otherwise. */
+  def latch(addr: Long): Bool = io.bridge.rom.wr && io.bridge.rom.addr === addr.U
+
   // Options
-  io.options.gameIndex := RegEnable(din, latchGameIndex)
-  io.options.scalerMode := RegEnable(din, latchScalerMode)
-  io.options.debug := RegEnable(din, latchDebug)
+  io.options.gameIndex := RegEnable(din, latch(0xf9000000L))
+  io.options.scalerMode := RegEnable(din, latch(0xf9000004L))
+  io.options.debug := RegEnable(din, latch(0xf9000008L))
+  io.options.layer(0) := RegEnable(din, latch(0xf900000cL))
+  io.options.layer(1) := RegEnable(din, latch(0xf9000010L))
+  io.options.layer(2) := RegEnable(din, latch(0xf9000014L))
   io.options.flip := false.B
 }
 
 object Bridge {
   /** The depth of the download FIFO in words */
   val FIFO_DEPTH = 16
-  /** The address of the game index register */
-  val GAME_INDEX_ADDR = 0xf9000000L
-  /** The address of the scaler mode register */
-  val SCALER_MODE_ADDR = 0xf9000004L
-  /** The address of the debug register */
-  val DEBUG_ADDR = 0xf9000008L
 }
