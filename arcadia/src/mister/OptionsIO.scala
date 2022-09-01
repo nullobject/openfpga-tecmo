@@ -37,38 +37,29 @@ import chisel3._
 
 /** An interface that contains the user options. */
 class OptionsIO extends Bundle {
-  /** SDRAM is available */
-  val sdram = Input(Bool())
   /** CRT offset */
-  val offset = Input(SVec2(OptionsIO.SCREEN_OFFSET_WIDTH.W))
+  val offset = Output(SVec2(OptionsIO.SCREEN_OFFSET_WIDTH.W))
   /** Rotate the HDMI output 90 degrees */
-  val rotate = Input(Bool())
+  val rotate = Output(Bool())
   /** Flip the video output */
-  val flip = Input(Bool())
-  /** Video compatibility (60Hz) mode */
-  val compatibility = Input(Bool())
+  val flip = Output(Bool())
+//  /** Video compatibility (60Hz) mode */
+//  val compatibility = Output(Bool())
   /** Service mode */
-  val service = Input(Bool())
-  /** Layer enable flags */
-  val layerEnable = Input(new Bundle {
-    /** Enable the sprite layer */
-    val sprite = Bool()
-    /** Enable the tilemap layers */
-    val layer = Vec(3, Bool())
-  })
-  /** Enable the row scroll effect */
-  val rowScrollEnable = Input(Bool())
-  /** Enable the row select effect */
-  val rowSelectEnable = Input(Bool())
+  val service = Output(Bool())
+  /** Layer enable */
+  val layer = Output(Vec(3, Bool()))
+  /** Sprite enable */
+  val sprite = Output(Bool())
   /** Frame buffer enable flags */
-  val frameBufferEnable = Input(new Bundle {
-    /** Enable the sprite frame buffer */
-    val sprite = Input(Bool())
-    /** Enable the system frame buffer */
-    val system = Input(Bool())
-  })
+//  val frameBufferEnable = Output(new Bundle {
+//    /** Enable the sprite frame buffer */
+//    val sprite = Output(Bool())
+//    /** Enable the system frame buffer */
+//    val system = Output(Bool())
+//  })
   /** Game index */
-  val gameIndex = Input(UInt(OptionsIO.GAME_INDEX_WIDTH.W))
+  val gameIndex = Output(UInt(OptionsIO.GAME_INDEX_WIDTH.W))
 }
 
 object OptionsIO {

@@ -35,7 +35,7 @@ package arcadia.mem.sdram
 import chisel3._
 
 /**
- * An interface for controlling a SDRAM chip.
+ * An interface for controlling a SDRAM device.
  *
  * @param config The SDRAM configuration.
  */
@@ -50,8 +50,8 @@ class SDRAMIO(config: Config) extends Bundle {
   val cas_n = Output(Bool())
   /** Write enable (active-low) */
   val we_n = Output(Bool())
-  /** Output enable */
-  val oe = Output(Bool())
+  /** Output enable (active-low) */
+  val oe_n = Output(Bool())
   /** Bank bus */
   val bank = Output(UInt(config.bankWidth.W))
   /** Address bus */

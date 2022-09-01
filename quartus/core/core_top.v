@@ -445,11 +445,10 @@ reset_ctrl cpu_reset_ctrl (
   .rst_o(cpu_reset)
 );
 
-wire        dram_oe;
+wire        dram_oe_n;
 wire [15:0] dram_din;
-
 assign dram_clk = sys_clock;
-assign dram_dq = dram_oe ? dram_din : 16'bZ;
+assign dram_dq = dram_oe_n ? 16'bZ : dram_din;
 
 wire [15:0] audio;
 
@@ -480,7 +479,7 @@ Tecmo tecmo (
   .sdram_ras_n(dram_ras_n),
   .sdram_cas_n(dram_cas_n),
   .sdram_we_n(dram_we_n),
-  .sdram_oe(dram_oe),
+  .sdram_oe_n(dram_oe_n),
   .sdram_bank(dram_ba),
   .sdram_addr(dram_a),
   .sdram_din(dram_din),

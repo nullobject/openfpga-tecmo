@@ -49,7 +49,7 @@ class SDRAM(config: Config) extends Module {
   val io = IO(new Bundle {
     /** Memory port */
     val mem = Flipped(BurstMemIO(config))
-    /** Control port */
+    /** Device port */
     val sdram = SDRAMIO(config)
     /** Debug port */
     val debug = Output(new Bundle {
@@ -244,7 +244,7 @@ class SDRAM(config: Config) extends Module {
   io.sdram.ras_n := commandReg(2)
   io.sdram.cas_n := commandReg(1)
   io.sdram.we_n := commandReg(0)
-  io.sdram.oe := stateReg === State.write
+  io.sdram.oe_n := stateReg =/= State.write
   io.sdram.bank := bankReg
   io.sdram.addr := addrReg
   io.sdram.din := dinReg
