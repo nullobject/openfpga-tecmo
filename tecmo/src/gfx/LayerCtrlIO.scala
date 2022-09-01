@@ -40,7 +40,7 @@ import tecmo._
 class LayerCtrlIO extends Bundle {
   /** Graphics format */
   val format = Input(Bool())
-  /** Enable the layer output */
+  /** Enable flag */
   val enable = Input(Bool())
   /** Scroll position */
   val scroll = Input(UVec2(9.W))

@@ -98,6 +98,7 @@ class Bridge(addrWidth: Int, dataWidth: Int, burstLength: Int) extends Module {
   io.options.layer(0) := RegEnable(din, latch(0xf900000cL))
   io.options.layer(1) := RegEnable(din, latch(0xf9000010L))
   io.options.layer(2) := RegEnable(din, latch(0xf9000014L))
+  io.options.sprite := RegEnable(din, latch(0xf9000018L))
   io.options.flip := false.B
 }
 

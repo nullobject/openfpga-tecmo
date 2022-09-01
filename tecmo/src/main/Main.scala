@@ -165,6 +165,7 @@ class Main extends Module {
   gpu.io.layerCtrl(2).vram <> bgRam.io.portB
   gpu.io.layerCtrl(2).tileRom <> io.rom.layerTileRom(2)
   gpu.io.spriteCtrl.format := io.gameConfig.sprite.format
+  gpu.io.spriteCtrl.enable := io.options.sprite
   gpu.io.spriteCtrl.vram <> spriteRam.io.portB
   gpu.io.spriteCtrl.tileRom <> io.rom.spriteTileRom
   gpu.io.video <> io.video

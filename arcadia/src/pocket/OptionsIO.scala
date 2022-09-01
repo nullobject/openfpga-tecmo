@@ -43,6 +43,8 @@ class OptionsIO extends Bundle {
   val debug = Output(Bool())
   /** Layer enable */
   val layer = Output(Vec(3, Bool()))
+  /** Sprite enable */
+  val sprite = Output(Bool())
   /** Flip video output */
   val flip = Output(Bool())
 }

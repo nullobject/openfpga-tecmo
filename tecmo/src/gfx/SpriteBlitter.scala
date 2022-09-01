@@ -44,6 +44,8 @@ class SpriteBlitter extends Module {
   val io = IO(new Bundle {
     /** Config port */
     val config = DeqIO(new Sprite)
+    /** Enable flag */
+    val enable = Input(Bool())
     /** Pixel data port */
     val pixelData = DeqIO(UInt(Config.SPRITE_ROM_DATA_WIDTH.W))
     /** Frame buffer port */
@@ -120,7 +122,7 @@ class SpriteBlitter extends Module {
 
   // Outputs
   io.config.ready := stateReg === State.idle
-  io.frameBuffer.wr := stateReg === State.blit && pixel =/= 0.U && !destPos.x(8) && !destPos.y(8)
+  io.frameBuffer.wr := io.enable && stateReg === State.blit && pixel =/= 0.U && !destPos.x(8) && !destPos.y(8)
   io.frameBuffer.addr := destPos.y(7, 0) ## destPos.x(7, 0)
   io.frameBuffer.mask := DontCare
   io.frameBuffer.din := pen.asUInt

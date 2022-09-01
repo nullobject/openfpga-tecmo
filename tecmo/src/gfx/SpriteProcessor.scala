@@ -96,6 +96,7 @@ class SpriteProcessor(numSprites: Int = 256) extends Module {
 
   // Sprite blitter
   val blitter = Module(new SpriteBlitter)
+  blitter.io.enable := io.ctrl.enable
   blitter.io.pixelData <> fifo.io.deq
   blitter.io.frameBuffer <> io.frameBuffer
 

@@ -24,7 +24,7 @@
       },
       {
         "name": "Layer 1",
-        "id": 2,
+        "id": 3,
         "type": "check",
         "enabled": true,
         "address": "0xf9000010",
@@ -34,10 +34,20 @@
       },
       {
         "name": "Layer 2",
-        "id": 2,
+        "id": 4,
         "type": "check",
         "enabled": true,
         "address": "0xf9000014",
+        "writeonly": true,
+        "defaultval": 1,
+        "value": 1
+      },
+      {
+        "name": "Sprites",
+        "id": 5,
+        "type": "check",
+        "enabled": true,
+        "address": "0xf9000018",
         "writeonly": true,
         "defaultval": 1,
         "value": 1
