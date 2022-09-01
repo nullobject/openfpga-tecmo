@@ -39,7 +39,13 @@ import chisel3._
 import chisel3.util.MuxCase
 import tecmo._
 
-/** Graphics Processor */
+/**
+ * The graphics processing unit (GPU) handles rendering the sprite and tilemap layers.
+ *
+ * For each pixel on the screen, the palette entry outputs from all layers are mixed together to
+ * yield a final palette entry. This value is then used to look up the actual pixel color in the
+ * palette RAM.
+ */
 class GPU extends Module {
   val io = IO(new Bundle {
     /** Options port */
@@ -51,13 +57,13 @@ class GPU extends Module {
     /** Debug ROM port */
     val debugRom = new TileRomIO
     /** Character control port */
-    val charCtrl = new LayerCtrlIO
+    val charCtrl = LayerCtrlIO()
     /** Foreground control port */
-    val fgCtrl = new LayerCtrlIO
+    val fgCtrl = LayerCtrlIO()
     /** Background control port */
-    val bgCtrl = new LayerCtrlIO
+    val bgCtrl = LayerCtrlIO()
     /** Sprite control port */
-    val spriteCtrl = new SpriteCtrlIO
+    val spriteCtrl = SpriteCtrlIO()
     /** Video port */
     val video = Flipped(VideoIO())
     /** RGB port */
