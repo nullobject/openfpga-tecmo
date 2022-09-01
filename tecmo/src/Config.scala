@@ -110,6 +110,9 @@ object Config {
   val PALETTE_RAM_GPU_ADDR_WIDTH = 10
   val PALETTE_RAM_GPU_DATA_WIDTH = 16
 
+  /** The number of tilemap layers */
+  val LAYER_COUNT = 3
+
   // Tile ROMs
   val TILE_ROM_ADDR_WIDTH = 18
   val TILE_ROM_DATA_WIDTH = 32

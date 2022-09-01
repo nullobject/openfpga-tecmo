@@ -94,7 +94,7 @@ class Main extends Module {
   ))
   workRam.io.default()
 
-  // Character RAM
+  // Character VRAM
   val charRam = Module(new TrueDualPortRam(
     addrWidthA = Config.CHAR_RAM_ADDR_WIDTH,
     dataWidthA = Config.CHAR_RAM_DATA_WIDTH,
@@ -104,7 +104,7 @@ class Main extends Module {
   charRam.io.clockB := clock
   charRam.io.portA.default()
 
-  // Foreground RAM
+  // Foreground VRAM
   val fgRam = Module(new TrueDualPortRam(
     addrWidthA = Config.FG_RAM_ADDR_WIDTH,
     dataWidthA = Config.FG_RAM_DATA_WIDTH,
@@ -114,7 +114,7 @@ class Main extends Module {
   fgRam.io.clockB := clock
   fgRam.io.portA.default()
 
-  // Background RAM
+  // Background VRAM
   val bgRam = Module(new TrueDualPortRam(
     addrWidthA = Config.BG_RAM_ADDR_WIDTH,
     dataWidthA = Config.BG_RAM_DATA_WIDTH,
@@ -124,7 +124,7 @@ class Main extends Module {
   bgRam.io.clockB := clock
   bgRam.io.portA.default()
 
-  // Sprite RAM
+  // Sprite VRAM
   val spriteRam = Module(new TrueDualPortRam(
     addrWidthA = Config.SPRITE_RAM_ADDR_WIDTH,
     dataWidthA = Config.SPRITE_RAM_DATA_WIDTH,
@@ -149,24 +149,24 @@ class Main extends Module {
   gpu.io.options := io.options
   gpu.io.pc := cpu.io.regs.pc
   gpu.io.paletteRam <> paletteRam.io.portB
-  gpu.io.charCtrl.format := io.gameConfig.char.format
-  gpu.io.charCtrl.enable := io.options.layer(0)
-  gpu.io.charCtrl.scroll := UVec2(0.U, 0.U)
-  gpu.io.charCtrl.vram <> charRam.io.portB
-  gpu.io.charCtrl.tileRom <> io.rom.charRom
-  gpu.io.fgCtrl.format := io.gameConfig.fg.format
-  gpu.io.fgCtrl.enable := io.options.layer(1)
-  gpu.io.fgCtrl.scroll := fgScrollReg
-  gpu.io.fgCtrl.vram <> fgRam.io.portB
-  gpu.io.fgCtrl.tileRom <> io.rom.fgRom
-  gpu.io.bgCtrl.format := io.gameConfig.bg.format
-  gpu.io.bgCtrl.enable := io.options.layer(2)
-  gpu.io.bgCtrl.scroll := bgScrollReg
-  gpu.io.bgCtrl.vram <> bgRam.io.portB
-  gpu.io.bgCtrl.tileRom <> io.rom.bgRom
+  gpu.io.layerCtrl(0).format := io.gameConfig.char.format
+  gpu.io.layerCtrl(0).enable := io.options.layer(0)
+  gpu.io.layerCtrl(0).scroll := UVec2(0.U, 0.U)
+  gpu.io.layerCtrl(0).vram <> charRam.io.portB
+  gpu.io.layerCtrl(0).tileRom <> io.rom.layerTileRom(0)
+  gpu.io.layerCtrl(1).format := io.gameConfig.fg.format
+  gpu.io.layerCtrl(1).enable := io.options.layer(1)
+  gpu.io.layerCtrl(1).scroll := fgScrollReg
+  gpu.io.layerCtrl(1).vram <> fgRam.io.portB
+  gpu.io.layerCtrl(1).tileRom <> io.rom.layerTileRom(1)
+  gpu.io.layerCtrl(2).format := io.gameConfig.bg.format
+  gpu.io.layerCtrl(2).enable := io.options.layer(2)
+  gpu.io.layerCtrl(2).scroll := bgScrollReg
+  gpu.io.layerCtrl(2).vram <> bgRam.io.portB
+  gpu.io.layerCtrl(2).tileRom <> io.rom.layerTileRom(2)
   gpu.io.spriteCtrl.format := io.gameConfig.sprite.format
   gpu.io.spriteCtrl.vram <> spriteRam.io.portB
-  gpu.io.spriteCtrl.tileRom <> io.rom.spriteRom
+  gpu.io.spriteCtrl.tileRom <> io.rom.spriteTileRom
   gpu.io.video <> io.video
   io.rgb := gpu.io.rgb
 

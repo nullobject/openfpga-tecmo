@@ -106,10 +106,10 @@ class Tecmo extends Module {
   main.io.video := video
   main.io.rom.progRom <> Crossing.freeze(io.cpuClock, memSys.io.in(0)).asReadMemIO
   main.io.rom.bankRom <> Crossing.freeze(io.cpuClock, memSys.io.in(1)).asReadMemIO
-  main.io.rom.charRom <> Crossing.freeze(io.videoClock, memSys.io.in(2))
-  main.io.rom.fgRom <> Crossing.freeze(io.videoClock, memSys.io.in(3))
-  main.io.rom.bgRom <> Crossing.freeze(io.videoClock, memSys.io.in(4))
-  main.io.rom.spriteRom <> Crossing.freeze(io.videoClock, memSys.io.in(5))
+  main.io.rom.layerTileRom(0) <> Crossing.freeze(io.videoClock, memSys.io.in(2))
+  main.io.rom.layerTileRom(1) <> Crossing.freeze(io.videoClock, memSys.io.in(3))
+  main.io.rom.layerTileRom(2) <> Crossing.freeze(io.videoClock, memSys.io.in(4))
+  main.io.rom.spriteTileRom <> Crossing.freeze(io.videoClock, memSys.io.in(5))
 
   // Sound PCB
   val sound = withClockAndReset(io.cpuClock, io.cpuReset) { Module(new Sound) }

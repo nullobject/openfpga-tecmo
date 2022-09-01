@@ -55,12 +55,8 @@ class GPU extends Module {
     val pc = Input(UInt(16.W))
     /** Palette RAM port */
     val paletteRam = new PaletteRamIO
-    /** Character control port */
-    val charCtrl = LayerCtrlIO()
-    /** Foreground control port */
-    val fgCtrl = LayerCtrlIO()
-    /** Background control port */
-    val bgCtrl = LayerCtrlIO()
+    /** Layer control ports */
+    val layerCtrl = Vec(Config.LAYER_COUNT, LayerCtrlIO())
     /** Sprite control port */
     val spriteCtrl = SpriteCtrlIO()
     /** Video port */
@@ -94,17 +90,17 @@ class GPU extends Module {
 
   // Character processor
   val charProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 8, cols = 32, rows = 32, offset = 1)))
-  charProcessor.io.ctrl <> io.charCtrl
+  charProcessor.io.ctrl <> io.layerCtrl(0)
   charProcessor.io.video <> io.video
 
   // Foreground processor
   val fgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 54)))
-  fgProcessor.io.ctrl <> io.fgCtrl
+  fgProcessor.io.ctrl <> io.layerCtrl(1)
   fgProcessor.io.video <> io.video
 
   // Background processor
   val bgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 54)))
-  bgProcessor.io.ctrl <> io.bgCtrl
+  bgProcessor.io.ctrl <> io.layerCtrl(2)
   bgProcessor.io.video <> io.video
 
   // The debug ROM contains alphanumeric character tiles
