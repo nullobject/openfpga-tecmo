@@ -91,14 +91,6 @@ class Tecmo extends Module {
   memSys.io.rom <> bridge.io.rom
   memSys.io.out <> sdram.io.mem
 
-  // The debug ROM contains alphanumeric character tiles
-  val debugRom = Module(new SinglePortRom(
-    addrWidth = Config.DEBUG_ROM_ADDR_WIDTH,
-    dataWidth = Config.DEBUG_ROM_DATA_WIDTH,
-    depth = 512,
-    initFile = "roms/alpha.mif"
-  ))
-
   // Video timing
   val videoTiming = withClock(io.videoClock) { Module(new VideoTiming(Config.videoTimingConfig)) }
   videoTiming.io.offset := SVec2(0.S, 0.S)
@@ -114,11 +106,10 @@ class Tecmo extends Module {
   main.io.video := video
   main.io.rom.progRom <> Crossing.freeze(io.cpuClock, memSys.io.in(0)).asReadMemIO
   main.io.rom.bankRom <> Crossing.freeze(io.cpuClock, memSys.io.in(1)).asReadMemIO
-  main.io.rom.charRom <> Crossing.freeze(io.videoClock, memSys.io.in(2)).asReadMemIO
-  main.io.rom.fgRom <> Crossing.freeze(io.videoClock, memSys.io.in(3)).asReadMemIO
-  main.io.rom.bgRom <> Crossing.freeze(io.videoClock, memSys.io.in(4)).asReadMemIO
+  main.io.rom.charRom <> Crossing.freeze(io.videoClock, memSys.io.in(2))
+  main.io.rom.fgRom <> Crossing.freeze(io.videoClock, memSys.io.in(3))
+  main.io.rom.bgRom <> Crossing.freeze(io.videoClock, memSys.io.in(4))
   main.io.rom.spriteRom <> Crossing.freeze(io.videoClock, memSys.io.in(5))
-  main.io.rom.debugRom <> debugRom.io
 
   // Sound PCB
   val sound = withClockAndReset(io.cpuClock, io.cpuReset) { Module(new Sound) }

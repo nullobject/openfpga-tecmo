@@ -33,7 +33,7 @@
 package tecmo.main
 
 import chisel3._
-import tecmo.{BankRomIO, ProgRomIO, SpriteRomIO, TileRomIO}
+import tecmo._
 
 /** A bundle that contains memory ports for main ROMs. */
 class RomIO extends Bundle {
@@ -48,7 +48,5 @@ class RomIO extends Bundle {
   /** Background ROM */
   val bgRom = new TileRomIO
   /** Sprite ROM */
-  val spriteRom = new SpriteRomIO
-  /** Debug ROM port */
-  val debugRom = new TileRomIO
+  val spriteRom = new TileRomIO
 }

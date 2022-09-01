@@ -42,7 +42,7 @@ class SpriteCtrlIO extends Bundle {
   /** VRAM port */
   val vram = new SpriteRamIO
   /** Tile ROM port */
-  val tileRom = new SpriteRomIO
+  val tileRom = new TileRomIO
 }
 
 object SpriteCtrlIO {

@@ -34,6 +34,7 @@ package tecmo.gfx
 
 import arcadia._
 import arcadia.gfx.VideoIO
+import arcadia.mem.ReadMemIO
 import arcadia.util._
 import chisel3._
 import chisel3.util._
@@ -59,7 +60,7 @@ class DebugLayer(format: String) extends Module {
     /** Color */
     val color = Input(UInt(4.W))
     /** Tile ROM signals */
-    val tileRom = new TileRomIO
+    val tileRom = ReadMemIO(Config.DEBUG_ROM_ADDR_WIDTH, Config.DEBUG_ROM_DATA_WIDTH)
     /** Video signals */
     val video = Flipped(VideoIO())
     /** Pixel data output */

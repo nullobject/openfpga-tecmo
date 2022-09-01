@@ -34,6 +34,7 @@ package tecmo.gfx
 
 import arcadia._
 import arcadia.gfx._
+import arcadia.mem.SinglePortRom
 import arcadida.pocket.OptionsIO
 import chisel3._
 import chisel3.util.MuxCase
@@ -54,8 +55,6 @@ class GPU extends Module {
     val pc = Input(UInt(16.W))
     /** Palette RAM port */
     val paletteRam = new PaletteRamIO
-    /** Debug ROM port */
-    val debugRom = new TileRomIO
     /** Character control port */
     val charCtrl = LayerCtrlIO()
     /** Foreground control port */
@@ -108,13 +107,21 @@ class GPU extends Module {
   bgProcessor.io.ctrl <> io.bgCtrl
   bgProcessor.io.video <> io.video
 
+  // The debug ROM contains alphanumeric character tiles
+  val debugRom = Module(new SinglePortRom(
+    addrWidth = Config.DEBUG_ROM_ADDR_WIDTH,
+    dataWidth = Config.DEBUG_ROM_DATA_WIDTH,
+    depth = 512,
+    initFile = "roms/alpha.mif"
+  ))
+
   // Debug layer
   val debugLayer = Module(new DebugLayer("PC:$%04X"))
   debugLayer.io.args := Seq(io.pc)
   debugLayer.io.enable := io.options.debug
   debugLayer.io.pos := UVec2(0.U, 232.U)
   debugLayer.io.color := 1.U
-  debugLayer.io.tileRom <> io.debugRom
+  debugLayer.io.tileRom <> debugRom.io
   debugLayer.io.video <> io.video
 
   // Color mixer

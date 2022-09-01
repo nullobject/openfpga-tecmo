@@ -149,7 +149,6 @@ class Main extends Module {
   gpu.io.options := io.options
   gpu.io.pc := cpu.io.regs.pc
   gpu.io.paletteRam <> paletteRam.io.portB
-  gpu.io.debugRom <> io.rom.debugRom
   gpu.io.charCtrl.format := io.gameConfig.char.format
   gpu.io.charCtrl.enable := io.options.layer(0)
   gpu.io.charCtrl.scroll := UVec2(0.U, 0.U)
