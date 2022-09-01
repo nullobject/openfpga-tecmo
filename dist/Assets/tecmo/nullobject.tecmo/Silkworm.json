@@ -1,0 +1,25 @@
+{
+  "instance": {
+    "magic": "APF_VER_1",
+    "variant_select" : {
+      "id" : 777,
+      "select" : false
+    },
+    "data_slots": [
+      {
+        "id": 1,
+        "filename": "silkworm.rom"
+      }
+    ],
+    "memory_writes": [
+      {
+        "address": "0xf9000000",
+        "data": 2
+      },
+      {
+        "address": "0xf9000004",
+        "data": 0
+      }
+    ]
+  }
+}

@@ -139,6 +139,17 @@ class Sound extends Module {
     memMap(0xcc00).w { (_, _, _) => reqReg := false.B }
   }
 
+  when(io.options.gameIndex === Game.SILKWORM.U) {
+    memMap(0x0000 to 0x7fff).readMem(io.rom.soundRom)
+    memMap(0x8000 to 0x87ff).readWriteMem(soundRam.io)
+    memMap(0xa000 to 0xa001).readWriteMem(opl.io.cpu)
+    memMap(0xc000).r { (_, _) => dataReg }
+    memMap(0xc000).w { (_, _, _) => setAddr(false) }
+    memMap(0xc400).w { (_, _, _) => setAddr(true) }
+    memMap(0xc800).w { (_, _, data) => setGain(data) }
+    memMap(0xcc00).w { (_, _, _) => reqReg := false.B }
+  }
+
   // Audio mixer
   io.audio := AudioMixer.sum(Config.AUDIO_SAMPLE_WIDTH,
     RegEnable(opl.io.audio.bits, opl.io.audio.valid) -> 1,
