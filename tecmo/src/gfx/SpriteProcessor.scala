@@ -214,7 +214,7 @@ object SpriteProcessor {
   private def tileRomAddr(code: UInt, col: UInt, row: UInt, line: UInt): UInt =
     Cat(
       code(12, 4),
-      code(3, 0) | (row(1) ## col(1)) ## row(0) ## col(0),
+      code(3, 0) | (row(1) ## col(1) ## row(0) ## col(0)),
       line,
       0.U(2.W)
     )
