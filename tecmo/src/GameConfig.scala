@@ -37,21 +37,11 @@ import chisel3.util.MuxLookup
 
 /** Represents a game configuration. */
 class GameConfig extends Bundle {
-  /** Character layer configuration */
-  val char = new Bundle {
+  /** Layer configuration */
+  val layer = Vec(Config.LAYER_COUNT, new Bundle {
     /** Graphics format */
     val format = UInt(GameConfig.GFX_FORMAT_WIDTH.W)
-  }
-  /** Foreground layer configuration */
-  val fg = new Bundle {
-    /** Graphics format */
-    val format = UInt(GameConfig.GFX_FORMAT_WIDTH.W)
-  }
-  /** Background layer configuration */
-  val bg = new Bundle {
-    /** Graphics format */
-    val format = UInt(GameConfig.GFX_FORMAT_WIDTH.W)
-  }
+  })
   /** Sprite configuration */
   val sprite = new Bundle {
     /** Graphics format */
@@ -79,27 +69,27 @@ object GameConfig {
 
   private def rygar = {
     val wire = Wire(new GameConfig)
-    wire.char.format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
-    wire.fg.format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
-    wire.bg.format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
+    wire.layer(0).format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
+    wire.layer(1).format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
+    wire.layer(2).format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
     wire.sprite.format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
     wire
   }
 
   private def gemini = {
     val wire = Wire(new GameConfig)
-    wire.char.format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
-    wire.fg.format := GraphicsFormat.GFX_FORMAT_GEMINI.U
-    wire.bg.format := GraphicsFormat.GFX_FORMAT_GEMINI.U
+    wire.layer(0).format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
+    wire.layer(1).format := GraphicsFormat.GFX_FORMAT_GEMINI.U
+    wire.layer(2).format := GraphicsFormat.GFX_FORMAT_GEMINI.U
     wire.sprite.format := GraphicsFormat.GFX_FORMAT_GEMINI.U
     wire
   }
 
   private def silkworm = {
     val wire = Wire(new GameConfig)
-    wire.char.format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
-    wire.fg.format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
-    wire.bg.format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
+    wire.layer(0).format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
+    wire.layer(1).format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
+    wire.layer(2).format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
     wire.sprite.format := GraphicsFormat.GFX_FORMAT_GEMINI.U
     wire
   }
