@@ -32,6 +32,7 @@
 
 package arcadia.mem.buffer
 
+import arcadia.Util
 import arcadia.mem._
 import arcadia.util.Counter
 import chisel3._
@@ -96,7 +97,7 @@ class BurstBuffer(config: Config) extends Module {
   io.in.waitReq := writePendingReg
   io.out.wr := writePendingReg
   io.out.burstLength := config.burstLength.U
-  io.out.addr := (addrReg >> log2Ceil(config.outBytes)) << log2Ceil(config.outBytes)
+  io.out.addr := Util.maskBits(addrReg, log2Ceil(config.outBytes))
   io.out.din := lineReg.outWords(burstCounter)
   io.out.mask := Fill(config.outBytes, 1.U)
 
