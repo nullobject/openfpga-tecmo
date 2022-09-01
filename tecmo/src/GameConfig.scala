@@ -40,26 +40,29 @@ class GameConfig extends Bundle {
   /** Character layer configuration */
   val char = new Bundle {
     /** Graphics format */
-    val format = UInt(Config.GFX_FORMAT_WIDTH.W)
+    val format = UInt(GameConfig.GFX_FORMAT_WIDTH.W)
   }
   /** Foreground layer configuration */
   val fg = new Bundle {
     /** Graphics format */
-    val format = UInt(Config.GFX_FORMAT_WIDTH.W)
+    val format = UInt(GameConfig.GFX_FORMAT_WIDTH.W)
   }
   /** Background layer configuration */
   val bg = new Bundle {
     /** Graphics format */
-    val format = UInt(Config.GFX_FORMAT_WIDTH.W)
+    val format = UInt(GameConfig.GFX_FORMAT_WIDTH.W)
   }
   /** Sprite configuration */
   val sprite = new Bundle {
     /** Graphics format */
-    val format = UInt(Config.GFX_FORMAT_WIDTH.W)
+    val format = UInt(GameConfig.GFX_FORMAT_WIDTH.W)
   }
 }
 
 object GameConfig {
+  /** The width of the graphics format value */
+  val GFX_FORMAT_WIDTH = 1
+
   def apply() = new GameConfig
 
   /**
@@ -76,28 +79,28 @@ object GameConfig {
 
   private def rygar = {
     val wire = Wire(new GameConfig)
-    wire.char.format := Config.GFX_FORMAT_DEFAULT.U
-    wire.fg.format := Config.GFX_FORMAT_DEFAULT.U
-    wire.bg.format := Config.GFX_FORMAT_DEFAULT.U
-    wire.sprite.format := Config.GFX_FORMAT_DEFAULT.U
+    wire.char.format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
+    wire.fg.format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
+    wire.bg.format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
+    wire.sprite.format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
     wire
   }
 
   private def gemini = {
     val wire = Wire(new GameConfig)
-    wire.char.format := Config.GFX_FORMAT_DEFAULT.U
-    wire.fg.format := Config.GFX_FORMAT_GEMINI.U
-    wire.bg.format := Config.GFX_FORMAT_GEMINI.U
-    wire.sprite.format := Config.GFX_FORMAT_GEMINI.U
+    wire.char.format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
+    wire.fg.format := GraphicsFormat.GFX_FORMAT_GEMINI.U
+    wire.bg.format := GraphicsFormat.GFX_FORMAT_GEMINI.U
+    wire.sprite.format := GraphicsFormat.GFX_FORMAT_GEMINI.U
     wire
   }
 
   private def silkworm = {
     val wire = Wire(new GameConfig)
-    wire.char.format := Config.GFX_FORMAT_DEFAULT.U
-    wire.fg.format := Config.GFX_FORMAT_DEFAULT.U
-    wire.bg.format := Config.GFX_FORMAT_DEFAULT.U
-    wire.sprite.format := Config.GFX_FORMAT_GEMINI.U
+    wire.char.format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
+    wire.fg.format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
+    wire.bg.format := GraphicsFormat.GFX_FORMAT_DEFAULT.U
+    wire.sprite.format := GraphicsFormat.GFX_FORMAT_GEMINI.U
     wire
   }
 }

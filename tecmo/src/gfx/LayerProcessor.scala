@@ -77,7 +77,7 @@ class LayerProcessor(config: LayerProcessorConfig) extends Module {
   val latchPix = enable && tileOffset.x(2, 0) === 7.U
 
   // Decode tile
-  val tile = Mux(io.ctrl.format === Config.GFX_FORMAT_GEMINI.U,
+  val tile = Mux(io.ctrl.format === GraphicsFormat.GFX_FORMAT_GEMINI.U,
     Tile.decodeGemini(io.ctrl.vram.dout),
     Tile.decode(io.ctrl.vram.dout)
   )

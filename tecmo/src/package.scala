@@ -44,6 +44,14 @@ package object tecmo {
     val SILKWORM = 2
   }
 
+  /** Graphics format enum */
+  object GraphicsFormat {
+    /** Default graphics format */
+    val GFX_FORMAT_DEFAULT = 0
+    /** Gemini Wing graphics format */
+    val GFX_FORMAT_GEMINI = 1
+  }
+
   /** Program ROM IO */
   class ProgRomIO extends ReadMemIO(Config.PROG_ROM_ADDR_WIDTH, Config.PROG_ROM_DATA_WIDTH)
 

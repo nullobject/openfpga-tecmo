@@ -74,7 +74,7 @@ class SpriteProcessor(numSprites: Int = 256) extends Module {
   val effectiveRead = Wire(Bool())
 
   // Decode sprite
-  val sprite = Mux(io.ctrl.format === Config.GFX_FORMAT_GEMINI.U,
+  val sprite = Mux(io.ctrl.format === GraphicsFormat.GFX_FORMAT_GEMINI.U,
     Sprite.decodeGemini(io.ctrl.vram.dout),
     Sprite.decode(io.ctrl.vram.dout)
   )
