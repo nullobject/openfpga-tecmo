@@ -116,7 +116,7 @@ object LayerProcessor {
    * Calculates the pixel offset for a tile.
    *
    * @param config The layer processor configuration.
-   * @param pos      The absolute position of the pixel in the tilemap.
+   * @param pos    The absolute position of the pixel in the tilemap.
    * @return An unsigned vector.
    */
   private def tileOffset(config: LayerProcessorConfig, pos: UVec2): UVec2 = {
@@ -129,8 +129,8 @@ object LayerProcessor {
    * Calculates the tile ROM address for the given tile code.
    *
    * @param config The layer processor configuration.
-   * @param code     The tile code.
-   * @param offset   The pixel offset.
+   * @param code   The tile code.
+   * @param offset The pixel offset.
    * @return A memory address.
    */
   private def tileRomAddr(config: LayerProcessorConfig, code: UInt, offset: UVec2): UInt = {
