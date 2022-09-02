@@ -97,6 +97,7 @@ class SpriteBlitterTest extends AnyFlatSpec with ChiselScalatestTester with Matc
 
   it should "copy pixel data to the frame buffer" in {
     test(new SpriteBlitter) { dut =>
+      dut.io.enable.poke(true)
       dut.io.config.bits.enable.poke(true)
       dut.io.config.bits.size.poke(8)
       dut.io.config.bits.pos.x.poke(8)
@@ -132,6 +133,7 @@ class SpriteBlitterTest extends AnyFlatSpec with ChiselScalatestTester with Matc
 
   it should "allow horizontal flipping" in {
     test(new SpriteBlitter) { dut =>
+      dut.io.enable.poke(true)
       dut.io.config.bits.enable.poke(true)
       dut.io.config.bits.size.poke(8)
       dut.io.config.bits.xFlip.poke(true)
@@ -166,6 +168,7 @@ class SpriteBlitterTest extends AnyFlatSpec with ChiselScalatestTester with Matc
 
   it should "allow vertical flipping" in {
     test(new SpriteBlitter) { dut =>
+      dut.io.enable.poke(true)
       dut.io.config.bits.enable.poke(true)
       dut.io.config.bits.size.poke(8)
       dut.io.config.bits.yFlip.poke(true)
