@@ -61,7 +61,7 @@ class BurstBuffer(config: Config) extends Module {
   // Control signals
   val latchAddr = io.in.wr && !busyReg
   val latchData = io.in.wr && !writePendingReg
-  val effectiveWrite = writePendingReg && !io.out.waitReq
+  val effectiveWrite = writePendingReg && io.out.wait_n
 
   // Counters
   val (wordCounter, wordCounterWrap) = Counter.static(config.inWords, enable = latchData)
@@ -94,7 +94,7 @@ class BurstBuffer(config: Config) extends Module {
   }
 
   // Outputs
-  io.in.waitReq := writePendingReg
+  io.in.wait_n := !writePendingReg
   io.out.wr := writePendingReg
   io.out.burstLength := config.burstLength.U
   io.out.addr := Util.maskBits(addrReg, log2Ceil(config.outBytes))

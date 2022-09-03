@@ -118,11 +118,11 @@ class SDRAM(config: Config) extends Module {
   val burstDone = waitCounter === (config.burstLength - 1).U
 
   // Deassert the wait signal at the start of a read request, or during a write request
-  val waitReq = {
+  val wait_n = {
     val idle = stateReg === State.idle && !isReadWrite
     val read = latch && request.rd
     val write = (stateReg === State.active && activeDone && requestReg.wr) || (stateReg === State.write && burstBusy)
-    !(idle || read || write)
+    idle || read || write
   }
 
   // Assert the valid signal after the first word has been bursted during a read
@@ -235,7 +235,7 @@ class SDRAM(config: Config) extends Module {
   }
 
   // Outputs
-  io.mem.waitReq := waitReq
+  io.mem.wait_n := wait_n
   io.mem.valid := valid
   io.mem.burstDone := memBurstDone
   io.mem.dout := doutReg
@@ -258,6 +258,6 @@ class SDRAM(config: Config) extends Module {
 
   // Debug
   if (sys.env.get("DEBUG").contains("1")) {
-    printf(p"SDRAM(state: $stateReg, nextState: $nextState, command: $commandReg, nextCommand: $nextCommand, bank: $bankReg, addr: $addrReg, waitCounter: $waitCounter, wait: $waitReq, valid: $valid, burstDone: $memBurstDone)\n")
+    printf(p"SDRAM(state: $stateReg, nextState: $nextState, command: $commandReg, nextCommand: $nextCommand, bank: $bankReg, addr: $addrReg, waitCounter: $waitCounter, wait: $wait_n, valid: $valid, burstDone: $memBurstDone)\n")
   }
 }

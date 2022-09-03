@@ -116,7 +116,7 @@ class SpriteProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Ma
     test(new SpriteProcessor(numSprites = 1)) { dut =>
       dut.io.video.vBlank.poke(true)
       dut.io.ctrl.vram.dout.poke(4)
-      dut.io.ctrl.tileRom.waitReq.poke(true)
+      dut.io.ctrl.tileRom.wait_n.poke(false)
       dut.io.ctrl.tileRom.valid.poke(true)
       waitForDone(dut)
 
@@ -135,7 +135,7 @@ class SpriteProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Ma
   it should "copy each sprite to the frame buffer" in {
     test(new SpriteProcessor(numSprites = 2)) { dut =>
       dut.io.video.vBlank.poke(true)
-      dut.io.ctrl.tileRom.waitReq.poke(true)
+      dut.io.ctrl.tileRom.wait_n.poke(false)
       dut.io.ctrl.tileRom.valid.poke(true)
 
       // Sprite 0
@@ -162,7 +162,7 @@ class SpriteProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Ma
       dut.io.ctrl.vram.rd.expect(true)
       dut.io.ctrl.vram.addr.expect(0)
       dut.io.ctrl.vram.dout.poke("h0000000000002314".U)
-      dut.io.ctrl.tileRom.waitReq.poke(true)
+      dut.io.ctrl.tileRom.wait_n.poke(false)
       waitForCheck(dut)
 
       // Line 0
@@ -170,7 +170,7 @@ class SpriteProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Ma
       dut.io.ctrl.tileRom.addr.expect(0x2460)
       dut.clock.step()
       dut.io.ctrl.tileRom.addr.expect(0x2460)
-      dut.io.ctrl.tileRom.waitReq.poke(false)
+      dut.io.ctrl.tileRom.wait_n.poke(true)
       dut.io.ctrl.tileRom.valid.poke(true)
       dut.clock.step()
 
@@ -195,7 +195,7 @@ class SpriteProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Ma
       dut.io.ctrl.vram.rd.expect(true)
       dut.io.ctrl.vram.addr.expect(0)
       dut.io.ctrl.vram.dout.poke("h0000000000012314".U)
-      dut.io.ctrl.tileRom.waitReq.poke(true)
+      dut.io.ctrl.tileRom.wait_n.poke(false)
       waitForCheck(dut)
 
       // Line 0
@@ -203,7 +203,7 @@ class SpriteProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Ma
       dut.io.ctrl.tileRom.addr.expect(0x2400)
       dut.clock.step()
       dut.io.ctrl.tileRom.addr.expect(0x2400)
-      dut.io.ctrl.tileRom.waitReq.poke(false)
+      dut.io.ctrl.tileRom.wait_n.poke(true)
       dut.io.ctrl.tileRom.valid.poke(true)
       dut.clock.step()
       dut.io.ctrl.tileRom.addr.expect(0x2420)
@@ -243,7 +243,7 @@ class SpriteProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Ma
       dut.io.ctrl.vram.rd.expect(true)
       dut.io.ctrl.vram.addr.expect(0)
       dut.io.ctrl.vram.dout.poke("h0000000000022314".U)
-      dut.io.ctrl.tileRom.waitReq.poke(true)
+      dut.io.ctrl.tileRom.wait_n.poke(false)
       waitForCheck(dut)
 
       // Line 0
@@ -251,7 +251,7 @@ class SpriteProcessorTest extends AnyFlatSpec with ChiselScalatestTester with Ma
       dut.io.ctrl.tileRom.addr.expect(0x2400)
       dut.clock.step()
       dut.io.ctrl.tileRom.addr.expect(0x2400)
-      dut.io.ctrl.tileRom.waitReq.poke(false)
+      dut.io.ctrl.tileRom.wait_n.poke(true)
       dut.io.ctrl.tileRom.valid.poke(true)
       dut.clock.step()
       dut.io.ctrl.tileRom.addr.expect(0x2420)

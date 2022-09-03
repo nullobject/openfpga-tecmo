@@ -54,10 +54,10 @@ class Bridge(addrWidth: Int, dataWidth: Int, burstLength: Int) extends Module {
     val bridgeClock = Input(Clock())
     /** Bridge interface */
     val bridge = BridgeIO()
-    /** ROM port */
-    val rom = BurstWriteMemIO(addrWidth, dataWidth)
     /** Options port */
     val options = OptionsIO()
+    /** Download port */
+    val download = BurstWriteMemIO(addrWidth, dataWidth)
   })
 
   // The Pocket bridge writes to the FIFO in the bridge clock domain. The FIFO is read in the system
@@ -82,8 +82,8 @@ class Bridge(addrWidth: Int, dataWidth: Int, burstLength: Int) extends Module {
   downloadBuffer.io.in.din := fifo.io.deq.bits.din
   downloadBuffer.io.in.mask := Fill(BridgeIO.DATA_WIDTH / 8, 1.U)
   downloadBuffer.io.in.wr := fifo.io.deq.valid
-  fifo.io.deq.ready := !downloadBuffer.io.in.waitReq
-  downloadBuffer.io.out <> io.rom
+  fifo.io.deq.ready := downloadBuffer.io.in.wait_n
+  downloadBuffer.io.out <> io.download
 
   // Swap endianness for writing to registers
   val din = Util.swapEndianness(io.bridge.rom.din)

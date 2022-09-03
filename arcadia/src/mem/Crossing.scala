@@ -62,12 +62,12 @@ class Crossing(addrWidth: Int, dataWidth: Int, depth: Int = 4) extends Module {
 
   // input port -> address FIFO
   addrFifo.io.enq.valid := io.in.rd
-  io.in.waitReq := !addrFifo.io.enq.ready
+  io.in.wait_n := addrFifo.io.enq.ready
   addrFifo.io.enq.bits := io.in.addr
 
   // address FIFO -> output port
   io.out.rd := addrFifo.io.deq.valid
-  addrFifo.io.deq.ready := !io.out.waitReq
+  addrFifo.io.deq.ready := io.out.wait_n
   io.out.addr := addrFifo.io.deq.bits
 
   // output port -> data FIFO
@@ -80,7 +80,61 @@ class Crossing(addrWidth: Int, dataWidth: Int, depth: Int = 4) extends Module {
 }
 
 /**
- * Transfers a memory interface between clock domains.
+ * Transfers an asynchronous read-only memory interface between clock domains.
+ *
+ * Signals transferred from the fast clock domain are stretched so that they can be latched in the
+ * slow clock domain. Signals transferred from the slow clock domain are unchanged.
+ *
+ * The data freezer requires that the clock domain frequencies are phase-aligned integer multiples
+ * of each other. This ensures that the signals can be transferred between the clock domains without
+ * data loss.
+ *
+ * @param addrWidth The width of the address bus.
+ * @param dataWidth The width of the data bus.
+ */
+class ReadDataFreezer(addrWidth: Int, dataWidth: Int) extends Module {
+  val io = IO(new Bundle {
+    /** Target clock domain */
+    val targetClock = Input(Clock())
+    /** Input port */
+    val in = Flipped(AsyncReadMemIO(addrWidth, dataWidth))
+    /** Output port */
+    val out = AsyncReadMemIO(addrWidth, dataWidth)
+  })
+
+  // Detect rising edges of the target clock
+  val clear = Util.sync(io.targetClock)
+
+  // Latch wait/valid signals
+  val wait_n = Util.latch(io.out.wait_n, clear)
+  val valid = Util.latch(io.out.valid, clear)
+
+  // Latch valid output data
+  val data = Util.latchData(io.out.dout, io.out.valid, clear)
+
+  // Latch pending requests until they have completed
+  val pendingRead = RegInit(false.B)
+  val effectiveRead = io.in.rd && io.out.wait_n
+  val clearRead = clear && RegNext(valid)
+  when(effectiveRead) { pendingRead := true.B }.elsewhen(clearRead) { pendingRead := false.B }
+
+  // Connect I/O ports
+  io.in <> io.out
+
+  // Outputs
+  io.in.wait_n := wait_n
+  io.in.valid := valid
+  io.in.dout := data
+  io.out.rd := io.in.rd && (!pendingRead || clearRead)
+
+  // Debug
+  if (sys.env.get("DEBUG").contains("1")) {
+    printf(p"ReadDataFreezer(read: ${ io.out.rd }, wait: $wait_n, valid: $valid, clear: $clear)\n")
+  }
+}
+
+/**
+ * Transfers an asynchronous read-write memory interface between clock domains.
  *
  * Signals transferred from the fast clock domain are stretched so that they can be latched in the
  * slow clock domain. Signals transferred from the slow clock domain are unchanged.
@@ -97,16 +151,16 @@ class DataFreezer(addrWidth: Int, dataWidth: Int) extends Module {
     /** Target clock domain */
     val targetClock = Input(Clock())
     /** Input port */
-    val in = Flipped(AsyncReadMemIO(addrWidth, dataWidth))
+    val in = Flipped(AsyncMemIO(addrWidth, dataWidth))
     /** Output port */
-    val out = AsyncReadMemIO(addrWidth, dataWidth)
+    val out = AsyncMemIO(addrWidth, dataWidth)
   })
 
   // Detect rising edges of the target clock
   val clear = Util.sync(io.targetClock)
 
   // Latch wait/valid signals
-  val waitReq = !Util.latch(!io.out.waitReq, clear)
+  val wait_n = Util.latch(io.out.wait_n, clear)
   val valid = Util.latch(io.out.valid, clear)
 
   // Latch valid output data
@@ -114,23 +168,25 @@ class DataFreezer(addrWidth: Int, dataWidth: Int) extends Module {
 
   // Latch pending requests until they have completed
   val pendingRead = RegInit(false.B)
-  val effectiveRead = io.in.rd && !io.out.waitReq
+  val pendingWrite = RegInit(false.B)
+  val effectiveRead = io.in.rd && io.out.wait_n
+  val effectiveWrite = io.in.wr && io.out.wait_n
   val clearRead = clear && RegNext(valid)
+  val clearWrite = clear
   when(effectiveRead) { pendingRead := true.B }.elsewhen(clearRead) { pendingRead := false.B }
+  when(effectiveWrite) { pendingWrite := true.B }.elsewhen(clearWrite) { pendingWrite := false.B }
 
   // Connect I/O ports
   io.in <> io.out
 
   // Outputs
-  io.in.waitReq := waitReq
+  io.in.wait_n := wait_n
   io.in.valid := valid
   io.in.dout := data
   io.out.rd := io.in.rd && (!pendingRead || clearRead)
+  io.out.wr := io.in.wr && (!pendingWrite || clearWrite)
 
-  // Debug
-  if (sys.env.get("DEBUG").contains("1")) {
-    printf(p"DataFreezer(read: ${ io.out.rd }, wait: $waitReq, valid: $valid, clear: $clear)\n")
-  }
+  printf(p"DataFreezer(read: ${ io.out.rd }, write: ${ io.out.wr }, wait: $wait_n, valid: $valid, clear: $clear)\n")
 }
 
 object Crossing {
@@ -151,9 +207,22 @@ object Crossing {
    * Wraps the given memory interface with a data freezer.
    *
    * @param targetClock The target clock domain.
-   * @param mem         The memory interface.
+   * @param mem         The read-only memory interface.
    */
   def freeze(targetClock: Clock, mem: AsyncReadMemIO): AsyncReadMemIO = {
+    val freezer = Module(new ReadDataFreezer(mem.addrWidth, mem.dataWidth))
+    freezer.io.targetClock := targetClock
+    freezer.io.out <> mem
+    freezer.io.in
+  }
+
+  /**
+   * Wraps the given memory interface with a data freezer.
+   *
+   * @param targetClock The target clock domain.
+   * @param mem         The read-write memory interface.
+   */
+  def freeze(targetClock: Clock, mem: AsyncMemIO): AsyncMemIO = {
     val freezer = Module(new DataFreezer(mem.addrWidth, mem.dataWidth))
     freezer.io.targetClock := targetClock
     freezer.io.out <> mem

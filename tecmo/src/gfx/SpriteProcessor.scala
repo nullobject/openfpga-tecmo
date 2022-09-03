@@ -112,7 +112,7 @@ class SpriteProcessor(numSprites: Int = 256) extends Module {
   val tileRomRead = loading && !readPendingReg && fifo.io.enq.ready
 
   // Set effective read flag
-  effectiveRead := tileRomRead && !io.ctrl.tileRom.waitReq
+  effectiveRead := tileRomRead && io.ctrl.tileRom.wait_n
 
   // Set tile ROM address
   val tileRomAddr = SpriteProcessor.tileRomAddr(spriteReg.code, colCounter, rowCounter, lineCounter)

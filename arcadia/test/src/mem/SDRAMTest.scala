@@ -224,9 +224,9 @@ class SDRAMTest extends AnyFlatSpec with ChiselScalatestTester with Matchers wit
 
   it should "deassert the wait signal" in {
     test(mkSDRAM(sdramConfig.copy(burstLength = 2))) { dut =>
-      dut.io.mem.waitReq.expect(true)
+      dut.io.mem.wait_n.expect(false)
       waitForIdle(dut)
-      dut.io.mem.waitReq.expect(false)
+      dut.io.mem.wait_n.expect(true)
     }
   }
 
@@ -402,19 +402,19 @@ class SDRAMTest extends AnyFlatSpec with ChiselScalatestTester with Matchers wit
 
       // Request
       dut.io.mem.rd.poke(true)
-      dut.io.mem.waitReq.expect(false)
+      dut.io.mem.wait_n.expect(true)
       dut.clock.step()
-      dut.io.mem.waitReq.expect(true)
+      dut.io.mem.wait_n.expect(false)
       waitForRead(dut)
-      dut.io.mem.waitReq.expect(true)
+      dut.io.mem.wait_n.expect(false)
 
       // CAS latency
       dut.clock.step(cycles = 2)
 
       // Read
-      dut.io.mem.waitReq.expect(true)
+      dut.io.mem.wait_n.expect(false)
       dut.clock.step()
-      dut.io.mem.waitReq.expect(false)
+      dut.io.mem.wait_n.expect(true)
     }
   }
 
@@ -583,19 +583,19 @@ class SDRAMTest extends AnyFlatSpec with ChiselScalatestTester with Matchers wit
 
       // Request
       dut.io.mem.wr.poke(true)
-      dut.io.mem.waitReq.expect(true)
+      dut.io.mem.wait_n.expect(false)
       waitForActive(dut)
 
       // Active
-      dut.io.mem.waitReq.expect(true)
+      dut.io.mem.wait_n.expect(false)
       dut.clock.step()
-      dut.io.mem.waitReq.expect(false)
+      dut.io.mem.wait_n.expect(true)
       dut.clock.step()
 
       // Write
-      dut.io.mem.waitReq.expect(false)
+      dut.io.mem.wait_n.expect(true)
       dut.clock.step()
-      dut.io.mem.waitReq.expect(true)
+      dut.io.mem.wait_n.expect(false)
     }
   }
 
@@ -622,9 +622,9 @@ class SDRAMTest extends AnyFlatSpec with ChiselScalatestTester with Matchers wit
     test(mkSDRAM()) { dut =>
       waitForRefresh(dut)
       dut.io.mem.rd.poke(true)
-      dut.io.mem.waitReq.expect(true)
+      dut.io.mem.wait_n.expect(false)
       dut.clock.step()
-      dut.io.mem.waitReq.expect(false)
+      dut.io.mem.wait_n.expect(true)
     }
   }
 }

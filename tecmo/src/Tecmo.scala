@@ -88,7 +88,7 @@ class Tecmo extends Module {
   // Memory subsystem
   val memSys = Module(new MemSys(Config.memSysConfig))
   memSys.io.enable := io.bridge.done
-  memSys.io.rom <> bridge.io.rom
+  memSys.io.rom <> bridge.io.download
   memSys.io.out <> sdram.io.mem
 
   // Video timing
