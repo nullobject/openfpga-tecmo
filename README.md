@@ -1,5 +1,7 @@
 # Tecmo
 
+[![Test](https://github.com/nullobject/openfpga-tecmo/actions/workflows/test.yml/badge.svg)](https://github.com/nullobject/openfpga-tecmo/actions/workflows/test.yml)
+
 ## Install
 
 * Download and unzip the latest release
