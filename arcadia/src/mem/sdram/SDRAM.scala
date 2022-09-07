@@ -33,7 +33,8 @@
 package arcadia.mem.sdram
 
 import arcadia.mem.BurstMemIO
-import arcadia.mem.request.ReadWriteRequest
+import arcadia.mem.request.Request
+import arcadia.util.Counter
 import chisel3._
 import chisel3.util._
 
@@ -88,7 +89,7 @@ class SDRAM(config: Config) extends Module {
   val isReadWrite = io.mem.rd || io.mem.wr
 
   // Request register
-  val request = ReadWriteRequest(io.mem.rd, io.mem.wr, Address.fromByteAddress(config, io.mem.addr), 0.U, 0.U)
+  val request = Request(io.mem.rd, io.mem.wr, Address.fromByteAddress(config, io.mem.addr), 0.U, 0.U)
   val requestReg = RegEnable(request, latch)
 
   // SDRAM registers
@@ -101,8 +102,8 @@ class SDRAM(config: Config) extends Module {
   val doutReg = RegNext(io.sdram.dout)
 
   // Counters
-  val (waitCounter, _) = Counter(0 until config.waitCounterMax, reset = nextState =/= stateReg)
-  val (refreshCounter, _) = Counter(0 until config.refreshCounterMax,
+  val (waitCounter, _) = Counter.static(config.waitCounterMax, reset = nextState =/= stateReg)
+  val (refreshCounter, _) = Counter.static(config.refreshCounterMax,
     enable = stateReg =/= State.init && stateReg =/= State.mode,
     reset = stateReg === State.refresh && waitCounter === 0.U
   )
@@ -126,7 +127,7 @@ class SDRAM(config: Config) extends Module {
   }
 
   // Assert the valid signal after the first word has been bursted during a read
-  val valid = RegNext(stateReg === State.read && waitCounter > (config.casLatency - 1).U, false.B)
+  val validReg = RegNext(stateReg === State.read && waitCounter > (config.casLatency - 1).U, false.B)
 
   // Assert the burst done signal when a read/write burst has completed
   val memBurstDone = {
@@ -144,7 +145,7 @@ class SDRAM(config: Config) extends Module {
   def mode() = {
     nextCommand := Command.mode
     nextState := State.mode
-    addrReg := config.mode
+    addrReg := config.opcode
   }
 
   def idle() = {
@@ -179,7 +180,7 @@ class SDRAM(config: Config) extends Module {
 
   // FSM
   switch(stateReg) {
-    // Execute initialization sequence
+    // Initialize device
     is(State.init) {
       addrReg := "b0010000000000".U
       when(waitCounter === 0.U) {
@@ -236,7 +237,7 @@ class SDRAM(config: Config) extends Module {
 
   // Outputs
   io.mem.wait_n := wait_n
-  io.mem.valid := valid
+  io.mem.valid := validReg
   io.mem.burstDone := memBurstDone
   io.mem.dout := doutReg
   io.sdram.cke := true.B
@@ -244,7 +245,7 @@ class SDRAM(config: Config) extends Module {
   io.sdram.ras_n := commandReg(2)
   io.sdram.cas_n := commandReg(1)
   io.sdram.we_n := commandReg(0)
-  io.sdram.oe_n := stateReg =/= State.write
+  io.sdram.oe_n := stateReg =/= State.read
   io.sdram.bank := bankReg
   io.sdram.addr := addrReg
   io.sdram.din := dinReg
@@ -258,6 +259,6 @@ class SDRAM(config: Config) extends Module {
 
   // Debug
   if (sys.env.get("DEBUG").contains("1")) {
-    printf(p"SDRAM(state: $stateReg, nextState: $nextState, command: $commandReg, nextCommand: $nextCommand, bank: $bankReg, addr: $addrReg, waitCounter: $waitCounter, wait: $wait_n, valid: $valid, burstDone: $memBurstDone)\n")
+    printf(p"SDRAM(state: $stateReg, nextState: $nextState, command: $commandReg, nextCommand: $nextCommand, bank: $bankReg, addr: $addrReg, waitCounter: $waitCounter, wait: $wait_n, valid: $validReg, burstDone: $memBurstDone)\n")
   }
 }

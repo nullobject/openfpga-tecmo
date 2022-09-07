@@ -448,7 +448,7 @@ reset_ctrl cpu_reset_ctrl (
 wire        dram_oe_n;
 wire [15:0] dram_din;
 assign dram_clk = sys_clock;
-assign dram_dq = dram_oe_n ? 16'bZ : dram_din;
+assign dram_dq = dram_oe_n ? dram_din : 16'bZ;
 
 wire [15:0] audio;
 

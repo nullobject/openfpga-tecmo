@@ -256,6 +256,7 @@ class BurstBufferTest extends AnyFlatSpec with ChiselScalatestTester with Matche
       dut.io.out.addr.expect(0x00)
       dut.io.out.din.expect(0x3412)
       dut.io.out.mask.expect(0x3)
+      dut.clock.step()
 
       // burst 0
       dut.io.in.wait_n.expect(false)

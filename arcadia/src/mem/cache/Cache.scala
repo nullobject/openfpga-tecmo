@@ -33,7 +33,7 @@
 package arcadia.mem.cache
 
 import arcadia.mem._
-import arcadia.mem.request.ReadWriteRequest
+import arcadia.mem.request.Request
 import chisel3._
 import chisel3.util._
 
@@ -97,7 +97,7 @@ class Cache(config: Config) extends Module {
   }
 
   // Cache request
-  val request = ReadWriteRequest(io.in.rd, io.in.wr, Address(config, io.in.addr), io.in.din, io.in.mask)
+  val request = Request(io.in.rd, io.in.wr, Address(config, io.in.addr), io.in.din, io.in.mask)
   val requestReg = RegEnable(request, start)
 
   // Data registers
