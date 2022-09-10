@@ -82,9 +82,9 @@ class Sound extends Module {
   soundRam.io.default()
 
   // FM
-  val opl = Module(new JTOPL(Config.CPU_CLOCK_FREQ, Sound.FM_SAMPLE_CLOCK_FREQ))
-  irq := opl.io.irq
-  opl.io.cpu.default()
+  val fm = Module(new JTOPL(Config.CPU_CLOCK_FREQ, Sound.FM_SAMPLE_CLOCK_FREQ))
+  irq := fm.io.irq
+  fm.io.cpu.default()
 
   // PCM
   val pcm = Module(new JT5205(Config.CPU_CLOCK_FREQ, Sound.PCM_SAMPLE_CLOCK_FREQ))
@@ -120,7 +120,7 @@ class Sound extends Module {
   when(io.options.gameIndex === Game.RYGAR.U) {
     memMap(0x0000 to 0x3fff).readMem(io.rom.soundRom)
     memMap(0x4000 to 0x47ff).readWriteMem(soundRam.io)
-    memMap(0x8000 to 0x8001).readWriteMem(opl.io.cpu)
+    memMap(0x8000 to 0x8001).readWriteMem(fm.io.cpu)
     memMap(0xc000).r { (_, _) => dataReg }
     memMap(0xc000).w { (_, _, _) => setAddr(false) }
     memMap(0xd000).w { (_, _, _) => setAddr(true) }
@@ -131,7 +131,7 @@ class Sound extends Module {
   when(io.options.gameIndex === Game.GEMINI.U || io.options.gameIndex === Game.SILKWORM.U) {
     memMap(0x0000 to 0x7fff).readMem(io.rom.soundRom)
     memMap(0x8000 to 0x87ff).readWriteMem(soundRam.io)
-    memMap(0xa000 to 0xa001).readWriteMem(opl.io.cpu)
+    memMap(0xa000 to 0xa001).readWriteMem(fm.io.cpu)
     memMap(0xc000).r { (_, _) => dataReg }
     memMap(0xc000).w { (_, _, _) => setAddr(false) }
     memMap(0xc400).w { (_, _, _) => setAddr(true) }
@@ -141,8 +141,8 @@ class Sound extends Module {
 
   // Audio mixer
   io.audio := AudioMixer.sum(Config.AUDIO_SAMPLE_WIDTH,
-    RegEnable(opl.io.audio.bits, opl.io.audio.valid) -> 1,
-    RegEnable(pcm.io.audio.bits, pcm.io.audio.valid) -> 0.5
+    RegEnable(fm.io.audio.bits, io.options.fm && fm.io.audio.valid) -> 1,
+    RegEnable(pcm.io.audio.bits, io.options.pcm && pcm.io.audio.valid) -> 0.5
   )
 }
 
