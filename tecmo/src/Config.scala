@@ -67,7 +67,7 @@ object Config {
   val PROG_ROM_ADDR_WIDTH = 16 // 64 kB
   val PROG_ROM_DATA_WIDTH = 8
 
-  val BANK_ROM_ADDR_WIDTH = 16 // 64 kB
+  val BANK_ROM_ADDR_WIDTH = 15 // 64 kB
   val BANK_ROM_DATA_WIDTH = 8
 
   val SOUND_ROM_ADDR_WIDTH = 15 // 32 kB

@@ -96,6 +96,25 @@ class Tecmo extends Module {
   videoTiming.io.offset := SVec2(0.S, 0.S)
   val video = videoTiming.io.timing
 
+  // Program ROM
+  val progRom = Module(new SinglePortRom(
+   addrWidth = Config.PROG_ROM_ADDR_WIDTH,
+   dataWidth = Config.PROG_ROM_DATA_WIDTH,
+   depth = 49152,
+   initFile = "roms/cpu1.mif"
+  ))
+
+  // Bank ROM
+  val bankRom = Module(new SinglePortRom(
+   addrWidth = Config.BANK_ROM_ADDR_WIDTH,
+   dataWidth = Config.BANK_ROM_DATA_WIDTH,
+   depth = 32768,
+   initFile = "roms/cpu2.mif"
+  ))
+
+  memSys.io.in(0).default()
+  memSys.io.in(1).default()
+
   // Main PCB
   val main = withClockAndReset(io.cpuClock, io.cpuReset) { Module(new Main) }
   main.io.videoClock := io.videoClock
@@ -104,8 +123,10 @@ class Tecmo extends Module {
   main.io.player := io.player
   main.io.pause := io.bridge.pause
   main.io.video := video
-  main.io.rom.progRom <> Crossing.freeze(io.cpuClock, memSys.io.in(0)).asReadMemIO
-  main.io.rom.bankRom <> Crossing.freeze(io.cpuClock, memSys.io.in(1)).asReadMemIO
+//  main.io.rom.progRom <> Crossing.freeze(io.cpuClock, memSys.io.in(0)).asReadMemIO
+//  main.io.rom.bankRom <> Crossing.freeze(io.cpuClock, memSys.io.in(1)).asReadMemIO
+  main.io.rom.progRom <> progRom.io
+  main.io.rom.bankRom <> bankRom.io
   main.io.rom.layerTileRom(0) <> Crossing.freeze(io.videoClock, memSys.io.in(2))
   main.io.rom.layerTileRom(1) <> Crossing.freeze(io.videoClock, memSys.io.in(3))
   main.io.rom.layerTileRom(2) <> Crossing.freeze(io.videoClock, memSys.io.in(4))
