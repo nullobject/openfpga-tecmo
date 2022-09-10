@@ -93,12 +93,12 @@ class PCMCounterTest extends AnyFlatSpec with ChiselScalatestTester with Matcher
       setHighAddr(dut, 0x13)
       setLowAddr(dut, 0x12)
       dut.io.rom.dout.poke(0xab)
+      dut.io.rom.valid.poke(true)
+      dut.clock.step()
       dut.io.dout.expect(0xb)
       stepCounter(dut)
+      dut.clock.step()
       dut.io.dout.expect(0xa)
-      stepCounter(dut)
-      0.until(512).foreach { _ => stepCounter(dut) }
-      dut.io.dout.expect(0x0)
     }
   }
 }
