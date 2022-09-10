@@ -62,7 +62,7 @@ package object tecmo {
   class SoundRomIO extends ReadMemIO(Config.SOUND_ROM_ADDR_WIDTH, Config.SOUND_ROM_DATA_WIDTH)
 
   /** Sample ROM IO */
-  class SampleRomIO extends ReadMemIO(Config.PCM_ROM_ADDR_WIDTH, Config.PCM_ROM_DATA_WIDTH)
+  class SampleRomIO extends AsyncReadMemIO(Config.PCM_ROM_ADDR_WIDTH, Config.PCM_ROM_DATA_WIDTH)
 
   /** Tile ROM IO */
   class TileRomIO extends AsyncReadMemIO(Config.TILE_ROM_ADDR_WIDTH, Config.TILE_ROM_DATA_WIDTH)

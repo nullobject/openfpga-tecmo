@@ -116,7 +116,7 @@ class Tecmo extends Module {
   sound.io.options := bridge.io.options
   sound.io.ctrl <> main.io.soundCtrl
   sound.io.rom.soundRom <> Crossing.freeze(io.cpuClock, memSys.io.in(6)).asReadMemIO
-  sound.io.rom.pcmRom <> Crossing.freeze(io.cpuClock, memSys.io.in(7)).asReadMemIO
+  sound.io.rom.pcmRom <> Crossing.freeze(io.cpuClock, memSys.io.in(7))
 
   val rgb = Mux(video.displayEnable,
     main.io.rgb,
