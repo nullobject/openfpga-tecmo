@@ -14,6 +14,10 @@
     <!-- main cpu -->
     <part crc="6df3df22" name="silkwormj.4" />
     <part crc="a6c7bb51" name="silkworm.5" />
+    <!-- sound cpu -->
+    <part crc="b79848d0" name="silkwormj.3" />
+    <!-- pcm -->
+    <part crc="5b553644" name="silkworm.1" />
     <!-- char -->
     <part crc="e80a1cd9" name="silkworm.2" />
     <part repeat="0x8000">00</part>
@@ -32,9 +36,5 @@
     <part crc="d96214f7" name="silkworm.7" />
     <part crc="0494b38e" name="silkworm.8" />
     <part crc="8ce3cdf5" name="silkworm.9" />
-    <!-- sound cpu -->
-    <part crc="b79848d0" name="silkwormj.3" />
-    <!-- pcm -->
-    <part crc="5b553644" name="silkworm.1" />
   </rom>
 </misterromdescription>

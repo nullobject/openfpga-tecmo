@@ -14,6 +14,10 @@
     <!-- main cpu -->
     <part crc="ce71e27a" name="4-5s" />
     <part crc="216784a9" name="5-6s" />
+    <!-- sound cpu -->
+    <part crc="9bc79596" name="gw03-5h.rom" />
+    <!-- pcm -->
+    <part crc="d78afa05" name="gw01-6a.rom" />
     <!-- char -->
     <part crc="7acc8d35" name="gw02-3h.rom" />
     <part repeat="0x8000">00</part>
@@ -32,9 +36,5 @@
     <part crc="da42637e" name="gw07-1d.rom" />
     <part crc="0b4e8d70" name="gw08-1f.rom" />
     <part crc="b65c5e4c" name="gw09-1h.rom" />
-    <!-- sound cpu -->
-    <part crc="9bc79596" name="gw03-5h.rom" />
-    <!-- pcm -->
-    <part crc="d78afa05" name="gw01-6a.rom" />
   </rom>
 </misterromdescription>

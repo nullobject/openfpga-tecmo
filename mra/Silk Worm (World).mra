@@ -14,6 +14,10 @@
     <!-- main cpu -->
     <part crc="a5277cce" name="4.5s" />
     <part crc="a6c7bb51" name="5.6s" />
+    <!-- sound cpu -->
+    <part crc="b589f587" name="3.5j" />
+    <!-- pcm -->
+    <part crc="5b553644" name="1.6b" />
     <!-- char -->
     <part crc="e80a1cd9" name="2.3j" />
     <part repeat="0x8000">00</part>
@@ -32,9 +36,5 @@
     <part crc="d96214f7" name="7.1d" />
     <part crc="0494b38e" name="8.1f" />
     <part crc="8ce3cdf5" name="9.1h" />
-    <!-- sound cpu -->
-    <part crc="b589f587" name="3.5j" />
-    <!-- pcm -->
-    <part crc="5b553644" name="1.6b" />
   </rom>
 </misterromdescription>

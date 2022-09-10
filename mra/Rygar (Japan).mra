@@ -17,6 +17,12 @@
     <part repeat="0x4000">00</part>
     <part crc="69e44e8f" name="cpuj_5j.bin" />
     <part repeat="0x8000">00</part>
+    <!-- sound cpu -->
+    <part crc="e4a2fa87" name="cpu_4h.bin" />
+    <part repeat="0x6000">00</part>
+    <!-- pcm -->
+    <part crc="3cc98c5a" name="cpu_1f.bin" />
+    <part repeat="0x4000">00</part>
     <!-- char -->
     <part crc="45047707" name="cpuj_8k.bin" />
     <part repeat="0x8000">00</part>
@@ -38,10 +44,5 @@
     <part crc="46d9e7df" name="vid_6h.bin" />
     <part crc="45839c9a" name="vid_6g.bin" />
     <part repeat="0x20000">00</part>
-    <!-- sound cpu -->
-    <part crc="e4a2fa87" name="cpu_4h.bin" />
-    <part repeat="0x6000">00</part>
-    <!-- pcm -->
-    <part crc="3cc98c5a" name="cpu_1f.bin" />
   </rom>
 </misterromdescription>
