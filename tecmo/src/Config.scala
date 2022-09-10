@@ -130,14 +130,14 @@ object Config {
   val FRAME_BUFFER_ADDR_WIDTH = 16
   val FRAME_BUFFER_DATA_WIDTH = 10
 
-  /** SDRAM configuration */
-  val sdramConfig = sdram.Config(clockFreq = CLOCK_FREQ, burstLength = 2)
+  /** PSRAM configuration */
+  val psramConfig = psram.Config(clockFreq = CLOCK_FREQ, burstLength = 4)
 
   /** Memory subsystem configuration */
   val memSysConfig = MemSysConfig(
-    addrWidth = sdramConfig.addrWidth,
-    dataWidth = sdramConfig.dataWidth,
-    burstLength = sdramConfig.burstLength,
+    addrWidth = psramConfig.addrWidth,
+    dataWidth = psramConfig.dataWidth,
+    burstLength = psramConfig.burstLength,
     slots = Seq(
       // Main ROM
       SlotConfig(

@@ -35,7 +35,7 @@ package tecmo
 import arcadia._
 import arcadia.gfx._
 import arcadia.mem._
-import arcadia.mem.sdram.{SDRAM, SDRAMIO}
+import arcadia.mem.psram.{PSRAM, PSRAMIO}
 import arcadia.pocket.{Bridge, BridgeIO}
 import chisel3._
 import chisel3.experimental.FlatIO
@@ -68,19 +68,19 @@ class Tecmo extends Module {
     val audio = Output(SInt(Config.AUDIO_SAMPLE_WIDTH.W))
     /** RGB output */
     val rgb = Output(UInt(Config.RGB_WIDTH.W))
-    /** SDRAM port */
-    val sdram = SDRAMIO(Config.sdramConfig)
+    /** PSRAM port */
+    val psram = PSRAMIO(Config.psramConfig)
   })
 
-  // SDRAM controller
-  val sdram = Module(new SDRAM(Config.sdramConfig))
-  sdram.io.sdram <> io.sdram
+  // PSRAM controller
+  val psram = Module(new PSRAM(Config.psramConfig))
+  psram.io.psram <> io.psram
 
   // Pocket bridge controller
   val bridge = Module(new Bridge(
-    addrWidth = Config.sdramConfig.addrWidth,
-    dataWidth = Config.sdramConfig.dataWidth,
-    burstLength = Config.sdramConfig.burstLength
+    addrWidth = Config.psramConfig.addrWidth,
+    dataWidth = Config.psramConfig.dataWidth,
+    burstLength = Config.psramConfig.burstLength
   ))
   bridge.io.bridgeClock := io.bridgeClock
   bridge.io.bridge <> io.bridge
@@ -89,7 +89,7 @@ class Tecmo extends Module {
   val memSys = Module(new MemSys(Config.memSysConfig))
   memSys.io.enable := io.bridge.done
   memSys.io.rom <> bridge.io.download
-  memSys.io.out <> sdram.io.mem
+  memSys.io.out <> psram.io.mem
 
   // Video timing
   val videoTiming = withClock(io.videoClock) { Module(new VideoTiming(Config.videoTimingConfig)) }

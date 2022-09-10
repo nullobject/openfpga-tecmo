@@ -259,18 +259,6 @@ assign port_tran_sd = 1'bz;
 assign port_tran_sd_dir = 1'b0;     // SD is input and not used
 
 // tie off the rest of the pins we are not using
-assign cram0_a = 'h0;
-assign cram0_dq = {16{1'bZ}};
-assign cram0_clk = 0;
-assign cram0_adv_n = 1;
-assign cram0_cre = 0;
-assign cram0_ce0_n = 1;
-assign cram0_ce1_n = 1;
-assign cram0_oe_n = 1;
-assign cram0_we_n = 1;
-assign cram0_ub_n = 1;
-assign cram0_lb_n = 1;
-
 assign cram1_a = 'h0;
 assign cram1_dq = {16{1'bZ}};
 assign cram1_clk = 0;
@@ -282,6 +270,16 @@ assign cram1_oe_n = 1;
 assign cram1_we_n = 1;
 assign cram1_ub_n = 1;
 assign cram1_lb_n = 1;
+
+assign dram_a = 'h0;
+assign dram_ba = 'h0;
+assign dram_dq = {16{1'bZ}};
+assign dram_dqm = 'h0;
+assign dram_clk = 'h0;
+assign dram_cke = 'h0;
+assign dram_ras_n = 'h1;
+assign dram_cas_n = 'h1;
+assign dram_we_n = 'h1;
 
 assign sram_a = 'h0;
 assign sram_dq = {16{1'bZ}};
@@ -445,10 +443,9 @@ reset_ctrl cpu_reset_ctrl (
   .rst_o(cpu_reset)
 );
 
-wire        dram_oe_n;
-wire [15:0] dram_din;
-assign dram_clk = sys_clock;
-assign dram_dq = dram_oe_n ? dram_din : 16'bZ;
+wire [15:0] cram0_din;
+assign cram0_clk = sys_clock;
+assign cram0_dq = cram0_oe_n ? cram0_din : 16'bZ;
 
 wire [15:0] audio;
 
@@ -475,15 +472,18 @@ Tecmo tecmo (
   .player_start(cont1_key[15]),
   .player_coin(cont1_key[14]),
 
-  .sdram_cke(dram_cke),
-  .sdram_ras_n(dram_ras_n),
-  .sdram_cas_n(dram_cas_n),
-  .sdram_we_n(dram_we_n),
-  .sdram_oe_n(dram_oe_n),
-  .sdram_bank(dram_ba),
-  .sdram_addr(dram_a),
-  .sdram_din(dram_din),
-  .sdram_dout(dram_dq),
+  .psram_ce0_n(cram0_ce0_n),
+  .psram_ce1_n(cram0_ce1_n),
+  .psram_adv_n(cram0_adv_n),
+  .psram_cre(cram0_cre),
+  .psram_we_n(cram0_we_n),
+  .psram_oe_n(cram0_oe_n),
+  .psram_ub_n(cram0_ub_n),
+  .psram_lb_n(cram0_lb_n),
+  .psram_wait_n(cram0_wait),
+  .psram_addr(cram0_a),
+  .psram_din(cram0_din),
+  .psram_dout(cram0_dq),
 
   .video_hSync(video_hs),
   .video_vSync(video_vs),
