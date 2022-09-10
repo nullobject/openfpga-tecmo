@@ -421,20 +421,19 @@ core_bridge_cmd icb (
 
 );
 
-wire sys_clock, cpu_clock;
+wire sys_clock, mem_clock, cpu_clock;
 wire cpu_reset;
 wire pll_core_locked;
 
 mf_pllbase mp1 (
-    .refclk         ( clk_74a ),
-    .rst            ( 0 ),
-
-    .outclk_0       ( sys_clock ),
-    .outclk_1       ( cpu_clock ),
-    .outclk_2       ( video_rgb_clock ),
-    .outclk_3       ( video_rgb_clock_90 ),
-
-    .locked         ( pll_core_locked )
+  .refclk(clk_74a),
+  .rst(0),
+  .outclk_0(sys_clock),
+  .outclk_1(mem_clock),
+  .outclk_2(cpu_clock),
+  .outclk_3(video_rgb_clock),
+  .outclk_4(video_rgb_clock_90),
+  .locked(pll_core_locked)
 );
 
 reset_ctrl cpu_reset_ctrl (
@@ -444,7 +443,7 @@ reset_ctrl cpu_reset_ctrl (
 );
 
 wire [15:0] cram0_din;
-assign cram0_clk = sys_clock;
+assign cram0_clk = mem_clock;
 assign cram0_dq = cram0_oe_n ? cram0_din : 16'bZ;
 
 wire [15:0] audio;
