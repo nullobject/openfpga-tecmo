@@ -10,7 +10,7 @@ build:
 	bin/reverse quartus/output_files/$(REVISION_NAME).rbf dist/Cores/$(CORE_NAME)/bitstream.rbf_r
 
 mra:
-	cd mra; ls -1 *.mra | xargs -I '{}' mra -z ~/mame/roms '{}'
+	cd mra; mra -z ~/mame/roms *.mra
 
 copy:
 	rsync -avh --progress --exclude \*.zip dist/ /media/josh/2470-BED0 && umount /media/josh/2470-BED0
