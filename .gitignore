@@ -9,5 +9,6 @@
 !.vscode/extensions.json
 dist/**/*.rbf_r
 dist/**/*.zip
+mra/*.rom
 out
 test_run_dir
