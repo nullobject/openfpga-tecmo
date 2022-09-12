@@ -44,7 +44,7 @@ import tecmo._
 class Sound extends Module {
   val io = IO(new Bundle {
     /** Options port */
-    val options = OptionsIO()
+    val options = Input(OptionsIO())
     /** Control port */
     val ctrl = SoundCtrlIO()
     /** ROM port */

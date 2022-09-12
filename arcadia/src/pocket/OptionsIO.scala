@@ -34,23 +34,24 @@ package arcadida.pocket
 
 import chisel3._
 
+/** An interface that contains the user options. */
 class OptionsIO extends Bundle {
   /** Game index */
-  val gameIndex = Input(UInt(32.W))
+  val gameIndex = UInt(32.W)
   /** Scaler mode */
-  val scalerMode = Input(UInt(3.W))
+  val scalerMode = UInt(3.W)
   /** Enable debugging */
-  val debug = Input(Bool())
+  val debug = Bool()
   /** Layer enable */
-  val layer = Input(Vec(3, Bool()))
+  val layer = Vec(3, Bool())
   /** Sprite enable */
-  val sprite = Input(Bool())
+  val sprite = Bool()
   /** Flip video output */
-  val flip = Input(Bool())
+  val flip = Bool()
   /** FM enable */
-  val fm = Input(Bool())
+  val fm = Bool()
   /** PCM enable */
-  val pcm = Input(Bool())
+  val pcm = Bool()
 }
 
 object OptionsIO {

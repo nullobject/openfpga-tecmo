@@ -55,7 +55,7 @@ class Bridge(addrWidth: Int, dataWidth: Int, burstLength: Int) extends Module {
     /** Bridge interface */
     val bridge = BridgeIO()
     /** Options port */
-    val options = Flipped(OptionsIO())
+    val options = Output(OptionsIO())
     /** Download port */
     val download = BurstWriteMemIO(addrWidth, dataWidth)
   })
