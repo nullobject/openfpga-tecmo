@@ -85,16 +85,11 @@ class Main extends Module {
   cpu.io.int := irq
   cpu.io.nmi := false.B
 
-  // Set interface defaults
-  io.progRom.default()
-  io.bankRom.default()
-
   // Work RAM
   val workRam = Module(new SinglePortRam(
     addrWidth = Config.WORK_RAM_ADDR_WIDTH,
     dataWidth = Config.WORK_RAM_DATA_WIDTH
   ))
-  workRam.io.default()
 
   // Character VRAM
   val charRam = Module(new TrueDualPortRam(
@@ -104,7 +99,6 @@ class Main extends Module {
     dataWidthB = Config.CHAR_RAM_GPU_DATA_WIDTH
   ))
   charRam.io.clockB := io.videoClock
-  charRam.io.portA.default()
 
   // Foreground VRAM
   val fgRam = Module(new TrueDualPortRam(
@@ -114,7 +108,6 @@ class Main extends Module {
     dataWidthB = Config.FG_RAM_GPU_DATA_WIDTH
   ))
   fgRam.io.clockB := io.videoClock
-  fgRam.io.portA.default()
 
   // Background VRAM
   val bgRam = Module(new TrueDualPortRam(
@@ -124,7 +117,6 @@ class Main extends Module {
     dataWidthB = Config.BG_RAM_GPU_DATA_WIDTH
   ))
   bgRam.io.clockB := io.videoClock
-  bgRam.io.portA.default()
 
   // Sprite VRAM
   val spriteRam = Module(new TrueDualPortRam(
@@ -134,7 +126,6 @@ class Main extends Module {
     dataWidthB = Config.SPRITE_RAM_GPU_DATA_WIDTH
   ))
   spriteRam.io.clockB := io.videoClock
-  spriteRam.io.portA.default()
 
   // Palette RAM
   val paletteRam = Module(new TrueDualPortRam(
@@ -144,6 +135,15 @@ class Main extends Module {
     dataWidthB = Config.PALETTE_RAM_GPU_DATA_WIDTH
   ))
   paletteRam.io.clockB := io.videoClock
+
+  // Set interface defaults
+  io.progRom.default()
+  io.bankRom.default()
+  workRam.io.default()
+  charRam.io.portA.default()
+  fgRam.io.portA.default()
+  bgRam.io.portA.default()
+  spriteRam.io.portA.default()
   paletteRam.io.portA.default()
 
   // GPU memory

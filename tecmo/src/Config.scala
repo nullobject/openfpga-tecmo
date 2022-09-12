@@ -194,7 +194,7 @@ object Config {
   val videoTimingConfig = VideoTimingConfig(
     clockFreq = VIDEO_CLOCK_FREQ,
     clockDiv = VIDEO_CLOCK_DIV,
-    hFreq = 15625, // Hz
+    hFreq = 15_625, // Hz
     vFreq = 59.19, // Hz
     hDisplay = 256,
     vDisplay = 224,
