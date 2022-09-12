@@ -81,6 +81,13 @@ class Sound extends Module {
   ))
   soundRam.io.default()
 
+  // Scratch RAM is only used by the Silkworm (Japan) ROM set
+  val scratchRam = Module(new SinglePortRam(
+    addrWidth = Sound.SCRATCH_RAM_ADDR_WIDTH,
+    dataWidth = Config.WORK_RAM_DATA_WIDTH
+  ))
+  scratchRam.io.default()
+
   // FM
   val fm = Module(new JTOPL(Config.CPU_CLOCK_FREQ, Sound.FM_SAMPLE_CLOCK_FREQ))
   irq := fm.io.irq
@@ -130,6 +137,7 @@ class Sound extends Module {
 
   when(io.options.gameIndex === Game.GEMINI.U || io.options.gameIndex === Game.SILKWORM.U) {
     memMap(0x0000 to 0x7fff).readMem(io.rom.soundRom)
+    memMap(0x2000 to 0x207f).readWriteMem(scratchRam.io)
     memMap(0x8000 to 0x87ff).readWriteMem(soundRam.io)
     memMap(0xa000 to 0xa001).readWriteMem(fm.io.cpu)
     memMap(0xc000).r { (_, _) => dataReg }
@@ -151,4 +159,6 @@ object Sound {
   val FM_SAMPLE_CLOCK_FREQ = 4_000_000
   /** The PCM sample clock frequency (Hz) */
   val PCM_SAMPLE_CLOCK_FREQ = 400_000
+  /** The width of the scratch RAM address bus */
+  val SCRATCH_RAM_ADDR_WIDTH = 7
 }
