@@ -62,7 +62,7 @@ class Tecmo extends Module {
     /** Bridge port */
     val bridge = BridgeIO()
     /** Player port */
-    val player = PlayerIO()
+    val player = Input(Vec(2, PlayerIO()))
     /** Video port */
     val video = Output(VideoIO())
     /** Audio port */

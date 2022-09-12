@@ -53,7 +53,7 @@ class Main extends Module {
     /** Options port */
     val options = Input(OptionsIO())
     /** Player port */
-    val player = PlayerIO()
+    val player = Input(Vec(2, PlayerIO()))
     /** Pause flag */
     val pause = Input(Bool())
     /** Video port */
@@ -204,11 +204,11 @@ class Main extends Module {
     memMap(0xe000 to 0xe7ff).readWriteMem(spriteRam.io.portA)
     memMap(0xe800 to 0xefff).readWriteMem(paletteRam.io.portA)
     memMap(0xf000 to 0xf7ff).readMemT(io.bankRom) { addr => bankReg ## addr(10, 0) }
-    memMap(0xf800).r { (_, _) => Cat(io.player.up, io.player.down, io.player.right, io.player.left) }
-    memMap(0xf801).r { (_, _) => Cat(io.player.buttons(1), io.player.buttons(0)) }
+    memMap(0xf800).r { (_, _) => Cat(io.player(0).up, io.player(0).down, io.player(0).right, io.player(0).left) }
+    memMap(0xf801).r { (_, _) => Cat(io.player(0).buttons(1), io.player(0).buttons(0)) }
     memMap(0xf802).nopr() // JOY 1
     memMap(0xf803).nopr() // BUTTONS 1
-    memMap(0xf804).r { (_, _) => Cat(io.player.coin, 0.U, io.player.start, 0.U) }
+    memMap(0xf804).r { (_, _) => Cat(io.player(0).coin, 0.U, io.player(0).start, 0.U) }
     memMap(0xf806 to 0xf807).nopr() // DIP 0
     memMap(0xf808 to 0xf809).nopr() // DIP 1
     memMap(0xf800 to 0xf802).w { (_, offset, data) => setScroll(offset, data, fgScrollReg) }
@@ -227,11 +227,11 @@ class Main extends Module {
     memMap(0xe000 to 0xe7ff).readWriteMem(paletteRam.io.portA)
     memMap(0xe800 to 0xefff).readWriteMem(spriteRam.io.portA)
     memMap(0xf000 to 0xf7ff).readMemT(io.bankRom) { addr => bankReg ## addr(10, 0) }
-    memMap(0xf800).r { (_, _) => Cat(io.player.up, io.player.down, io.player.right, io.player.left) }
-    memMap(0xf801).r { (_, _) => Cat(io.player.buttons(0), io.player.buttons(1)) }
+    memMap(0xf800).r { (_, _) => Cat(io.player(0).up, io.player(0).down, io.player(0).right, io.player(0).left) }
+    memMap(0xf801).r { (_, _) => Cat(io.player(0).buttons(0), io.player(0).buttons(1)) }
     memMap(0xf802).nopr() // JOY 1
     memMap(0xf803).nopr() // BUTTONS 1
-    memMap(0xf805).r { (_, _) => Cat(0.U, io.player.coin, 0.U, io.player.start) }
+    memMap(0xf805).r { (_, _) => Cat(0.U, io.player(0).coin, 0.U, io.player(0).start) }
     memMap(0xf806 to 0xf807).nopr() // DIP 0
     memMap(0xf808 to 0xf809).nopr() // DIP 1
     memMap(0xf800 to 0xf802).w { (_, offset, data) => setScroll(offset, data, fgScrollReg) }
@@ -250,13 +250,13 @@ class Main extends Module {
     memMap(0xe000 to 0xe7ff).readWriteMem(spriteRam.io.portA)
     memMap(0xe800 to 0xefff).readWriteMem(paletteRam.io.portA)
     memMap(0xf000 to 0xf7ff).readMemT(io.bankRom) { addr => bankReg ## addr(10, 0) }
-    memMap(0xf800).r { (_, _) => Cat(io.player.up, io.player.down, io.player.right, io.player.left) }
-    memMap(0xf801).r { (_, _) => Cat(io.player.buttons(2), io.player.buttons(0), io.player.buttons(1)) }
+    memMap(0xf800).r { (_, _) => Cat(io.player(0).up, io.player(0).down, io.player(0).right, io.player(0).left) }
+    memMap(0xf801).r { (_, _) => Cat(io.player(0).buttons(2), io.player(0).buttons(0), io.player(0).buttons(1)) }
     memMap(0xf802).nopr() // JOY 1
     memMap(0xf803).nopr() // BUTTONS 1
     memMap(0xf806 to 0xf807).nopr() // DIP 0
     memMap(0xf808 to 0xf809).nopr() // DIP 1
-    memMap(0xf80f).r { (_, _) => Cat(0.U, io.player.coin, 0.U, io.player.start) }
+    memMap(0xf80f).r { (_, _) => Cat(0.U, io.player(0).coin, 0.U, io.player(0).start) }
     memMap(0xf800 to 0xf802).w { (_, offset, data) => setScroll(offset, data, fgScrollReg) }
     memMap(0xf803 to 0xf805).w { (_, offset, data) => setScroll(offset, data, bgScrollReg) }
     memMap(0xf806).w { (_, _, _) => io.soundCtrl.req := true.B }
