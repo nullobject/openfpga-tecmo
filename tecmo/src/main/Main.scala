@@ -51,7 +51,7 @@ class Main extends Module {
     /** Game configuration port */
     val gameConfig = Input(GameConfig())
     /** Options port */
-    val options = Flipped(OptionsIO())
+    val options = OptionsIO()
     /** Player port */
     val player = PlayerIO()
     /** Pause flag */

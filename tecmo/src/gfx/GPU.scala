@@ -52,7 +52,7 @@ class GPU extends Module {
     /** Program counter (debug) */
     val pc = Input(UInt(16.W))
     /** Options port */
-    val options = Flipped(OptionsIO())
+    val options = OptionsIO()
     /** Video port */
     val video = Flipped(VideoIO())
     /** Layer control ports */

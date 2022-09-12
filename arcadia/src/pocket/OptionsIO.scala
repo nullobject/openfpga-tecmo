@@ -36,21 +36,21 @@ import chisel3._
 
 class OptionsIO extends Bundle {
   /** Game index */
-  val gameIndex = Output(UInt(32.W))
+  val gameIndex = Input(UInt(32.W))
   /** Scaler mode */
-  val scalerMode = Output(UInt(3.W))
+  val scalerMode = Input(UInt(3.W))
   /** Enable debugging */
-  val debug = Output(Bool())
+  val debug = Input(Bool())
   /** Layer enable */
-  val layer = Output(Vec(3, Bool()))
+  val layer = Input(Vec(3, Bool()))
   /** Sprite enable */
-  val sprite = Output(Bool())
+  val sprite = Input(Bool())
   /** Flip video output */
-  val flip = Output(Bool())
+  val flip = Input(Bool())
   /** FM enable */
-  val fm = Output(Bool())
+  val fm = Input(Bool())
   /** PCM enable */
-  val pcm = Output(Bool())
+  val pcm = Input(Bool())
 }
 
 object OptionsIO {
