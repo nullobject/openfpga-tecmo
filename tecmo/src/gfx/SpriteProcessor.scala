@@ -49,10 +49,10 @@ class SpriteProcessor(numSprites: Int = 256) extends Module {
   val io = IO(new Bundle {
     /** Control port */
     val ctrl = SpriteCtrlIO()
+    /** Video port */
+    val video = Input(VideoIO())
     /** Frame buffer port */
     val frameBuffer = WriteMemIO(Config.FRAME_BUFFER_ADDR_WIDTH, Config.FRAME_BUFFER_DATA_WIDTH)
-    /** Video port */
-    val video = Flipped(VideoIO())
     /** Debug port */
     val debug = Output(new Bundle {
       val idle = Bool()

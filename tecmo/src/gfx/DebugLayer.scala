@@ -62,7 +62,7 @@ class DebugLayer(format: String) extends Module {
     /** Tile ROM signals */
     val tileRom = ReadMemIO(Config.DEBUG_ROM_ADDR_WIDTH, Config.DEBUG_ROM_DATA_WIDTH)
     /** Video signals */
-    val video = Flipped(VideoIO())
+    val video = Input(VideoIO())
     /** Pixel data output */
     val data = Output(UInt(8.W))
   })

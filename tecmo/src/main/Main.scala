@@ -57,7 +57,7 @@ class Main extends Module {
     /** Pause flag */
     val pause = Input(Bool())
     /** Video port */
-    val video = Flipped(VideoIO())
+    val video = Input(VideoIO())
     /** GPU memory port */
     val gpuMemIO = Flipped(GPUMemIO())
     /** Sound control port */

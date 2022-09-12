@@ -54,7 +54,7 @@ class GPU extends Module {
     /** Options port */
     val options = OptionsIO()
     /** Video port */
-    val video = Flipped(VideoIO())
+    val video = Input(VideoIO())
     /** Layer control ports */
     val layerCtrl = Vec(Config.LAYER_COUNT, LayerCtrlIO())
     /** Sprite control port */
@@ -85,23 +85,23 @@ class GPU extends Module {
   // Sprite processor
   val spriteProcessor = Module(new SpriteProcessor)
   spriteProcessor.io.ctrl <> io.spriteCtrl
+  spriteProcessor.io.video := io.video
   spriteProcessor.io.frameBuffer <> frameBuffer.io.portA
-  spriteProcessor.io.video <> io.video
 
   // Character processor
   val charProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 8, cols = 32, rows = 32, offset = 1)))
   charProcessor.io.ctrl <> io.layerCtrl(0)
-  charProcessor.io.video <> io.video
+  charProcessor.io.video := io.video
 
   // Foreground processor
   val fgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 54)))
   fgProcessor.io.ctrl <> io.layerCtrl(1)
-  fgProcessor.io.video <> io.video
+  fgProcessor.io.video := io.video
 
   // Background processor
   val bgProcessor = Module(new LayerProcessor(LayerProcessorConfig(tileSize = 16, cols = 32, rows = 16, offset = 54)))
   bgProcessor.io.ctrl <> io.layerCtrl(2)
-  bgProcessor.io.video <> io.video
+  bgProcessor.io.video := io.video
 
   // The debug ROM contains alphanumeric character tiles
   val debugRom = Module(new SinglePortRom(
@@ -118,7 +118,7 @@ class GPU extends Module {
   debugLayer.io.pos := UVec2(0.U, 232.U)
   debugLayer.io.color := 1.U
   debugLayer.io.tileRom <> debugRom.io
-  debugLayer.io.video <> io.video
+  debugLayer.io.video := io.video
 
   // Color mixer
   val colorMixer = Module(new ColorMixer)

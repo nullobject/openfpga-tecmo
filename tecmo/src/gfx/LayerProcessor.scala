@@ -58,7 +58,7 @@ class LayerProcessor(config: LayerProcessorConfig) extends Module {
     /** Control port */
     val ctrl = LayerCtrlIO()
     /** Video port */
-    val video = Flipped(VideoIO())
+    val video = Input(VideoIO())
     /** Palette entry output */
     val pen = Output(new PaletteEntry)
   })

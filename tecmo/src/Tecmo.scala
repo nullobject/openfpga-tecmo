@@ -64,7 +64,7 @@ class Tecmo extends Module {
     /** Player port */
     val player = PlayerIO()
     /** Video port */
-    val video = VideoIO()
+    val video = Output(VideoIO())
     /** Audio port */
     val audio = Output(SInt(Config.AUDIO_SAMPLE_WIDTH.W))
     /** RGB output */
@@ -121,7 +121,7 @@ class Tecmo extends Module {
   val gpu = withClock(io.videoClock) { Module(new GPU) }
   gpu.io.pc := main.io.gpuMemIO.pc
   gpu.io.options := bridge.io.options
-  gpu.io.video := io.video
+  gpu.io.video := video
   0.until(Config.LAYER_COUNT).foreach { i =>
     gpu.io.layerCtrl(i).enable := bridge.io.options.layer(i)
     gpu.io.layerCtrl(i).format := gameConfig.layer(i).format
