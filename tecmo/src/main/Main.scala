@@ -58,12 +58,14 @@ class Main extends Module {
     val pause = Input(Bool())
     /** Video port */
     val video = Flipped(VideoIO())
+    /** GPU memory port */
+    val gpuMemIO = Flipped(GPUMemIO())
     /** Sound control port */
     val soundCtrl = Flipped(SoundCtrlIO())
-    /** ROM port */
-    val rom = new RomIO
-    /** RGB port */
-    val rgb = Output(UInt(Config.RGB_WIDTH.W))
+    /** Program ROM */
+    val progRom = new ProgRomIO
+    /** Bank ROM */
+    val bankRom = new BankRomIO
   })
 
   // Wires
@@ -84,8 +86,8 @@ class Main extends Module {
   cpu.io.nmi := false.B
 
   // Set interface defaults
-  io.rom.progRom.default()
-  io.rom.bankRom.default()
+  io.progRom.default()
+  io.bankRom.default()
 
   // Work RAM
   val workRam = Module(new SinglePortRam(
@@ -101,7 +103,7 @@ class Main extends Module {
     addrWidthB = Config.CHAR_RAM_GPU_ADDR_WIDTH,
     dataWidthB = Config.CHAR_RAM_GPU_DATA_WIDTH
   ))
-  charRam.io.clockB := clock
+  charRam.io.clockB := io.videoClock
   charRam.io.portA.default()
 
   // Foreground VRAM
@@ -111,7 +113,7 @@ class Main extends Module {
     addrWidthB = Config.FG_RAM_GPU_ADDR_WIDTH,
     dataWidthB = Config.FG_RAM_GPU_DATA_WIDTH
   ))
-  fgRam.io.clockB := clock
+  fgRam.io.clockB := io.videoClock
   fgRam.io.portA.default()
 
   // Background VRAM
@@ -121,7 +123,7 @@ class Main extends Module {
     addrWidthB = Config.BG_RAM_GPU_ADDR_WIDTH,
     dataWidthB = Config.BG_RAM_GPU_DATA_WIDTH
   ))
-  bgRam.io.clockB := clock
+  bgRam.io.clockB := io.videoClock
   bgRam.io.portA.default()
 
   // Sprite VRAM
@@ -131,7 +133,7 @@ class Main extends Module {
     addrWidthB = Config.SPRITE_RAM_GPU_ADDR_WIDTH,
     dataWidthB = Config.SPRITE_RAM_GPU_DATA_WIDTH
   ))
-  spriteRam.io.clockB := clock
+  spriteRam.io.clockB := io.videoClock
   spriteRam.io.portA.default()
 
   // Palette RAM
@@ -141,35 +143,19 @@ class Main extends Module {
     addrWidthB = Config.PALETTE_RAM_GPU_ADDR_WIDTH,
     dataWidthB = Config.PALETTE_RAM_GPU_DATA_WIDTH
   ))
-  paletteRam.io.clockB := clock
+  paletteRam.io.clockB := io.videoClock
   paletteRam.io.portA.default()
 
-  // GPU
-  val gpu = withClock(io.videoClock) { Module(new GPU) }
-  gpu.io.options := io.options
-  gpu.io.pc := cpu.io.regs.pc
-  gpu.io.paletteRam <> paletteRam.io.portB
-  gpu.io.layerCtrl(0).format := io.gameConfig.layer(0).format
-  gpu.io.layerCtrl(0).enable := io.options.layer(0)
-  gpu.io.layerCtrl(0).scroll := UVec2(0.U, 0.U)
-  gpu.io.layerCtrl(0).vram <> charRam.io.portB
-  gpu.io.layerCtrl(0).tileRom <> io.rom.layerTileRom(0)
-  gpu.io.layerCtrl(1).format := io.gameConfig.layer(1).format
-  gpu.io.layerCtrl(1).enable := io.options.layer(1)
-  gpu.io.layerCtrl(1).scroll := fgScrollReg
-  gpu.io.layerCtrl(1).vram <> fgRam.io.portB
-  gpu.io.layerCtrl(1).tileRom <> io.rom.layerTileRom(1)
-  gpu.io.layerCtrl(2).format := io.gameConfig.layer(2).format
-  gpu.io.layerCtrl(2).enable := io.options.layer(2)
-  gpu.io.layerCtrl(2).scroll := bgScrollReg
-  gpu.io.layerCtrl(2).vram <> bgRam.io.portB
-  gpu.io.layerCtrl(2).tileRom <> io.rom.layerTileRom(2)
-  gpu.io.spriteCtrl.format := io.gameConfig.sprite.format
-  gpu.io.spriteCtrl.enable := io.options.sprite
-  gpu.io.spriteCtrl.vram <> spriteRam.io.portB
-  gpu.io.spriteCtrl.tileRom <> io.rom.spriteTileRom
-  gpu.io.video <> io.video
-  io.rgb := gpu.io.rgb
+  // GPU memory
+  io.gpuMemIO.pc := cpu.io.regs.pc
+  io.gpuMemIO.layer(0).vram <> charRam.io.portB
+  io.gpuMemIO.layer(0).scroll := UVec2(0.U, 0.U)
+  io.gpuMemIO.layer(1).vram <> fgRam.io.portB
+  io.gpuMemIO.layer(1).scroll := fgScrollReg
+  io.gpuMemIO.layer(2).vram <> bgRam.io.portB
+  io.gpuMemIO.layer(2).scroll := bgScrollReg
+  io.gpuMemIO.sprite.vram <> spriteRam.io.portB
+  io.gpuMemIO.paletteRam <> paletteRam.io.portB
 
   // Trigger an interrupt request on the falling edge of the vertical blank signal.
   //
@@ -210,14 +196,14 @@ class Main extends Module {
   }
 
   when(io.options.gameIndex === Game.RYGAR.U) {
-    memMap(0x0000 to 0xbfff).readMem(io.rom.progRom)
+    memMap(0x0000 to 0xbfff).readMem(io.progRom)
     memMap(0xc000 to 0xcfff).readWriteMem(workRam.io)
     vramMap(0xd000 to 0xd7ff, charRam.io.portA)
     vramMap(0xd800 to 0xdbff, fgRam.io.portA)
     vramMap(0xdc00 to 0xdfff, bgRam.io.portA)
     memMap(0xe000 to 0xe7ff).readWriteMem(spriteRam.io.portA)
     memMap(0xe800 to 0xefff).readWriteMem(paletteRam.io.portA)
-    memMap(0xf000 to 0xf7ff).readMemT(io.rom.bankRom) { addr => bankReg ## addr(10, 0) }
+    memMap(0xf000 to 0xf7ff).readMemT(io.bankRom) { addr => bankReg ## addr(10, 0) }
     memMap(0xf800).r { (_, _) => Cat(io.player.up, io.player.down, io.player.right, io.player.left) }
     memMap(0xf801).r { (_, _) => Cat(io.player.buttons(1), io.player.buttons(0)) }
     memMap(0xf802).nopr() // JOY 1
@@ -233,14 +219,14 @@ class Main extends Module {
   }
 
   when(io.options.gameIndex === Game.GEMINI.U) {
-    memMap(0x0000 to 0xbfff).readMem(io.rom.progRom)
+    memMap(0x0000 to 0xbfff).readMem(io.progRom)
     memMap(0xc000 to 0xcfff).readWriteMem(workRam.io)
     vramMap(0xd000 to 0xd7ff, charRam.io.portA)
     vramMap(0xd800 to 0xdbff, fgRam.io.portA)
     vramMap(0xdc00 to 0xdfff, bgRam.io.portA)
     memMap(0xe000 to 0xe7ff).readWriteMem(paletteRam.io.portA)
     memMap(0xe800 to 0xefff).readWriteMem(spriteRam.io.portA)
-    memMap(0xf000 to 0xf7ff).readMemT(io.rom.bankRom) { addr => bankReg ## addr(10, 0) }
+    memMap(0xf000 to 0xf7ff).readMemT(io.bankRom) { addr => bankReg ## addr(10, 0) }
     memMap(0xf800).r { (_, _) => Cat(io.player.up, io.player.down, io.player.right, io.player.left) }
     memMap(0xf801).r { (_, _) => Cat(io.player.buttons(0), io.player.buttons(1)) }
     memMap(0xf802).nopr() // JOY 1
@@ -256,14 +242,14 @@ class Main extends Module {
   }
 
   when(io.options.gameIndex === Game.SILKWORM.U) {
-    memMap(0x0000 to 0xbfff).readMem(io.rom.progRom)
+    memMap(0x0000 to 0xbfff).readMem(io.progRom)
     vramMap(0xc000 to 0xc3ff, bgRam.io.portA)
     vramMap(0xc400 to 0xc7ff, fgRam.io.portA)
     vramMap(0xc800 to 0xcfff, charRam.io.portA)
     memMap(0xd000 to 0xdfff).readWriteMem(workRam.io)
     memMap(0xe000 to 0xe7ff).readWriteMem(spriteRam.io.portA)
     memMap(0xe800 to 0xefff).readWriteMem(paletteRam.io.portA)
-    memMap(0xf000 to 0xf7ff).readMemT(io.rom.bankRom) { addr => bankReg ## addr(10, 0) }
+    memMap(0xf000 to 0xf7ff).readMemT(io.bankRom) { addr => bankReg ## addr(10, 0) }
     memMap(0xf800).r { (_, _) => Cat(io.player.up, io.player.down, io.player.right, io.player.left) }
     memMap(0xf801).r { (_, _) => Cat(io.player.buttons(2), io.player.buttons(0), io.player.buttons(1)) }
     memMap(0xf802).nopr() // JOY 1

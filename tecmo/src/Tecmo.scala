@@ -40,6 +40,7 @@ import arcadia.pocket.{Bridge, BridgeIO}
 import chisel3._
 import chisel3.experimental.FlatIO
 import main.Main
+import tecmo.gfx.GPU
 import tecmo.snd.Sound
 
 /**
@@ -96,20 +97,18 @@ class Tecmo extends Module {
   videoTiming.io.offset := SVec2(0.S, 0.S)
   val video = videoTiming.io.timing
 
+  val gameConfig = GameConfig(bridge.io.options.gameIndex)
+
   // Main PCB
   val main = withClockAndReset(io.cpuClock, io.cpuReset) { Module(new Main) }
   main.io.videoClock := io.videoClock
-  main.io.gameConfig := GameConfig(bridge.io.options.gameIndex)
+  main.io.gameConfig := gameConfig
   main.io.options := bridge.io.options
   main.io.player := io.player
   main.io.pause := io.bridge.pause
   main.io.video := video
-  main.io.rom.progRom <> Crossing.freeze(io.cpuClock, memSys.io.in(0)).asReadMemIO
-  main.io.rom.bankRom <> Crossing.freeze(io.cpuClock, memSys.io.in(1)).asReadMemIO
-  main.io.rom.layerTileRom(0) <> Crossing.freeze(io.videoClock, memSys.io.in(4))
-  main.io.rom.layerTileRom(1) <> Crossing.freeze(io.videoClock, memSys.io.in(5))
-  main.io.rom.layerTileRom(2) <> Crossing.freeze(io.videoClock, memSys.io.in(6))
-  main.io.rom.spriteTileRom <> Crossing.freeze(io.videoClock, memSys.io.in(7))
+  main.io.progRom <> Crossing.freeze(io.cpuClock, memSys.io.in(0)).asReadMemIO
+  main.io.bankRom <> Crossing.freeze(io.cpuClock, memSys.io.in(1)).asReadMemIO
 
   // Sound PCB
   val sound = withClockAndReset(io.cpuClock, io.cpuReset) { Module(new Sound) }
@@ -118,8 +117,26 @@ class Tecmo extends Module {
   sound.io.rom.soundRom <> Crossing.freeze(io.cpuClock, memSys.io.in(2)).asReadMemIO
   sound.io.rom.pcmRom <> Crossing.freeze(io.cpuClock, memSys.io.in(3))
 
+  // GPU
+  val gpu = withClock(io.videoClock) { Module(new GPU) }
+  gpu.io.pc := main.io.gpuMemIO.pc
+  gpu.io.options := bridge.io.options
+  gpu.io.video := io.video
+  0.until(Config.LAYER_COUNT).foreach { i =>
+    gpu.io.layerCtrl(i).enable := bridge.io.options.layer(i)
+    gpu.io.layerCtrl(i).format := gameConfig.layer(i).format
+    gpu.io.layerCtrl(i).scroll := main.io.gpuMemIO.layer(i).scroll
+    gpu.io.layerCtrl(i).vram <> main.io.gpuMemIO.layer(i).vram
+    gpu.io.layerCtrl(i).tileRom <> Crossing.freeze(io.videoClock, memSys.io.in(i + 4))
+  }
+  gpu.io.spriteCtrl.enable := bridge.io.options.sprite
+  gpu.io.spriteCtrl.format := gameConfig.sprite.format
+  gpu.io.spriteCtrl.vram <> main.io.gpuMemIO.sprite.vram
+  gpu.io.spriteCtrl.tileRom <> Crossing.freeze(io.videoClock, memSys.io.in(7))
+  gpu.io.paletteRam <> main.io.gpuMemIO.paletteRam
+
   val rgb = Mux(video.displayEnable,
-    main.io.rgb,
+    gpu.io.rgb,
     bridge.io.options.scalerMode.pad(10) ## 0.U(13.W)
   )
 

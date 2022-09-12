@@ -49,18 +49,18 @@ import tecmo._
  */
 class GPU extends Module {
   val io = IO(new Bundle {
-    /** Options port */
-    val options = Flipped(OptionsIO())
     /** Program counter (debug) */
     val pc = Input(UInt(16.W))
-    /** Palette RAM port */
-    val paletteRam = new PaletteRamIO
+    /** Options port */
+    val options = Flipped(OptionsIO())
+    /** Video port */
+    val video = Flipped(VideoIO())
     /** Layer control ports */
     val layerCtrl = Vec(Config.LAYER_COUNT, LayerCtrlIO())
     /** Sprite control port */
     val spriteCtrl = SpriteCtrlIO()
-    /** Video port */
-    val video = Flipped(VideoIO())
+    /** Palette RAM port */
+    val paletteRam = new PaletteRamIO
     /** RGB port */
     val rgb = Output(UInt(Config.RGB_WIDTH.W))
   })

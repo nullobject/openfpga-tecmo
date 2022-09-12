@@ -30,19 +30,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package tecmo.main
+package tecmo.gfx
 
+import arcadia.UVec2
 import chisel3._
 import tecmo._
 
-/** A bundle that contains memory ports for main ROMs. */
-class RomIO extends Bundle {
-  /** Program ROM */
-  val progRom = new ProgRomIO
-  /** Bank ROM */
-  val bankRom = new BankRomIO
-  /** Layer tile ROM port */
-  val layerTileRom = Vec(Config.LAYER_COUNT, new TileRomIO)
-  /** Sprite tile ROM */
-  val spriteTileRom = new TileRomIO
+/** A bundle that contains memory interfaces for the GPU. */
+class GPUMemIO extends Bundle {
+  /** Program counter (debug) */
+  val pc = Input(UInt(16.W))
+  /** Layer port */
+  val layer = Vec(3, new Bundle {
+    /** Scroll position */
+    val scroll = Input(UVec2(9.W))
+    /** VRAM port */
+    val vram = new LayerRamIO
+  })
+  /** Sprite port */
+  val sprite = new Bundle {
+    /** VRAM port */
+    val vram = new SpriteRamIO
+  }
+  /** Palette RAM port */
+  val paletteRam = new PaletteRamIO
+}
+
+object GPUMemIO {
+  def apply() = new GPUMemIO
 }

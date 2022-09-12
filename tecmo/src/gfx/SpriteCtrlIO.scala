@@ -48,5 +48,5 @@ class SpriteCtrlIO extends Bundle {
 }
 
 object SpriteCtrlIO {
-  def apply(): SpriteCtrlIO = new SpriteCtrlIO
+  def apply() = new SpriteCtrlIO
 }
