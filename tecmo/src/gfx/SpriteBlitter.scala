@@ -130,5 +130,7 @@ class SpriteBlitter extends Module {
   io.debug.fetch := stateReg === State.fetch
   io.debug.blit := stateReg === State.blit
 
-  printf(p"SpriteBlitter(state: $stateReg, x: $x, y: $y, pisoReg: $pisoReg, pixel: $pixel, valid: ${ io.config.valid })\n")
+  if (sys.env.get("DEBUG").contains("1")) {
+    printf(p"SpriteBlitter(state: $stateReg, x: $x, y: $y, pisoReg: $pisoReg, pixel: $pixel, valid: ${ io.config.valid })\n")
+  }
 }

@@ -97,5 +97,7 @@ class PCMCounter extends Module {
   io.rom.addr := addrReg(16, 1)
 
   // Debug
-  printf(p"PCMCounter(rd: ${io.rom.rd}, addr: 0x${Hexadecimal(addrReg)}, high: 0x${Hexadecimal(highReg)}, dout: 0x${Hexadecimal(io.dout)})\n")
+  if (sys.env.get("DEBUG").contains("1")) {
+    printf(p"PCMCounter(rd: ${ io.rom.rd }, addr: 0x${ Hexadecimal(addrReg) }, high: 0x${ Hexadecimal(highReg) }, dout: 0x${ Hexadecimal(io.dout) })\n")
+  }
 }

@@ -187,7 +187,9 @@ class SpriteProcessor(numSprites: Int = 256) extends Module {
   io.debug.next := stateReg === State.next
   io.debug.done := stateReg === State.done
 
-  printf(p"SpriteProcessor(state: $stateReg, sprite: $spriteCounter ($spriteCounterWrap), line: $lineCounter ($lineCounterWrap), col: $colCounter ($colCounterWrap), row: $rowCounter ($rowCounterWrap), pending: $readPendingReg)\n")
+  if (sys.env.get("DEBUG").contains("1")) {
+    printf(p"SpriteProcessor(state: $stateReg, sprite: $spriteCounter ($spriteCounterWrap), line: $lineCounter ($lineCounterWrap), col: $colCounter ($colCounterWrap), row: $rowCounter ($rowCounterWrap), pending: $readPendingReg)\n")
+  }
 }
 
 object SpriteProcessor {
