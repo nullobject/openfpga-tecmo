@@ -206,9 +206,9 @@ class Main extends Module {
     memMap(0xf000 to 0xf7ff).readMemT(io.bankRom) { addr => bankReg ## addr(10, 0) }
     memMap(0xf800).r { (_, _) => Cat(io.player(0).up, io.player(0).down, io.player(0).right, io.player(0).left) }
     memMap(0xf801).r { (_, _) => Cat(io.player(0).buttons(1), io.player(0).buttons(0)) }
-    memMap(0xf802).nopr() // JOY 1
-    memMap(0xf803).nopr() // BUTTONS 1
-    memMap(0xf804).r { (_, _) => Cat(io.player(0).coin, 0.U, io.player(0).start, 0.U) }
+    memMap(0xf802).r { (_, _) => Cat(io.player(1).up, io.player(1).down, io.player(1).right, io.player(1).left) }
+    memMap(0xf803).r { (_, _) => Cat(io.player(1).buttons(1), io.player(1).buttons(0)) }
+    memMap(0xf804).r { (_, _) => Cat(io.player(0).coin, io.player(1).coin, io.player(0).start, io.player(1).start) }
     memMap(0xf806 to 0xf807).nopr() // DIP 0
     memMap(0xf808 to 0xf809).nopr() // DIP 1
     memMap(0xf800 to 0xf802).w { (_, offset, data) => setScroll(offset, data, fgScrollReg) }
@@ -229,9 +229,9 @@ class Main extends Module {
     memMap(0xf000 to 0xf7ff).readMemT(io.bankRom) { addr => bankReg ## addr(10, 0) }
     memMap(0xf800).r { (_, _) => Cat(io.player(0).up, io.player(0).down, io.player(0).right, io.player(0).left) }
     memMap(0xf801).r { (_, _) => Cat(io.player(0).buttons(0), io.player(0).buttons(1)) }
-    memMap(0xf802).nopr() // JOY 1
-    memMap(0xf803).nopr() // BUTTONS 1
-    memMap(0xf805).r { (_, _) => Cat(0.U, io.player(0).coin, 0.U, io.player(0).start) }
+    memMap(0xf802).r { (_, _) => Cat(io.player(1).up, io.player(1).down, io.player(1).right, io.player(1).left) }
+    memMap(0xf803).r { (_, _) => Cat(io.player(1).buttons(0), io.player(1).buttons(1)) }
+    memMap(0xf805).r { (_, _) => Cat(io.player(1).coin, io.player(0).coin, io.player(1).start, io.player(0).start) }
     memMap(0xf806 to 0xf807).nopr() // DIP 0
     memMap(0xf808 to 0xf809).nopr() // DIP 1
     memMap(0xf800 to 0xf802).w { (_, offset, data) => setScroll(offset, data, fgScrollReg) }
@@ -252,11 +252,11 @@ class Main extends Module {
     memMap(0xf000 to 0xf7ff).readMemT(io.bankRom) { addr => bankReg ## addr(10, 0) }
     memMap(0xf800).r { (_, _) => Cat(io.player(0).up, io.player(0).down, io.player(0).right, io.player(0).left) }
     memMap(0xf801).r { (_, _) => Cat(io.player(0).buttons(2), io.player(0).buttons(0), io.player(0).buttons(1)) }
-    memMap(0xf802).nopr() // JOY 1
-    memMap(0xf803).nopr() // BUTTONS 1
+    memMap(0xf802).r { (_, _) => Cat(io.player(1).up, io.player(1).down, io.player(1).right, io.player(1).left) }
+    memMap(0xf803).r { (_, _) => Cat(io.player(1).buttons(2), io.player(1).buttons(0), io.player(1).buttons(1)) }
     memMap(0xf806 to 0xf807).nopr() // DIP 0
     memMap(0xf808 to 0xf809).nopr() // DIP 1
-    memMap(0xf80f).r { (_, _) => Cat(0.U, io.player(0).coin, 0.U, io.player(0).start) }
+    memMap(0xf80f).r { (_, _) => Cat(io.player(1).coin, io.player(0).coin, io.player(1).start, io.player(0).start) }
     memMap(0xf800 to 0xf802).w { (_, offset, data) => setScroll(offset, data, fgScrollReg) }
     memMap(0xf803 to 0xf805).w { (_, offset, data) => setScroll(offset, data, bgScrollReg) }
     memMap(0xf806).w { (_, _, _) => io.soundCtrl.req := true.B }
