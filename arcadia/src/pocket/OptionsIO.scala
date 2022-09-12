@@ -54,5 +54,5 @@ class OptionsIO extends Bundle {
 }
 
 object OptionsIO {
-  def apply(): OptionsIO = new OptionsIO()
+  def apply() = new OptionsIO
 }
