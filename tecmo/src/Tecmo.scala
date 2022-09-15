@@ -114,8 +114,8 @@ class Tecmo extends Module {
   val sound = withClockAndReset(io.cpuClock, io.cpuReset) { Module(new Sound) }
   sound.io.ctrl <> main.io.soundCtrl
   sound.io.options := bridge.io.options
-  sound.io.rom.soundRom <> Crossing.freeze(io.cpuClock, memSys.io.in(2)).asReadMemIO
-  sound.io.rom.pcmRom <> Crossing.freeze(io.cpuClock, memSys.io.in(3))
+  sound.io.soundRom <> Crossing.freeze(io.cpuClock, memSys.io.in(2)).asReadMemIO
+  sound.io.pcmRom <> Crossing.freeze(io.cpuClock, memSys.io.in(3))
 
   // Graphics processor
   val gpu = withClock(io.videoClock) { Module(new GPU) }

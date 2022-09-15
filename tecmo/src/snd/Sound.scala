@@ -47,8 +47,10 @@ class Sound extends Module {
     val ctrl = SoundCtrlIO()
     /** Options port */
     val options = Input(OptionsIO())
-    /** ROM port */
-    val rom = RomIO()
+    /** Sound ROM port */
+    val soundRom = new SoundRomIO
+    /** PCM ROM port */
+    val pcmRom = new SampleRomIO
     /** Audio port */
     val audio = Output(SInt(Config.AUDIO_SAMPLE_WIDTH.W))
   })
@@ -72,7 +74,7 @@ class Sound extends Module {
   cpu.io.nmi := reqReg
 
   // Set interface defaults
-  io.rom.soundRom.default()
+  io.soundRom.default()
 
   // Sound RAM
   val soundRam = Module(new SinglePortRam(
@@ -103,7 +105,7 @@ class Sound extends Module {
   pcmCounter.io.high := DontCare
   pcm.io.din := pcmCounter.io.dout
   pcmCounter.io.din := cpu.io.dout
-  pcmCounter.io.rom <> io.rom.pcmRom
+  pcmCounter.io.rom <> io.pcmRom
 
   /**
    * Sets the PCM address register.
@@ -125,7 +127,7 @@ class Sound extends Module {
   }
 
   when(io.options.gameIndex === Game.RYGAR.U) {
-    memMap(0x0000 to 0x3fff).readMem(io.rom.soundRom)
+    memMap(0x0000 to 0x3fff).readMem(io.soundRom)
     memMap(0x4000 to 0x47ff).readWriteMem(soundRam.io)
     memMap(0x8000 to 0x8001).readWriteMem(fm.io.cpu)
     memMap(0xc000).r { (_, _) => dataReg }
@@ -136,7 +138,7 @@ class Sound extends Module {
   }
 
   when(io.options.gameIndex === Game.GEMINI.U || io.options.gameIndex === Game.SILKWORM.U) {
-    memMap(0x0000 to 0x7fff).readMem(io.rom.soundRom)
+    memMap(0x0000 to 0x7fff).readMem(io.soundRom)
     memMap(0x2000 to 0x207f).readWriteMem(scratchRam.io)
     memMap(0x8000 to 0x87ff).readWriteMem(soundRam.io)
     memMap(0xa000 to 0xa001).readWriteMem(fm.io.cpu)
