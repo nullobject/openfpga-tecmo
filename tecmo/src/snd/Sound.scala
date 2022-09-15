@@ -43,10 +43,10 @@ import tecmo._
 /** Represents the sound PCB. */
 class Sound extends Module {
   val io = IO(new Bundle {
-    /** Options port */
-    val options = Input(OptionsIO())
     /** Control port */
     val ctrl = SoundCtrlIO()
+    /** Options port */
+    val options = Input(OptionsIO())
     /** ROM port */
     val rom = RomIO()
     /** Audio port */
