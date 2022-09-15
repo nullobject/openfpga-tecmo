@@ -51,14 +51,14 @@ class GPU extends Module {
   val io = IO(new Bundle {
     /** Program counter (debug) */
     val pc = Input(UInt(16.W))
-    /** Options port */
-    val options = Input(OptionsIO())
-    /** Video port */
-    val video = Input(VideoIO())
     /** Layer control ports */
     val layerCtrl = Vec(Config.LAYER_COUNT, LayerCtrlIO())
     /** Sprite control port */
     val spriteCtrl = SpriteCtrlIO()
+    /** Options port */
+    val options = Input(OptionsIO())
+    /** Video port */
+    val video = Input(VideoIO())
     /** Palette RAM port */
     val paletteRam = new PaletteRamIO
     /** RGB port */

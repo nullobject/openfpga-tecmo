@@ -120,8 +120,6 @@ class Tecmo extends Module {
   // Graphics processor
   val gpu = withClock(io.videoClock) { Module(new GPU) }
   gpu.io.pc := main.io.gpuMemIO.pc
-  gpu.io.options := bridge.io.options
-  gpu.io.video := video
   0.until(Config.LAYER_COUNT).foreach { i =>
     gpu.io.layerCtrl(i).enable := bridge.io.options.layer(i)
     gpu.io.layerCtrl(i).format := gameConfig.layer(i).format
@@ -133,6 +131,8 @@ class Tecmo extends Module {
   gpu.io.spriteCtrl.format := gameConfig.sprite.format
   gpu.io.spriteCtrl.vram <> main.io.gpuMemIO.sprite.vram
   gpu.io.spriteCtrl.tileRom <> Crossing.freeze(io.videoClock, memSys.io.in(7))
+  gpu.io.options := bridge.io.options
+  gpu.io.video := video
   gpu.io.paletteRam <> main.io.gpuMemIO.paletteRam
 
   val rgb = Mux(video.displayEnable,
