@@ -59,10 +59,8 @@ class Sound extends Module {
   val irq = Wire(Bool())
 
   // Registers
-  val ctrlReqReg = ShiftRegister(io.ctrl.req, 2)
-  val ctrlDataReg = ShiftRegister(io.ctrl.data, 2)
-  val reqReg = RegEnable(true.B, false.B, ctrlReqReg)
-  val dataReg = RegEnable(ctrlDataReg, ctrlReqReg)
+  val reqReg = RegEnable(true.B, false.B, io.ctrl.req)
+  val dataReg = RegEnable(io.ctrl.data, io.ctrl.req)
   val pcmGainReg = RegInit(0.U(8.W))
 
   // Sound CPU

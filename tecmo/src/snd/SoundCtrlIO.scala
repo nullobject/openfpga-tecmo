@@ -36,7 +36,9 @@ import chisel3._
 
 /** A bundle that contains ports to control the sound PCB. */
 class SoundCtrlIO extends Bundle {
+  /** Request flag */
   val req = Input(Bool())
+  /** Request data */
   val data = Input(Bits(8.W))
 }
 
