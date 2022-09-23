@@ -10,7 +10,7 @@
   <mameversion>0220</mameversion>
   <rbf>tecmo</rbf>
 
-  <rom index="0" md5="none" zip="gemini.zip">
+  <rom index="0" md5="E8CBBA2978897D2A64554FB229A74EDB" zip="gemini.zip">
     <!-- main cpu -->
     <part crc="ce71e27a" name="4-5s" />
     <part crc="216784a9" name="5-6s" />
