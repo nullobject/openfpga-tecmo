@@ -61,7 +61,7 @@ object GameConfig {
    * @param index The game index.
    */
   def apply(index: UInt): GameConfig = {
-    MuxLookup(index, rygar, Seq(
+    MuxLookup(index, rygar)(Seq(
       Game.GEMINI.U -> gemini,
       Game.SILKWORM.U -> silkworm
     ))

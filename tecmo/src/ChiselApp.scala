@@ -32,7 +32,8 @@
 
 package tecmo
 
-import chisel3.stage.{ChiselGeneratorAnnotation, ChiselStage}
+import chisel3.stage.ChiselGeneratorAnnotation
+import circt.stage.ChiselStage
 
 object ChiselApp extends App {
   (new ChiselStage).execute(

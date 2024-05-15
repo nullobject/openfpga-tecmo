@@ -38,7 +38,6 @@ import arcadia.mem._
 import arcadia.mem.sdram.{SDRAM, SDRAMIO}
 import arcadia.pocket.{Bridge, BridgeIO}
 import chisel3._
-import chisel3.experimental.FlatIO
 import main.Main
 import tecmo.gfx.GPU
 import tecmo.snd.Sound

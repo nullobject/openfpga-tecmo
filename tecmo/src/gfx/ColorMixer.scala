@@ -59,7 +59,7 @@ class ColorMixer extends Module {
   val index = ColorMixer.muxLayers(io.spritePen, io.charPen, io.fgPen, io.bgPen, io.debugPen)
 
   // Mux the layers
-  val paletteRamAddr = MuxLookup(index, 0.U, Seq(
+  val paletteRamAddr = MuxLookup(index, 0.U)(Seq(
     ColorMixer.Priority.FILL.U -> ColorMixer.paletteRamAddr(PaletteEntry.zero, 1.U),
     ColorMixer.Priority.SPRITE.U -> ColorMixer.paletteRamAddr(io.spritePen, 0.U),
     ColorMixer.Priority.CHAR.U -> ColorMixer.paletteRamAddr(io.charPen, 1.U),
@@ -115,7 +115,7 @@ object ColorMixer {
     val bg = (bgPen.color =/= 0.U) -> Priority.BG.U
     val debug = (debugPen.color =/= 0.U) -> Priority.DEBUG.U
 
-    MuxLookup(spritePen.priority, 0.U, Seq(
+    MuxLookup(spritePen.priority, 0.U)(Seq(
       0.U -> MuxCase(Priority.FILL.U, Seq(debug, sprite, char, fg, bg)),
       1.U -> MuxCase(Priority.FILL.U, Seq(debug, char, sprite, fg, bg)),
       2.U -> MuxCase(Priority.FILL.U, Seq(debug, char, fg, sprite, bg)),
