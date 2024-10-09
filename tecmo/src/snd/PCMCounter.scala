@@ -92,7 +92,7 @@ class PCMCounter extends Module {
   }
 
   // Outputs
-  io.dout := RegNext(Mux(addrReg(0), io.rom.dout(7, 4), io.rom.dout(3, 0)), io.rom.valid)
+  io.dout := RegNext(Mux(!addrReg(0), io.rom.dout(7, 4), io.rom.dout(3, 0)), io.rom.valid)
   io.rom.rd := busyReg
   io.rom.addr := addrReg(16, 1)
 
