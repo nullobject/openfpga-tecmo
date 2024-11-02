@@ -95,10 +95,10 @@ class PCMCounterTest extends AnyFlatSpec with ChiselScalatestTester with Matcher
       dut.io.rom.dout.poke(0xab)
       dut.io.rom.valid.poke(true)
       dut.clock.step()
-      dut.io.dout.expect(0xb)
+      dut.io.dout.expect(0xa)
       stepCounter(dut)
       dut.clock.step()
-      dut.io.dout.expect(0xa)
+      dut.io.dout.expect(0xb)
     }
   }
 }
