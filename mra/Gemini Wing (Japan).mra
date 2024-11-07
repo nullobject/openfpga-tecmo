@@ -10,7 +10,7 @@
   <mameversion>0220</mameversion>
   <rbf>tecmo</rbf>
 
-  <rom index="0" md5="none" zip="geminij.zip|gemini.zip">
+  <rom index="0" md5="3891FB1C164633D2B9B24A6D6FD9FB56" zip="geminij.zip|gemini.zip">
     <!-- main cpu -->
     <part crc="ff9de855" name="gw04-5s.rom" />
     <part crc="5a6947a9" name="gw05-6s.rom" />

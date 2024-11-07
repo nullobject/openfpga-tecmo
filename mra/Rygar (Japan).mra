@@ -10,7 +10,7 @@
   <mameversion>0220</mameversion>
   <rbf>tecmo</rbf>
 
-  <rom index="0" md5="none" zip="rygarj.zip|rygar.zip">
+  <rom index="0" md5="2BD5AB67334C860BD19C5D8BF58A78DC" zip="rygarj.zip|rygar.zip">
     <!-- main cpu -->
     <part crc="b39698ba" name="cpuj_5p.bin" />
     <part crc="3f180979" name="cpuj_5m.bin" />

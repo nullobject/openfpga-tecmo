@@ -10,7 +10,7 @@
   <mameversion>0220</mameversion>
   <rbf>tecmo</rbf>
 
-  <rom index="0" md5="none" zip="silkworm.zip">
+  <rom index="0" md5="D98FD2B206214B31AE1ACBBC3195E2D0" zip="silkworm.zip">
     <!-- main cpu -->
     <part crc="a5277cce" name="4.5s" />
     <part crc="a6c7bb51" name="5.6s" />
